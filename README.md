@@ -63,10 +63,7 @@ const Counter = () => {
 };
 
 // Render to DOM
-const app = document.getElementById('app');
-if (app) {
-  render(Counter(), app);
-}
+render(Counter(), document.getElementById('app'));
 ```
 
 ## 📁 Project Structure
