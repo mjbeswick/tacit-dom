@@ -36,6 +36,33 @@
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
 
+## 🚀 Why Reactive-DOM?
+
+### Signals vs React Hooks
+
+**Signals are fundamentally better than React hooks because:**
+
+- **🎯 Granular Updates**: Signals update only the specific DOM elements that depend on them, not entire components
+- **⚡ No Re-renders**: Unlike React's component re-rendering, signals update the DOM directly without virtual DOM overhead
+- **🧠 Automatic Dependency Tracking**: Signals automatically track dependencies without manual dependency arrays
+- **🔧 Simpler Mental Model**: No need to understand hooks rules, dependency arrays, or component lifecycle
+- **📦 Smaller Bundle**: No virtual DOM, reconciliation, or complex state management overhead
+- **🎨 Better Performance**: Direct DOM updates are faster than React's render cycle
+
+### Pure TypeScript vs JSX
+
+**Pure TypeScript is better than JSX because:**
+
+- **🔒 Type Safety**: Full TypeScript support with compile-time type checking
+- **🧹 No Build Step**: No need for JSX transformation or Babel configuration
+- **📦 Smaller Bundle**: No JSX runtime or transformation overhead
+- **🎯 Better IDE Support**: Full IntelliSense, autocomplete, and refactoring support
+- **🔧 Simpler Tooling**: No need for JSX plugins, Babel, or special build configurations
+- **📚 Familiar Syntax**: Uses standard JavaScript/TypeScript function calls
+- **🎨 More Flexible**: Easier to compose, transform, and manipulate programmatically
+- **✍️ Less Code**: More concise and easier to write without verbose JSX syntax
+- **🚫 No XML Recreation**: JSX is just trying to recreate XML in TypeScript, which has no advantages aside from looking like HTML, but is less efficient
+
 ## 📦 Installation
 
 ```bash
@@ -47,18 +74,26 @@ npm install reactive-dom
 ```typescript
 import { signal, computed, div, h1, p, button, render } from 'reactive-dom';
 
-// Create reactive signals
+// Create global reactive signals
 const count = signal(0);
-const doubleCount = computed(() => count.get() * 2);
 
 // Create a component
 const Counter = () => {
+  // Create a local computed value
+  const doubleCount = computed(() => count.get() * 2);
+
+  // Create a reactive element
   return div(
     { className: 'counter' },
-    h1({ children: 'Counter Example' }),
-    p({ children: `Count: ${count}` }),
-    p({ children: `Double Count: ${doubleCount}` }),
-    button({ onClick: () => count.set(count.get() + 1), children: 'Increment' })
+    h1({}, 'Counter Example'),
+    p({}, 'Count: ', count),
+    p({}, 'Double Count: ', doubleCount),
+    button(
+      {
+        onClick: () => count.set(count.get() + 1),
+      },
+      'Increment'
+    )
   );
 };
 
