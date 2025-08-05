@@ -4,6 +4,16 @@
 
 > A React-like library with reactive signals and computed values for building dynamic web applications
 
+</div>
+
+<div align="center">
+
+⚠️ **Proof of Concept Warning** ⚠️
+
+This project is currently a **proof of concept** and is **not suitable for production use**. It's designed to explore reactive programming patterns and demonstrate an alternative approach to React. Use at your own risk!
+
+</div>
+
 [![NPM Version](https://img.shields.io/npm/v/reactive-dom.svg)](https://www.npmjs.com/package/reactive-dom)
 [![License](https://img.shields.io/npm/l/reactive-dom.svg)](https://github.com/your-username/reactive-dom/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
