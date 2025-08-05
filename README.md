@@ -102,10 +102,10 @@ const Counter = () => {
   // Create a reactive element
   return div(
     { className: 'counter' },
-    h1({}, 'Counter Example'),
-    p({}, 'Count: ', count),
-    p({}, 'Double Count: ', doubleCount),
-    p({}, 'User: ', user.get().name),
+    h1('Counter Example'),
+    p('Count: ', count),
+    p('Double Count: ', doubleCount),
+    p('User: ', user.get().name),
     button(
       {
         onClick: () => count.set(count.get() + 1),
