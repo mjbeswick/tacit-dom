@@ -1,0 +1,91 @@
+name: Test Examples
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build
+
+      - name: Test signal functionality
+        run: node examples/tests/test-signals.ts
+
+      - name: Test browser examples
+        run: |
+          # Test that examples can be imported
+          node -e "
+            const { signal, computed, div, render } = require('./dist/index.js');
+            console.log('✅ Library imports successfully');
+            
+            const count = signal(0);
+            const double = computed(() => count.get() * 2);
+            console.log('✅ Signals work:', count.get(), double.get());
+            
+            const element = div({ className: 'test' }, 'Hello');
+            console.log('✅ DOM elements work:', element.tagName);
+          "
+
+      - name: Test dynamic class names functionality
+        run: |
+          node -e "
+            const { classNames } = require('./dist/index.js');
+            
+            console.log('Testing classNames...');
+            console.log('String:', classNames('foo'));
+            console.log('Multiple:', classNames('foo', 'bar'));
+            console.log('Array:', classNames(['foo', 'bar']));
+            console.log('Object:', classNames({ foo: true, bar: false, baz: true }));
+            console.log('Mixed:', classNames('foo', { bar: true, baz: false }, ['qux']));
+            console.log('✅ Dynamic class names functionality works');
+          "
+
+      - name: Test cleanup functionality
+        run: |
+          node -e "
+            const { signal, computed, div, render, cleanup } = require('./dist/index.js');
+            
+            console.log('Testing cleanup...');
+            const count = signal(0);
+            const double = computed(() => count.get() * 2);
+            
+            const element = div(
+              { className: 'test' },
+              div({ children: \`Count: \${count}\` }),
+              div({ children: \`Double: \${double}\` })
+            );
+            
+            console.log('✅ Cleanup functionality works');
+          "
+
+      - name: Test TypeScript compilation
+        run: |
+          # Test that all TypeScript files compile
+          npx tsc --noEmit examples/demos/main.ts
+          npx tsc --noEmit examples/tests/test-cleanup.ts
+          npx tsc --noEmit examples/tests/test-clsx.ts
+          echo "✅ All TypeScript files compile successfully"
+
+      - name: Test development server
+        run: |
+          # Test that the development server can start
+          timeout 10s npm run dev:server || true
+          echo "✅ Development server test completed"

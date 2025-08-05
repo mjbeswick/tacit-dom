@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build
+
+      - name: Run tests
+        run: npm test
+
+      - name: Publish to NPM
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            ## What's Changed
+
+            This release includes:
+            - Reactive signals and computed values
+            - DOM element factories
+            - Clsx-like className functionality
+            - Memory leak prevention and cleanup
+            - TypeScript support
+
+            ## Installation
+
+            ```bash
+            npm install reactive-dom
+            ```
+
+            ## Usage
+
+            ```typescript
+            import { signal, computed, div, render } from 'reactive-dom';
+
+            const count = signal(0);
+            const double = computed(() => count.get() * 2);
+
+            const app = div(
+              { className: 'app' },
+              div({ children: `Count: ${count}` }),
+              div({ children: `Double: ${double}` })
+            );
+
+            render(app, document.getElementById('app'));
+            ```
+          draft: false
+          prerelease: false

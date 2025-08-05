@@ -1,0 +1,81 @@
+# Cursor Rules for Reactive-DOM Project
+
+## File Organization
+
+- Tests should be in the same directory as TS files (e.g., `signal.ts` and `signal.test.ts` in same directory)
+- Keep related files together in the same directory
+- Use descriptive file names that clearly indicate their purpose
+
+## TypeScript Guidelines
+
+- Prefer types over interfaces for better performance and flexibility
+- Use strict TypeScript configuration (already enabled in tsconfig.json)
+- Use ES2020 target and ESNext modules
+- Enable declaration files for better type exports
+- Use consistent casing in file names
+
+## Styling Guidelines
+
+- Use CSS modules for styling (e.g., `app.module.css`)
+- Keep styles co-located with components when possible
+- Use descriptive class names that reflect component purpose
+- Avoid global CSS when possible
+
+## Documentation Standards
+
+- Document all public APIs using JSDoc comments
+- Include parameter types, return types, and examples in JSDoc
+- No summary of preamble - keep documentation concise and focused
+- Document complex algorithms and business logic
+- Keep documentation in sync with code changes
+
+## Code Quality
+
+- Write comprehensive tests for all public APIs
+- Use Jest for testing with ts-jest for TypeScript support
+- Maintain high test coverage
+- Use ESLint for code quality enforcement
+- Run type checking before commits
+
+## Project Structure
+
+- Keep source files in `src/` directory
+- Place examples in `examples/` directory
+- Use `dist/` for build outputs
+- Keep configuration files at root level
+
+## README Maintenance
+
+- Keep the README.md in sync with code changes
+- Update API documentation when interfaces change
+- Include usage examples and installation instructions
+- Document breaking changes clearly
+
+## Development Workflow
+
+- Use Vite for development server
+- Enable watch mode for TypeScript compilation
+- Run tests before publishing
+- Use npm scripts for common tasks
+- Maintain security with regular audits
+
+## Import/Export Guidelines
+
+- Use ES modules (import/export)
+- Prefer named exports over default exports
+- Use barrel exports in index.ts files
+- Keep imports organized and minimal
+
+## Error Handling
+
+- Use proper error types and messages
+- Include error boundaries where appropriate
+- Provide meaningful error messages for debugging
+- Handle edge cases gracefully
+
+## Performance Considerations
+
+- Use reactive patterns efficiently
+- Minimize unnecessary re-renders
+- Optimize signal updates and computed values
+- Profile performance-critical code paths
