@@ -27,6 +27,7 @@
 - **⚡ Reactive Signals**: Create reactive state that automatically updates when dependencies change
 - **🧮 Computed Values**: Derive values from signals with automatic dependency tracking
 - **🌍 Global State Management**: Create global state anywhere without providers, context, or complex setup
+- **🚫 No Virtual DOM**: Direct DOM updates without the overhead of virtual DOM reconciliation
 - **🧩 Component Pattern**: Build components using a familiar JSX-like syntax
 - **🎯 Event Handling**: Built-in support for DOM events
 - **🔒 TypeScript Support**: Full TypeScript support with type safety
@@ -73,6 +74,8 @@ npm install reactive-dom
 ```
 
 ## 🚀 Quick Start
+
+Ready to build reactive apps without the React complexity? Let's dive in! 🏊‍♂️
 
 ```typescript
 import { signal, computed, div, h1, p, button, render } from 'reactive-dom';
