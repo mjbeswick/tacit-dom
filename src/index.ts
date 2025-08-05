@@ -60,7 +60,10 @@ export {
 } from './reactive-dom';
 
 // Export utility functions
-export { classNames } from './reactive-dom';
+export { classNames, createReactiveList } from './reactive-dom';
+
+// Export router functionality
+export { createRouter, Link, View, router } from './router';
 
 // Export types
 export type {
@@ -68,3 +71,12 @@ export type {
   ElementChildren,
   ElementCreator,
 } from './reactive-dom';
+
+// Export router types
+export type {
+  Route,
+  RouteParams,
+  RouteSearch,
+  RouterState,
+  RouterConfig,
+} from './router';

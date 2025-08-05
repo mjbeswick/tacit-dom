@@ -85,9 +85,12 @@ reactive-dom/
 │   ├── *.d.ts             # TypeScript declarations
 │   └── modules/           # Individual modules for tree-shaking
 ├── examples/               # Examples and demos
-│   ├── app.ts             # Main example application
-│   ├── app.module.css     # CSS modules example
-│   └── css.d.ts           # CSS module type declarations
+│   ├── index.html         # Main navigation page
+│   ├── counter/           # Counter example
+│   ├── random-generator/  # Random generator example
+│   ├── debug/             # Debug example
+│   ├── router/            # Router example
+│   └── vite.config.ts     # Vite configuration
 ├── docs/                   # Documentation
 ├── package.json            # NPM configuration
 ├── tsconfig.json          # TypeScript configuration
@@ -102,10 +105,13 @@ reactive-dom/
 
 ```bash
 # Start the development server for examples (port 5173)
-npm run dev:examples
+npm run examples
 
 # Preview examples
-npm run preview:examples
+npm run examples:preview
+
+# Build examples
+npm run examples:build
 ```
 
 The development server will be available at `http://localhost:5173`
@@ -179,19 +185,27 @@ const element = div(
 
 ## 🎯 Examples
 
-Check out the example in the `examples/` directory:
+The `examples/` directory contains various examples demonstrating Reactive DOM features:
 
-- **Random Number Generator**: Demonstrates reactive signals with a button that generates random numbers
-- **CSS Modules**: Shows how to use CSS modules with reactive styling
-- **Event Handling**: Basic event handling with reactive state
+- **Counter Example**: Basic reactive signals with increment/decrement buttons
+- **Random Generator**: Signal updates with automatic UI re-rendering
+- **Debug Example**: Reactive signals with disabled states and logging
+- **Router Example**: Advanced routing with navigation and error handling
 
-To run the examples:
+### Running Examples
 
 ```bash
-npm run dev:examples
+# Start development server
+npm run examples
+
+# Preview built examples
+npm run examples:preview
+
+# Build examples
+npm run examples:build
 ```
 
-Then open `http://localhost:5173` in your browser.
+Then open `http://localhost:5173` in your browser to see the examples.
 
 ## 🤝 Contributing
 

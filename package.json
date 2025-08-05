@@ -11,8 +11,6 @@
     "build:tsc": "tsc",
     "build:prod": "tsc --project tsconfig.prod.json",
     "dev": "rollup -c --watch",
-    "dev:examples": "vite --port 5173",
-    "preview:examples": "vite preview",
     "test": "jest",
     "lint": "eslint src/ --ext .ts",
     "format": "prettier --write .",

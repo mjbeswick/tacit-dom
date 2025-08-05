@@ -1,10 +1,8 @@
-// Import reactive-dom functions
-import { signal, computed, div, button, span, h1, p } from '../src/index.js';
-// Import CSS module
-import styles from './app.module.css';
+import { signal, computed, div, button, span, h1, p } from 'reactive-dom';
+import styles from './random-generator.module.css';
 
-// Create the main app structure
-const app = () => {
+// Create the random generator app
+export const createRandomGeneratorApp = () => {
   // Initialize a random number signal
   const randomNumber = signal(0);
 
@@ -50,10 +48,4 @@ const app = () => {
       )
     )
   );
-};
-
-// Create the app component once
-const appComponent = app();
-
-// Render the app
-document.body.appendChild(appComponent);
+}; 
