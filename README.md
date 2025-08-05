@@ -62,7 +62,6 @@ This project is currently a **proof of concept** and is **not suitable for produ
 - **📦 Smaller Bundle**: No virtual DOM, reconciliation, or complex state management overhead
 - **🎨 Better Performance**: Direct DOM updates are faster than React's render cycle
 - **🌍 Global State Without Providers**: Create global state anywhere without complex provider patterns or context setup
-- **🎨 CSS Modules**: Scoped styling without the overhead of styled-components or utility-first CSS
 
 ### Pure TypeScript vs JSX
 
@@ -78,21 +77,6 @@ This project is currently a **proof of concept** and is **not suitable for produ
 - **✍️ Less Code**: More concise and easier to write without verbose JSX syntax
 - **🚫 No XML Recreation**: JSX is just trying to recreate XML in TypeScript, which has no advantages aside from looking like HTML, but is less efficient
 
-### CSS Modules vs Styled Components & Tailwind
-
-**CSS Modules are fundamentally better than styled-components and solutions like Tailwind because:**
-
-- **🎯 True Scoping**: CSS Modules provide real CSS scoping without runtime overhead
-- **📦 Smaller Bundle**: No styled-components runtime or massive Tailwind utility classes
-- **⚡ Better Performance**: No JavaScript execution for styles, pure CSS compilation
-- **🔧 Simpler Tooling**: Standard CSS with scoping, no special build configurations
-- **🎨 Design System Friendly**: Easy to maintain consistent design tokens and variables
-- **📚 Familiar CSS**: Use standard CSS syntax instead of learning new APIs
-- **🔒 Type Safety**: CSS Modules work seamlessly with TypeScript
-- **🚫 No Runtime Styles**: No JavaScript-generated styles that slow down rendering
-- **🎯 Better Developer Experience**: Standard CSS tooling, autocomplete, and debugging
-- **📦 Zero Dependencies**: No additional libraries needed for styling
-
 ## 📦 Installation
 
 ```bash
@@ -104,16 +88,7 @@ npm install reactive-dom
 Ready to build reactive apps without the React complexity? Let's dive in! 🏊‍♂️
 
 ```typescript
-import {
-  signal,
-  computed,
-  div,
-  h1,
-  p,
-  button,
-  render,
-  classNames,
-} from 'reactive-dom';
+import { signal, computed, div, h1, p, button, render } from 'reactive-dom';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
@@ -136,35 +111,6 @@ const Counter = () => {
         onClick: () => count.set(count.get() + 1),
       },
       'Increment',
-    ),
-  );
-};
-
-// Example with array of expressions and object for className
-const AdvancedExample = () => {
-  const isActive = signal(true);
-  const isLoading = signal(false);
-
-  return div(
-    {
-      className: classNames('container', 'advanced-example', {
-        'is-active': isActive,
-        'is-loading': isLoading,
-        'is-disabled': computed(() => isLoading.get()),
-      }),
-    },
-    h1({}, 'Advanced Example'),
-    p({}, 'This demonstrates arrays and objects for className'),
-    div(
-      {
-        className: [
-          'button-group',
-          { 'has-actions': true },
-          { 'is-compact': false },
-        ],
-      },
-      button({}, 'Action 1'),
-      button({}, 'Action 2'),
     ),
   );
 };
