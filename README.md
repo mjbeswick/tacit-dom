@@ -119,9 +119,9 @@ const Counter = () => {
 const UserProfile = () => {
   return div(
     { className: 'profile' },
-    h1({}, 'User Profile'),
-    p({}, 'Name: ', user.get().name),
-    p({}, 'Email: ', user.get().email),
+    h1('User Profile'),
+    p('Name: ', user.get().name),
+    p('Email: ', user.get().email),
   );
 };
 
