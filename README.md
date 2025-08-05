@@ -62,6 +62,7 @@ This project is currently a **proof of concept** and is **not suitable for produ
 - **📦 Smaller Bundle**: No virtual DOM, reconciliation, or complex state management overhead
 - **🎨 Better Performance**: Direct DOM updates are faster than React's render cycle
 - **🌍 Global State Without Providers**: Create global state anywhere without complex provider patterns or context setup
+- **🎨 CSS Modules**: Scoped styling without the overhead of styled-components or utility-first CSS
 
 ### Pure TypeScript vs JSX
 
@@ -76,6 +77,21 @@ This project is currently a **proof of concept** and is **not suitable for produ
 - **🎨 More Flexible**: Easier to compose, transform, and manipulate programmatically
 - **✍️ Less Code**: More concise and easier to write without verbose JSX syntax
 - **🚫 No XML Recreation**: JSX is just trying to recreate XML in TypeScript, which has no advantages aside from looking like HTML, but is less efficient
+
+### CSS Modules vs Styled Components & Tailwind
+
+**CSS Modules are fundamentally better than styled-components and solutions like Tailwind because:**
+
+- **🎯 True Scoping**: CSS Modules provide real CSS scoping without runtime overhead
+- **📦 Smaller Bundle**: No styled-components runtime or massive Tailwind utility classes
+- **⚡ Better Performance**: No JavaScript execution for styles, pure CSS compilation
+- **🔧 Simpler Tooling**: Standard CSS with scoping, no special build configurations
+- **🎨 Design System Friendly**: Easy to maintain consistent design tokens and variables
+- **📚 Familiar CSS**: Use standard CSS syntax instead of learning new APIs
+- **🔒 Type Safety**: CSS Modules work seamlessly with TypeScript
+- **🚫 No Runtime Styles**: No JavaScript-generated styles that slow down rendering
+- **🎯 Better Developer Experience**: Standard CSS tooling, autocomplete, and debugging
+- **📦 Zero Dependencies**: No additional libraries needed for styling
 
 ## 📦 Installation
 
@@ -102,53 +118,53 @@ import {
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
 const user = signal({ name: 'John', email: 'john@example.com' });
-const isDarkMode = signal(false);
 
-// Create a component with complex dynamic classes
+// Create a component
 const Counter = () => {
   // Create a local computed value
   const doubleCount = computed(() => count.get() * 2);
 
-  // Create dynamic classes based on state
-  const containerClasses = computed(() =>
-    classNames('counter', 'counter--active', {
-      'counter--dark': isDarkMode.get(),
-      'counter--disabled': count.get() >= 10,
-      'counter--highlight': count.get() % 2 === 0,
-    }),
-  );
-
-  const buttonClasses = computed(() =>
-    classNames('btn', 'btn--primary', {
-      'btn--disabled': count.get() >= 10,
-      'btn--warning': count.get() >= 8,
-      'btn--success': count.get() === 0,
-    }),
-  );
-
   // Create a reactive element
   return div(
-    { className: containerClasses },
+    { className: 'counter' },
     h1({}, 'Counter Example'),
     p({}, 'Count: ', count),
     p({}, 'Double Count: ', doubleCount),
     p({}, 'User: ', user.get().name),
     button(
       {
-        className: buttonClasses,
         onClick: () => count.set(count.get() + 1),
-        disabled: count.get() >= 10,
       },
       'Increment',
     ),
-    button(
+  );
+};
+
+// Example with array of expressions and object for className
+const AdvancedExample = () => {
+  const isActive = signal(true);
+  const isLoading = signal(false);
+
+  return div(
+    {
+      className: classNames('container', 'advanced-example', {
+        'is-active': isActive,
+        'is-loading': isLoading,
+        'is-disabled': computed(() => isLoading.get()),
+      }),
+    },
+    h1({}, 'Advanced Example'),
+    p({}, 'This demonstrates arrays and objects for className'),
+    div(
       {
-        className: classNames('btn', 'btn--secondary', {
-          'btn--active': isDarkMode.get(),
-        }),
-        onClick: () => isDarkMode.set(!isDarkMode.get()),
+        className: [
+          'button-group',
+          { 'has-actions': true },
+          { 'is-compact': false },
+        ],
       },
-      'Toggle Theme',
+      button({}, 'Action 1'),
+      button({}, 'Action 2'),
     ),
   );
 };
