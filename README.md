@@ -88,29 +88,67 @@ npm install reactive-dom
 Ready to build reactive apps without the React complexity? Let's dive in! 🏊‍♂️
 
 ```typescript
-import { signal, computed, div, h1, p, button, render } from 'reactive-dom';
+import {
+  signal,
+  computed,
+  div,
+  h1,
+  p,
+  button,
+  render,
+  classNames,
+} from 'reactive-dom';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
 const user = signal({ name: 'John', email: 'john@example.com' });
+const isDarkMode = signal(false);
 
-// Create a component
+// Create a component with complex dynamic classes
 const Counter = () => {
   // Create a local computed value
   const doubleCount = computed(() => count.get() * 2);
 
+  // Create dynamic classes based on state
+  const containerClasses = computed(() =>
+    classNames('counter', 'counter--active', {
+      'counter--dark': isDarkMode.get(),
+      'counter--disabled': count.get() >= 10,
+      'counter--highlight': count.get() % 2 === 0,
+    }),
+  );
+
+  const buttonClasses = computed(() =>
+    classNames('btn', 'btn--primary', {
+      'btn--disabled': count.get() >= 10,
+      'btn--warning': count.get() >= 8,
+      'btn--success': count.get() === 0,
+    }),
+  );
+
   // Create a reactive element
   return div(
-    { className: 'counter' },
+    { className: containerClasses },
     h1({}, 'Counter Example'),
     p({}, 'Count: ', count),
     p({}, 'Double Count: ', doubleCount),
     p({}, 'User: ', user.get().name),
     button(
       {
+        className: buttonClasses,
         onClick: () => count.set(count.get() + 1),
+        disabled: count.get() >= 10,
       },
       'Increment',
+    ),
+    button(
+      {
+        className: classNames('btn', 'btn--secondary', {
+          'btn--active': isDarkMode.get(),
+        }),
+        onClick: () => isDarkMode.set(!isDarkMode.get()),
+      },
+      'Toggle Theme',
     ),
   );
 };
