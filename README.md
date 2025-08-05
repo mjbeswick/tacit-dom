@@ -85,17 +85,21 @@ const Counter = () => {
   // Create a reactive element
   return div(
     { className: 'counter' },
-    h1({}, 'Counter Example'),
-    p({}, 'Count: ', count),
-    p({}, 'Double Count: ', doubleCount),
+    h1('Counter Example'),
+    p('Count: ', count),
+    p('Double Count: ', doubleCount),
     button(
       {
         onClick: () => count.set(count.get() + 1),
       },
-      'Increment'
-    )
+      'Increment',
+    ),
   );
 };
+
+count.subscribe((value) => {
+  console.log('Count changed:', value);
+});
 
 // Render to DOM
 render(Counter(), document.getElementById('app'));
@@ -211,7 +215,7 @@ const element = div(
   { className: 'container' },
   h1({ children: 'Hello World' }),
   p({ children: 'This is a paragraph' }),
-  button({ onClick: handleClick, children: 'Click me' })
+  button({ onClick: handleClick, children: 'Click me' }),
 );
 ```
 
