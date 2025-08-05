@@ -12,9 +12,11 @@
     "build:prod": "tsc --project tsconfig.prod.json",
     "dev": "rollup -c --watch",
     "test": "jest",
-    "lint": "eslint src/ --ext .ts",
+    "lint": "eslint src/ examples/ --ext .ts",
+    "lint:fix": "eslint src/ examples/ --ext .ts --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "format:fix": "prettier --write . && eslint src/ examples/ --ext .ts --fix",
     "type-check": "tsc --noEmit",
     "security-audit": "npm audit --audit-level moderate",
     "prepublishOnly": "npm run build && npm test"
