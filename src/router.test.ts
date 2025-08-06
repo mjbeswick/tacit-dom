@@ -9,7 +9,7 @@
  * - Error handling
  */
 
-import { createRouter, Router } from './router';
+import { router, Router } from './router';
 import { div, h1, p } from './reactive-dom';
 
 // Mock DOM environment for testing
@@ -58,7 +58,7 @@ describe('Router', () => {
     { id: 2, name: 'Bob' },
   ]);
 
-  const mockUserLoader = jest.fn().mockImplementation(async params => {
+  const mockUserLoader = jest.fn().mockImplementation(async (params) => {
     if (params.id === '1') {
       return { id: 1, name: 'Alice', email: 'alice@example.com' };
     }
@@ -70,7 +70,7 @@ describe('Router', () => {
     { id: 2, title: 'Second Post' },
   ]);
 
-  const mockPostLoader = jest.fn().mockImplementation(async params => {
+  const mockPostLoader = jest.fn().mockImplementation(async (params) => {
     if (params.id === '1') {
       return { id: 1, title: 'First Post', content: 'Post content' };
     }
@@ -85,7 +85,7 @@ describe('Router', () => {
     mockLocation.href = 'http://localhost/';
 
     // Create router instance
-    router = createRouter({
+    router = new Router({
       routes: [
         {
           path: '/',
@@ -146,7 +146,7 @@ describe('Router', () => {
     test('should parse multiple URL parameters', () => {
       const params = router['parseParams'](
         '/users/123/posts/456',
-        '/users/:userId/posts/:postId'
+        '/users/:userId/posts/:postId',
       );
       expect(params).toEqual({ userId: '123', postId: '456' });
     });
@@ -171,7 +171,7 @@ describe('Router', () => {
         .fn()
         .mockRejectedValue(new Error('Loader failed'));
 
-      const testRouter = createRouter({
+      const testRouter = new Router({
         routes: [
           {
             path: '/test',
@@ -264,7 +264,7 @@ describe('Router', () => {
 
   describe('Link component', () => {
     test('should create a link that navigates on click', () => {
-      const link = router.Link({
+      const link = router.link({
         to: '/users',
         children: 'Users',
       });
@@ -275,7 +275,7 @@ describe('Router', () => {
     });
 
     test('should prevent default and navigate on click', () => {
-      const link = router.Link({
+      const link = router.link({
         to: '/users',
         children: 'Users',
       });
@@ -287,7 +287,7 @@ describe('Router', () => {
       // Simulate click
       const clickHandler = link.onclick;
       if (clickHandler) {
-        clickHandler(mockEvent as any);
+        clickHandler.call(link, mockEvent as any);
       }
 
       expect(mockEvent.preventDefault).toHaveBeenCalled();
@@ -339,7 +339,7 @@ describe('Router', () => {
 
   describe('Router configuration', () => {
     test('should handle base path correctly', () => {
-      const routerWithBase = createRouter({
+      const routerWithBase = new Router({
         routes: [
           {
             path: '/',
@@ -353,7 +353,7 @@ describe('Router', () => {
     });
 
     test('should handle default route', () => {
-      const routerWithDefault = createRouter({
+      const routerWithDefault = new Router({
         routes: [
           {
             path: '/',
@@ -371,7 +371,7 @@ describe('Router', () => {
     test('should use error boundary when available', () => {
       const errorBoundary = jest.fn().mockReturnValue(div({}, 'Error handled'));
 
-      const routerWithErrorBoundary = createRouter({
+      const routerWithErrorBoundary = new Router({
         routes: [
           {
             path: '/test',

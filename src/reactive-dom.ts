@@ -72,7 +72,7 @@ function checkUpdateLimit(): boolean {
 
   if (globalUpdateCount > MAX_GLOBAL_UPDATES) {
     console.error(
-      'ReactiveDOM: Maximum update limit exceeded, possible infinite loop detected'
+      'ReactiveDOM: Maximum update limit exceeded, possible infinite loop detected',
     );
     return false;
   }
@@ -86,7 +86,7 @@ function checkUpdateLimit(): boolean {
 function hasValueChanged(
   element: HTMLElement,
   key: string,
-  newValue: any
+  newValue: any,
 ): boolean {
   if (!reactiveValues.has(element)) {
     reactiveValues.set(element, new Map());
@@ -340,7 +340,7 @@ function createElementFactory(tagName: string): ElementCreator {
                 if (key === 'value' && element instanceof HTMLInputElement) {
                   // Handle input value property specifically
                   const inputValue = String(
-                    (value as Signal<any> | Computed<any>).get()
+                    (value as Signal<any> | Computed<any>).get(),
                   );
                   if (hasValueChanged(element, key, inputValue)) {
                     element.value = inputValue;
@@ -402,7 +402,7 @@ function createElementFactory(tagName: string): ElementCreator {
               console.error(
                 'Error setting initial attribute value:',
                 key,
-                error
+                error,
               );
             }
 
@@ -440,7 +440,7 @@ function createElementFactory(tagName: string): ElementCreator {
     });
 
     // Handle children
-    children.forEach(child => {
+    children.forEach((child) => {
       if (child instanceof Signal || child instanceof Computed) {
         // Handle reactive values
         const textNode = document.createTextNode('');
@@ -458,7 +458,7 @@ function createElementFactory(tagName: string): ElementCreator {
             // Only update if the text node is still in the DOM
             if (textNode.parentNode) {
               const textValue = String(
-                (child as Signal<any> | Computed<any>).get()
+                (child as Signal<any> | Computed<any>).get(),
               );
               if (hasValueChanged(textNode as any, 'textContent', textValue)) {
                 textNode.textContent = textValue;
@@ -475,7 +475,7 @@ function createElementFactory(tagName: string): ElementCreator {
         // Set initial text without triggering reactive updates
         try {
           const textValue = String(
-            (child as Signal<any> | Computed<any>).get()
+            (child as Signal<any> | Computed<any>).get(),
           );
           textNode.textContent = textValue;
         } catch (error) {
@@ -484,7 +484,7 @@ function createElementFactory(tagName: string): ElementCreator {
         }
 
         const unsubscribe = (child as Signal<any> | Computed<any>).subscribe(
-          updateText
+          updateText,
         );
         subscriptions.push({
           signal: child as Signal<any> | Computed<any>,
@@ -614,11 +614,11 @@ function cleanupElement(element: HTMLElement): void {
  */
 export function render(
   component: () => HTMLElement,
-  container: HTMLElement
+  container: HTMLElement,
 ): void {
   // Clean up any existing reactive subscriptions
   const existingElements = container.querySelectorAll('*');
-  existingElements.forEach(el => {
+  existingElements.forEach((el) => {
     if (el instanceof HTMLElement) {
       cleanupElement(el);
     }
@@ -672,7 +672,7 @@ export { classNames };
  */
 export function createReactiveList<T>(
   signal: Signal<T[]>,
-  renderItem: (_item: T, _index: number) => HTMLElement
+  renderItem: (_item: T, _index: number) => HTMLElement,
 ): HTMLElement {
   const container = document.createElement('div');
   const subscriptions: Array<{
@@ -691,7 +691,7 @@ export function createReactiveList<T>(
     const hasChanged = hasValueChanged(
       container,
       'items',
-      JSON.stringify(newItems)
+      JSON.stringify(newItems),
     );
     if (!hasChanged) return;
 

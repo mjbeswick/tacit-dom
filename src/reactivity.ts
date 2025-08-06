@@ -63,7 +63,7 @@ export class Signal<T> {
 
     this.isNotifying = true;
     try {
-      this.subscribers.forEach(callback => {
+      this.subscribers.forEach((callback) => {
         try {
           callback();
         } catch (error) {
@@ -122,7 +122,7 @@ export class Computed<T> {
   private recompute(): void {
     if (this.isComputing) {
       console.warn(
-        'Computed: Infinite computation detected, skipping recompute'
+        'Computed: Infinite computation detected, skipping recompute',
       );
       return;
     }
@@ -139,7 +139,7 @@ export class Computed<T> {
 
     if (this.recomputeCount > this.MAX_RECOMPUTES) {
       console.error(
-        'Computed: Maximum recompute limit exceeded, possible infinite loop'
+        'Computed: Maximum recompute limit exceeded, possible infinite loop',
       );
       return;
     }
@@ -149,7 +149,7 @@ export class Computed<T> {
     Computed.currentComputation = this;
 
     // Clear old dependencies and subscriptions
-    this.subscriptions.forEach(unsubscribe => unsubscribe());
+    this.subscriptions.forEach((unsubscribe) => unsubscribe());
     this.subscriptions.clear();
     this.dependencies.clear();
 
@@ -209,14 +209,14 @@ export class Computed<T> {
     // Prevent infinite rerenders
     if (this.isNotifying) {
       console.warn(
-        'Computed: Infinite rerender detected, skipping notification'
+        'Computed: Infinite rerender detected, skipping notification',
       );
       return;
     }
 
     this.isNotifying = true;
     try {
-      this.subscribers.forEach(callback => {
+      this.subscribers.forEach((callback) => {
         try {
           callback();
         } catch (error) {

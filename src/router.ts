@@ -16,7 +16,7 @@ export type RouteSearch = Record<string, string>;
 
 export type Route = {
   path: string;
-  component: () => HTMLElement;
+  component: (data?: any) => HTMLElement;
   loader?: (_params: RouteParams, _search: RouteSearch) => Promise<any> | any;
   errorBoundary?: (_error: Error) => HTMLElement;
 };
@@ -36,6 +36,9 @@ export type RouterConfig = {
   defaultRoute?: string;
   notFoundComponent?: () => HTMLElement;
 };
+
+// Global router instance
+let globalRouter: Router | null = null;
 
 /**
  * Router class that manages navigation, loaders, and browser history
@@ -72,6 +75,9 @@ export class Router {
     this.historyStack = signal<string[]>([]);
     this.currentIndex = signal<number>(-1);
 
+    // Set as global router
+    globalRouter = this;
+
     // Initialize router
     this.initialize();
   }
@@ -81,20 +87,24 @@ export class Router {
    */
   private initialize(): void {
     // Set up popstate listener for browser back/forward
-    window.addEventListener('popstate', _event => {
-      const path = this.getPathFromUrl();
-      this.navigateToPath(path, false);
-    });
+    if (typeof window !== 'undefined') {
+      window.addEventListener('popstate', (_event) => {
+        const path = this.getPathFromUrl();
+        this.navigateToPath(path, false);
+      });
 
-    // Set initial route
-    const initialPath = this.getPathFromUrl() || this.defaultRoute;
-    this.navigateToPath(initialPath, false);
+      // Set initial route
+      const initialPath = this.getPathFromUrl() || this.defaultRoute;
+      this.navigateToPath(initialPath, false);
+    }
   }
 
   /**
    * Get the current path from the URL
    */
   private getPathFromUrl(): string {
+    if (typeof window === 'undefined') return '/';
+
     const path = window.location.pathname;
     return path.startsWith(this.basePath)
       ? path.slice(this.basePath.length) || '/'
@@ -105,6 +115,8 @@ export class Router {
    * Update the browser URL without triggering navigation
    */
   private updateUrl(path: string, replace: boolean = false): void {
+    if (typeof window === 'undefined') return;
+
     const fullPath = this.basePath + path;
     if (replace) {
       window.history.replaceState(null, '', fullPath);
@@ -139,6 +151,9 @@ export class Router {
    */
   private parseSearch(): RouteSearch {
     const search: RouteSearch = {};
+
+    if (typeof window === 'undefined') return search;
+
     const urlSearch = window.location.search;
 
     if (urlSearch) {
@@ -156,7 +171,7 @@ export class Router {
    */
   private findRoute(path: string): Route | null {
     return (
-      this.routes.find(route => {
+      this.routes.find((route) => {
         const routePathSegments = route.path.split('/').filter(Boolean);
         const pathSegments = path.split('/').filter(Boolean);
 
@@ -176,7 +191,7 @@ export class Router {
    */
   private async navigateToPath(
     path: string,
-    updateHistory: boolean = true
+    updateHistory: boolean = true,
   ): Promise<void> {
     const route = this.findRoute(path);
     const search = this.parseSearch();
@@ -254,6 +269,8 @@ export class Router {
       const path = stack[newIndex];
       this.currentIndex.set(newIndex);
       this.navigateToPath(path, false);
+    } else if (typeof window !== 'undefined') {
+      window.history.back();
     }
   }
 
@@ -269,6 +286,8 @@ export class Router {
       const path = stack[newIndex];
       this.currentIndex.set(newIndex);
       this.navigateToPath(path, false);
+    } else if (typeof window !== 'undefined') {
+      window.history.forward();
     }
   }
 
@@ -276,7 +295,12 @@ export class Router {
    * Check if back navigation is available
    */
   public canGoBack(): boolean {
-    return this.currentIndex.get() > 0;
+    const currentIndex = this.currentIndex.get();
+    if (currentIndex > 0) return true;
+    if (typeof window !== 'undefined') {
+      return window.history.length > 1;
+    }
+    return false;
   }
 
   /**
@@ -285,7 +309,8 @@ export class Router {
   public canGoForward(): boolean {
     const stack = this.historyStack.get();
     const currentIndex = this.currentIndex.get();
-    return currentIndex < stack.length - 1;
+    if (currentIndex < stack.length - 1) return true;
+    return false;
   }
 
   /**
@@ -305,7 +330,7 @@ export class Router {
   /**
    * Create a link element that navigates when clicked
    */
-  public Link(props: {
+  public link(props: {
     to: string;
     className?: string;
     children: any;
@@ -323,7 +348,7 @@ export class Router {
         },
         ...otherProps,
       },
-      children
+      children,
     );
   }
 
@@ -347,7 +372,7 @@ export class Router {
     }
 
     if (route) {
-      return route.component();
+      return route.component(state.data);
     }
 
     if (this.notFoundComponent) {
@@ -359,32 +384,83 @@ export class Router {
 }
 
 /**
- * Create a new router instance
+ * History object for navigation
  */
-export function createRouter(config: RouterConfig): Router {
-  return new Router(config);
-}
+export const history = {
+  back: () => {
+    if (globalRouter) {
+      globalRouter.back();
+    } else if (typeof window !== 'undefined') {
+      window.history.back();
+    }
+  },
+  forward: () => {
+    if (globalRouter) {
+      globalRouter.forward();
+    } else if (typeof window !== 'undefined') {
+      window.history.forward();
+    }
+  },
+  canGoBack: () => {
+    if (globalRouter) {
+      return globalRouter.canGoBack();
+    }
+    if (typeof window !== 'undefined') {
+      return window.history.length > 1;
+    }
+    return false;
+  },
+  canGoForward: () => {
+    if (globalRouter) {
+      return globalRouter.canGoForward();
+    }
+    return false;
+  },
+};
 
 /**
  * Create a link component for navigation
  */
-export function Link(
-  router: Router,
-  props: {
-    to: string;
-    className?: string;
-    children: any;
-    [key: string]: any;
+export function link(props: {
+  to: string;
+  className?: string;
+  children: any;
+  [key: string]: any;
+}): HTMLElement {
+  const { to, className, children, ...otherProps } = props;
+
+  // If no global router exists yet, create a simple link that will work
+  // when the router is initialized later
+  if (!globalRouter) {
+    return a(
+      {
+        href: to,
+        className,
+        onClick: (e: Event) => {
+          e.preventDefault();
+          // Try to use the router if it exists now, otherwise use window.history
+          if (globalRouter) {
+            globalRouter.navigate(to);
+          } else if (typeof window !== 'undefined') {
+            window.history.pushState(null, '', to);
+            // Dispatch a popstate event to trigger router navigation
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }
+        },
+        ...otherProps,
+      },
+      children,
+    );
   }
-): HTMLElement {
-  return router.Link(props);
+
+  return globalRouter.link(props);
 }
 
 /**
- * Create a view component for rendering the current route
+ * Create a router instance
  */
-export function View(router: Router): HTMLElement {
-  return router.View();
+export function createRouter(config: RouterConfig): Router {
+  return new Router(config);
 }
 
 /**
@@ -399,12 +475,15 @@ export function router(props: {
   const { routes, basePath, defaultRoute, notFoundComponent } = props;
 
   // Create router instance
-  const routerInstance = createRouter({
+  const routerInstance = new Router({
     routes,
     basePath,
     defaultRoute,
     notFoundComponent,
   });
+
+  // Ensure the router is set as global
+  globalRouter = routerInstance;
 
   // Return the view component
   return routerInstance.View();

@@ -360,7 +360,7 @@ describe('Element Creators', () => {
             throw new Error('Text error');
           }
           return 'normal';
-        })
+        }),
       );
 
       expect(() => errorSignal.set(1)).not.toThrow();
@@ -426,7 +426,7 @@ describe('createReactiveList', () => {
   it('should create reactive list', () => {
     const itemsSignal = signal(['Apple', 'Banana']);
     const list = createReactiveList(itemsSignal, (item, _index) =>
-      li({}, `${item}`)
+      li({}, `${item}`),
     );
 
     expect(list.tagName).toBe('DIV');
@@ -435,7 +435,7 @@ describe('createReactiveList', () => {
   it('should update when signal changes', () => {
     const itemsSignal = signal(['Apple', 'Banana']);
     const list = createReactiveList(itemsSignal, (item, _index) =>
-      li({}, item)
+      li({}, item),
     );
 
     // Initial render
@@ -450,7 +450,7 @@ describe('createReactiveList', () => {
 
   it('should handle empty arrays', () => {
     const itemsSignal = signal([]);
-    const list = createReactiveList(itemsSignal, item => li({}, item));
+    const list = createReactiveList(itemsSignal, (item) => li({}, item));
 
     expect(list.children.length).toBe(0);
   });
@@ -461,8 +461,8 @@ describe('createReactiveList', () => {
       { id: 2, name: 'Banana' },
     ]);
 
-    const list = createReactiveList(itemsSignal, item =>
-      li({ id: `item-${item.id}` }, item.name)
+    const list = createReactiveList(itemsSignal, (item) =>
+      li({ id: `item-${item.id}` }, item.name),
     );
 
     expect(list.tagName).toBe('DIV');
@@ -563,10 +563,10 @@ describe('performance and limits', () => {
     const element = div(
       {
         className: computed(() =>
-          classNames('container', { active: data.get().active })
+          classNames('container', { active: data.get().active }),
         ),
       },
-      computed(() => data.get().items.join(', '))
+      computed(() => data.get().items.join(', ')),
     );
 
     expect(element.tagName).toBe('DIV');

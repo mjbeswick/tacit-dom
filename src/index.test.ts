@@ -123,7 +123,7 @@ describe('ReactiveDOM exports', () => {
         {
           onClick: () => count.set(count.get() + 1),
         },
-        'Increment'
+        'Increment',
       );
 
       const display = ReactiveDOM.div(
@@ -132,7 +132,7 @@ describe('ReactiveDOM exports', () => {
         count,
         ' (Doubled: ',
         doubled,
-        ')'
+        ')',
       );
 
       const container = ReactiveDOM.div(
@@ -140,7 +140,7 @@ describe('ReactiveDOM exports', () => {
           className: ReactiveDOM.classNames('counter', { active: true }),
         },
         button,
-        display
+        display,
       );
 
       expect(count.get()).toBe(0);
@@ -209,7 +209,7 @@ describe('ReactiveDOM exports', () => {
         'classNames',
       ];
 
-      expectedProperties.forEach(prop => {
+      expectedProperties.forEach((prop) => {
         expect(ReactiveDOM).toHaveProperty(prop);
       });
     });

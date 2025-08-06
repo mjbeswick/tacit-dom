@@ -68,7 +68,7 @@ describe('classNames', () => {
 
     it('should handle object with all truthy values', () => {
       expect(classNames({ foo: true, bar: 'truthy', baz: 1 })).toBe(
-        'foo bar baz'
+        'foo bar baz',
       );
     });
   });
@@ -80,7 +80,7 @@ describe('classNames', () => {
 
     it('should handle nested arrays', () => {
       expect(classNames(['foo', ['bar', 'baz']], 'qux')).toBe(
-        'foo bar baz qux'
+        'foo bar baz qux',
       );
     });
 
@@ -90,7 +90,7 @@ describe('classNames', () => {
 
     it('should handle arrays with mixed types', () => {
       expect(classNames(['foo', { bar: true, baz: false }, 'qux'])).toBe(
-        'foo bar qux'
+        'foo bar qux',
       );
     });
   });
@@ -102,8 +102,8 @@ describe('classNames', () => {
           'foo',
           { bar: true, baz: false },
           ['qux', { quux: true }],
-          'corge'
-        )
+          'corge',
+        ),
       ).toBe('foo bar qux quux corge');
     });
 
@@ -115,8 +115,8 @@ describe('classNames', () => {
           { bar: true, baz: false },
           undefined,
           ['qux', false, 'quux'],
-          true
-        )
+          true,
+        ),
       ).toBe('foo bar qux quux');
     });
   });
@@ -124,13 +124,13 @@ describe('classNames', () => {
   describe('edge cases', () => {
     it('should handle deeply nested arrays', () => {
       expect(classNames(['foo', ['bar', ['baz', 'qux']]])).toBe(
-        'foo bar baz qux'
+        'foo bar baz qux',
       );
     });
 
     it('should handle objects with nested structures', () => {
       expect(classNames({ foo: true }, ['bar', { baz: true }])).toBe(
-        'foo bar baz'
+        'foo bar baz',
       );
     });
 

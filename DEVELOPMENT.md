@@ -149,4 +149,4 @@ npm run build:prod
 - **`README.md`** - Main project documentation
 - **`docs/API.md`** - API reference
 - **`docs/ROUTER.md`** - Router documentation
-- **`examples/README.md`** - Examples documentation 
+- **`examples/README.md`** - Examples documentation

@@ -156,7 +156,7 @@ const element = div(
   h1({ children: 'Title' }),
   p({ children: 'Content' }),
   span({ children: 'Inline text' }),
-  a({ href: '#', children: 'Link' })
+  a({ href: '#', children: 'Link' }),
 );
 ```
 
@@ -191,7 +191,7 @@ const classes = computed(() =>
     'btn-active': isActive.get(),
     'btn-large': size.get() === 'large',
     'btn-small': size.get() === 'small',
-  })
+  }),
 );
 ```
 
@@ -209,16 +209,16 @@ import {
 } from 'reactive-dom';
 
 const formElement = form(
-  { onSubmit: e => e.preventDefault() },
+  { onSubmit: (e) => e.preventDefault() },
   label({ children: 'Name:' }),
   input({ type: 'text', placeholder: 'Enter name' }),
   textarea({ placeholder: 'Enter description' }),
   select(
     {},
     option({ value: '1', children: 'Option 1' }),
-    option({ value: '2', children: 'Option 2' })
+    option({ value: '2', children: 'Option 2' }),
   ),
-  button({ type: 'submit', children: 'Submit' })
+  button({ type: 'submit', children: 'Submit' }),
 );
 ```
 
@@ -231,7 +231,7 @@ const list = ul(
   {},
   li({ children: 'Item 1' }),
   li({ children: 'Item 2' }),
-  li({ children: 'Item 3' })
+  li({ children: 'Item 3' }),
 );
 ```
 
@@ -243,7 +243,7 @@ import { table, tr, td, th } from 'reactive-dom';
 const tableElement = table(
   {},
   tr({}, th({ children: 'Header 1' }), th({ children: 'Header 2' })),
-  tr({}, td({ children: 'Cell 1' }), td({ children: 'Cell 2' }))
+  tr({}, td({ children: 'Cell 1' }), td({ children: 'Cell 2' })),
 );
 ```
 
@@ -257,7 +257,7 @@ const mediaElements = div(
   img({ src: 'image.jpg', alt: 'Image' }),
   video({ src: 'video.mp4', controls: true }),
   audio({ src: 'audio.mp3', controls: true }),
-  canvas({ width: 300, height: 200 })
+  canvas({ width: 300, height: 200 }),
 );
 ```
 
@@ -282,9 +282,9 @@ const semanticLayout = div(
     {},
     section({ children: 'Section 1' }),
     article({ children: 'Article' }),
-    aside({ children: 'Sidebar' })
+    aside({ children: 'Sidebar' }),
   ),
-  footer({ children: 'Footer' })
+  footer({ children: 'Footer' }),
 );
 ```
 
@@ -295,12 +295,12 @@ All DOM elements support event handlers through props:
 ```typescript
 const button = button(
   {
-    onClick: e => console.log('Clicked!'),
+    onClick: (e) => console.log('Clicked!'),
     onMouseEnter: () => console.log('Mouse entered'),
     onMouseLeave: () => console.log('Mouse left'),
-    onKeyDown: e => console.log('Key pressed:', e.key),
+    onKeyDown: (e) => console.log('Key pressed:', e.key),
   },
-  'Click me'
+  'Click me',
 );
 ```
 
@@ -314,7 +314,7 @@ const styledElement = div(
     className: 'my-class',
     style: 'background-color: red; color: white; padding: 10px;',
   },
-  'Styled content'
+  'Styled content',
 );
 ```
 
@@ -330,7 +330,7 @@ const reactiveElement = div(
   {},
   p({ children: `Count: ${count}` }),
   p({ children: `Double: ${doubleCount}` }),
-  button({ onClick: () => count.set(count.get() + 1) }, 'Increment')
+  button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
 );
 ```
 
@@ -391,7 +391,7 @@ const MyComponent = (props: any, children: any) => {
     { className: 'my-component' },
     h1({ children: 'My Component' }),
     p({ children: `Value: ${displayValue}` }),
-    button({ onClick: handleClick }, 'Increment')
+    button({ onClick: handleClick }, 'Increment'),
   );
 };
 ```
@@ -423,7 +423,7 @@ const handleInputChange = (e: Event) => {
 
 const form = form(
   { onSubmit: handleFormSubmit },
-  input({ onInput: handleInputChange })
+  input({ onInput: handleInputChange }),
 );
 ```
 
@@ -436,10 +436,10 @@ const component = div(
   {},
   button(
     { onClick: () => showDetails.set(!showDetails.get()) },
-    'Toggle Details'
+    'Toggle Details',
   ),
   showDetails.get() &&
-    div({ className: 'details' }, p({ children: 'Hidden details here' }))
+    div({ className: 'details' }, p({ children: 'Hidden details here' })),
 );
 ```
 
@@ -450,6 +450,6 @@ const items = signal(['apple', 'banana', 'orange']);
 
 const list = ul(
   {},
-  ...items.get().map(item => li({ key: item, children: item }))
+  ...items.get().map((item) => li({ key: item, children: item })),
 );
 ```

@@ -15,32 +15,34 @@ The reactive-dom router provides a powerful client-side routing solution with lo
 ## Basic Usage
 
 ```typescript
-import { createRouter, Link, View } from './src/index.js';
-
-// Define your routes
-const router = createRouter({
-  routes: [
-    {
-      path: '/',
-      component: () => div({}, h1({}, 'Home')),
-    },
-    {
-      path: '/users',
-      component: () => div({}, h1({}, 'Users')),
-      loader: async () => {
-        // Fetch users data
-        return await fetch('/api/users').then(r => r.json());
-      },
-    },
-  ],
-});
+import { router, link, history } from 'reactive-dom';
 
 // Use in your app
 const App = () => {
   return div(
-    {},
-    nav({}, Link(router, { to: '/', children: 'Home' })),
-    main({}, View(router))
+    nav(link({ to: '/', children: 'Home' })),
+    main(
+      router({
+        routes: [
+          {
+            path: '/',
+            component: () => div(h1('Home')),
+          },
+          {
+            path: '/users',
+            component: (data) =>
+              div(
+                h1('Users'),
+                data.users.map((user) => div(user)),
+              ),
+            loader: async () => {
+              // Fetch users data
+              return await fetch('/api/users').then((r) => r.json());
+            },
+          },
+        ],
+      }),
+    ),
   );
 };
 ```
@@ -52,7 +54,7 @@ const App = () => {
 ```typescript
 type Route = {
   path: string; // URL path pattern
-  component: () => HTMLElement; // Component to render
+  component: (data?: any) => HTMLElement; // Component to render
   loader?: (params: RouteParams, search: RouteSearch) => Promise<any> | any;
   errorBoundary?: (error: Error) => HTMLElement;
 };
@@ -115,7 +117,7 @@ Loaders are functions that run before a route component is rendered. They can fe
 Loaders can throw errors which will be caught by the router:
 
 ```typescript
-loader: async params => {
+loader: async (params) => {
   const user = await fetchUser(params.id);
   if (!user) {
     throw new Error('User not found');
@@ -141,7 +143,7 @@ Each route can have a custom error boundary:
       { className: 'error-page' },
       h2({}, 'Something went wrong'),
       p({}, error.message),
-      Link(router, { to: '/users', children: 'Back to Users' })
+      link({ to: '/users', children: 'Back to Users' })
     );
   },
 }
@@ -156,14 +158,14 @@ Each route can have a custom error boundary:
 await router.navigate('/users/123');
 
 // Go back in browser history
-router.back();
+history.back();
 
 // Go forward in browser history
-router.forward();
+history.forward();
 
 // Check if navigation is possible
-if (router.canGoBack()) {
-  router.back();
+if (history.canGoBack()) {
+  history.back();
 }
 ```
 
@@ -171,21 +173,14 @@ if (router.canGoBack()) {
 
 ```typescript
 // Basic link
-Link(router, { to: '/users', children: 'Users' });
+link({ to: '/users', children: 'Users' });
 
 // With additional props
-Link(router, {
+link({
   to: '/users/123',
   className: 'user-link',
   children: 'View User',
 });
-```
-
-### View Component
-
-```typescript
-// Render the current route
-View(router);
 ```
 
 ## Router State
@@ -227,7 +222,7 @@ The router automatically integrates with browser history:
 Serve your app from a subdirectory:
 
 ```typescript
-const router = createRouter({
+const routerInstance = router({
   routes: [...],
   basePath: '/app',  // App will be served from /app/
 });
@@ -238,7 +233,7 @@ const router = createRouter({
 Redirect to a default route when no route matches:
 
 ```typescript
-const router = createRouter({
+const routerInstance = router({
   routes: [...],
   defaultRoute: '/home',
 });
@@ -249,7 +244,7 @@ const router = createRouter({
 Custom 404 page:
 
 ```typescript
-const router = createRouter({
+const routerInstance = router({
   routes: [...],
   notFoundComponent: () =>
     div({}, h1({}, '404 - Page Not Found')),
@@ -259,7 +254,7 @@ const router = createRouter({
 ## Complete Example
 
 ```typescript
-import { createRouter, Link, View } from './src/index.js';
+import { router, link, history } from './src/index.js';
 import { div, h1, p, nav, main } from './src/index.js';
 
 // Mock API
@@ -272,7 +267,7 @@ const api = {
   },
   async getUser(id: string) {
     const users = await this.getUsers();
-    const user = users.find(u => u.id === parseInt(id));
+    const user = users.find((u) => u.id === parseInt(id));
     if (!user) throw new Error('User not found');
     return user;
   },
@@ -282,56 +277,32 @@ const api = {
 const HomePage = () => div({}, h1({}, 'Welcome Home'));
 const NotFoundPage = () => div({}, h1({}, 'Page Not Found'));
 
-const UsersPage = () => {
-  const state = router.getState();
-  const users = state.data;
+const UsersPage = (data) => {
+  const users = data.users;
 
   return div(
     {},
     h1({}, 'Users'),
-    ...users.map(user =>
+    ...users.map((user) =>
       div(
         { key: user.id },
         p({}, user.name),
-        Link(router, { to: `/users/${user.id}`, children: 'View' })
-      )
-    )
+        link({ to: `/users/${user.id}`, children: 'View' }),
+      ),
+    ),
   );
 };
 
-const UserDetailPage = () => {
-  const state = router.getState();
-  const user = state.data;
+const UserDetailPage = (data) => {
+  const user = data;
 
   return div(
     {},
     h1({}, `User: ${user.name}`),
-    p({}, `ID: ${state.params.id}`),
-    Link(router, { to: '/users', children: '← Back' })
+    p({}, `ID: ${user.id}`),
+    link({ to: '/users', children: '← Back' }),
   );
 };
-
-// Create router
-const router = createRouter({
-  routes: [
-    {
-      path: '/',
-      component: HomePage,
-    },
-    {
-      path: '/users',
-      component: UsersPage,
-      loader: async () => await api.getUsers(),
-    },
-    {
-      path: '/users/:id',
-      component: UserDetailPage,
-      loader: async params => await api.getUser(params.id),
-      errorBoundary: error => div({}, h2({}, 'Error'), p({}, error.message)),
-    },
-  ],
-  notFoundComponent: NotFoundPage,
-});
 
 // Main app
 const App = () => {
@@ -339,10 +310,33 @@ const App = () => {
     {},
     nav(
       {},
-      Link(router, { to: '/', children: 'Home' }),
-      Link(router, { to: '/users', children: 'Users' })
+      link({ to: '/', children: 'Home' }),
+      link({ to: '/users', children: 'Users' }),
     ),
-    main({}, View(router))
+    main(
+      {},
+      router({
+        routes: [
+          {
+            path: '/',
+            component: HomePage,
+          },
+          {
+            path: '/users',
+            component: UsersPage,
+            loader: async () => await api.getUsers(),
+          },
+          {
+            path: '/users/:id',
+            component: UserDetailPage,
+            loader: async (params) => await api.getUser(params.id),
+            errorBoundary: (error) =>
+              div({}, h2({}, 'Error'), p({}, error.message)),
+          },
+        ],
+        notFoundComponent: NotFoundPage,
+      }),
+    ),
   );
 };
 
@@ -357,7 +351,7 @@ The router is fully testable with comprehensive test coverage:
 import { createRouter } from './src/router';
 
 test('should navigate and load data', async () => {
-  const router = createRouter({
+  const routerInstance = createRouter({
     routes: [
       {
         path: '/test',
@@ -367,9 +361,9 @@ test('should navigate and load data', async () => {
     ],
   });
 
-  await router.navigate('/test');
+  await routerInstance.navigate('/test');
 
-  const state = router.getState();
+  const state = routerInstance.getState();
   expect(state.currentPath).toBe('/test');
   expect(state.data).toEqual({ data: 'test' });
 });

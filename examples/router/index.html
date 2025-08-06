@@ -1,17 +1,101 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Router Example - Reactive DOM</title>
-</head>
-<body>
-    <div id="app"></div>
-    <script type="module">
-        import { initRouterApp } from './router.ts';
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css" />
+    <style>
+      /* Custom styles for the router example */
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
 
-        // Initialize the router app
-        initRouterApp();
-    </script>
-</body>
-</html> 
+      .browser-nav {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .content {
+        padding: 1rem 0;
+      }
+
+      .user-list,
+      .post-list {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .user-item,
+      .post-item {
+        padding: 1rem;
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        background: var(--bg-secondary);
+      }
+
+      .user-item h3,
+      .post-item h3 {
+        margin: 0;
+        color: var(--accent);
+      }
+
+      /* Loading state styling */
+      .router-loading {
+        text-align: center;
+        padding: 2rem;
+        color: var(--accent);
+      }
+
+      /* Error state styling */
+      .router-error {
+        padding: 1rem;
+        border: 1px solid #e74c3c;
+        border-radius: 4px;
+        background: #fdf2f2;
+        color: #e74c3c;
+      }
+
+      /* Not found state styling */
+      .router-not-found {
+        text-align: center;
+        padding: 2rem;
+        color: var(--accent);
+      }
+
+      /* Feature list styling */
+      .feature-list {
+        margin-top: 1rem;
+      }
+
+      .feature-list ul {
+        margin-top: 0.5rem;
+      }
+
+      .feature-list li {
+        margin-bottom: 0.5rem;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .nav-links,
+        .browser-nav {
+          flex-direction: column;
+        }
+
+        .nav-links .button,
+        .browser-nav .button {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

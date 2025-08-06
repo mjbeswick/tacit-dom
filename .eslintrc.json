@@ -4,10 +4,7 @@
     "es2022": true,
     "node": true
   },
-  "extends": [
-    "eslint:recommended",
-    "@typescript-eslint/recommended"
-  ],
+  "extends": ["eslint:recommended", "@typescript-eslint/recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -30,11 +27,20 @@
     "space-in-parens": ["error", "never"],
     "space-infix-ops": ["error"],
     "arrow-spacing": ["error", { "before": true, "after": true }],
-    "object-property-newline": ["error", { "allowAllPropertiesOnSameLine": true }],
-    "object-curly-newline": ["error", { "multiline": true, "consistent": true }],
+    "object-property-newline": [
+      "error",
+      { "allowAllPropertiesOnSameLine": true }
+    ],
+    "object-curly-newline": [
+      "error",
+      { "multiline": true, "consistent": true }
+    ],
     "array-element-newline": ["error", "consistent"],
     "function-paren-newline": ["error", "consistent"],
-    "max-len": ["error", { "code": 80, "ignoreUrls": true, "ignoreStrings": true }],
+    "max-len": [
+      "error",
+      { "code": 80, "ignoreUrls": true, "ignoreStrings": true }
+    ],
     "no-trailing-spaces": "error",
     "eol-last": ["error", "always"],
     "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }],
@@ -42,7 +48,11 @@
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" },
       { "blankLine": "always", "prev": ["const", "let", "var"], "next": "*" },
-      { "blankLine": "any", "prev": ["const", "let", "var"], "next": ["const", "let", "var"] }
+      {
+        "blankLine": "any",
+        "prev": ["const", "let", "var"],
+        "next": ["const", "let", "var"]
+      }
     ]
   }
 }

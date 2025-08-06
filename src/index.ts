@@ -63,7 +63,7 @@ export {
 export { classNames, createReactiveList } from './reactive-dom';
 
 // Export router functionality
-export { createRouter, Link, View, router } from './router';
+export { link, router, history } from './router';
 
 // Export types
 export type {

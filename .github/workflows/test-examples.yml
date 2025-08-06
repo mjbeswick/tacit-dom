@@ -26,14 +26,11 @@ jobs:
       - name: Build library
         run: npm run build
 
-      - name: Test signal functionality
-        run: node examples/tests/test-signals.ts
-
-      - name: Test browser examples
+      - name: Test library functionality
         run: |
           # Test that examples can be imported
           node -e "
-            const { signal, computed, div, render } = require('./dist/index.js');
+            const { signal, computed, div, render } = require('./dist/reactive-dom.cjs.js');
             console.log('✅ Library imports successfully');
             
             const count = signal(0);
@@ -47,7 +44,7 @@ jobs:
       - name: Test dynamic class names functionality
         run: |
           node -e "
-            const { classNames } = require('./dist/index.js');
+            const { classNames } = require('./dist/reactive-dom.cjs.js');
             
             console.log('Testing classNames...');
             console.log('String:', classNames('foo'));
@@ -61,7 +58,7 @@ jobs:
       - name: Test cleanup functionality
         run: |
           node -e "
-            const { signal, computed, div, render, cleanup } = require('./dist/index.js');
+            const { signal, computed, div, render, cleanup } = require('./dist/reactive-dom.cjs.js');
             
             console.log('Testing cleanup...');
             const count = signal(0);
@@ -79,13 +76,20 @@ jobs:
       - name: Test TypeScript compilation
         run: |
           # Test that all TypeScript files compile
-          npx tsc --noEmit examples/demos/main.ts
-          npx tsc --noEmit examples/tests/test-cleanup.ts
-          npx tsc --noEmit examples/tests/test-clsx.ts
+          npx tsc --noEmit examples/counter/main.ts
+          npx tsc --noEmit examples/debug/main.ts
+          npx tsc --noEmit examples/random-generator/main.ts
+          npx tsc --noEmit examples/router/main.ts
           echo "✅ All TypeScript files compile successfully"
 
-      - name: Test development server
+      - name: Test build process
         run: |
-          # Test that the development server can start
-          timeout 10s npm run dev:server || true
-          echo "✅ Development server test completed"
+          # Test that the build process works correctly
+          npm run build
+          echo "✅ Build process completed successfully"
+
+      - name: Test type checking
+        run: |
+          # Test that type checking passes
+          npm run type-check
+          echo "✅ Type checking passed"
