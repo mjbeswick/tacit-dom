@@ -135,6 +135,8 @@ For development setup, building, testing, and project structure, see [DEVELOPMEN
 
 ## 📚 API Reference
 
+For detailed API documentation, see [API.md](docs/API.md).
+
 ### Core Functions
 
 #### `signal<T>(initialValue: T): Signal<T>`
