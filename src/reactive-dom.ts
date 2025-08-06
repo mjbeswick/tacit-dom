@@ -144,13 +144,469 @@ function deepEqual(a: any, b: any): boolean {
   return true;
 }
 
-/**
- * Type for element properties (attributes and event listeners).
- *
- * Properties can be regular HTML attributes, event listeners (prefixed with 'on'),
- * or special properties like 'className' and 'children'.
- */
-export type ElementProps = Record<string, any>;
+// Strongly typed event handlers
+type EventHandler<T = Event> = (event: T) => void | boolean;
+
+// Common HTML attributes that apply to most elements
+type CommonAttributes = {
+  id?: string | Signal<string> | Computed<string>;
+  className?:
+    | string
+    | Signal<string>
+    | Computed<string>
+    | (
+        | string
+        | number
+        | boolean
+        | null
+        | undefined
+        | { [key: string]: any }
+        | any[]
+      )[];
+  style?: string | Signal<string> | Computed<string>;
+  title?: string | Signal<string> | Computed<string>;
+  lang?: string | Signal<string> | Computed<string>;
+  dir?:
+    | 'ltr'
+    | 'rtl'
+    | 'auto'
+    | Signal<'ltr' | 'rtl' | 'auto'>
+    | Computed<'ltr' | 'rtl' | 'auto'>;
+  hidden?: boolean | Signal<boolean> | Computed<boolean>;
+  tabindex?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  accesskey?: string | Signal<string> | Computed<string>;
+  contenteditable?:
+    | boolean
+    | 'true'
+    | 'false'
+    | 'inherit'
+    | Signal<boolean | 'true' | 'false' | 'inherit'>
+    | Computed<boolean | 'true' | 'false' | 'inherit'>;
+  spellcheck?:
+    | boolean
+    | 'true'
+    | 'false'
+    | Signal<boolean | 'true' | 'false'>
+    | Computed<boolean | 'true' | 'false'>;
+  draggable?:
+    | boolean
+    | 'true'
+    | 'false'
+    | Signal<boolean | 'true' | 'false'>
+    | Computed<boolean | 'true' | 'false'>;
+  children?: ElementChildren;
+};
+
+// Event handlers
+type EventHandlers = {
+  onabort?: EventHandler<Event>;
+  onblur?: EventHandler<FocusEvent>;
+  onchange?: EventHandler<Event>;
+  onclick?: EventHandler<MouseEvent>;
+  oncontextmenu?: EventHandler<MouseEvent>;
+  oncopy?: EventHandler<ClipboardEvent>;
+  oncut?: EventHandler<ClipboardEvent>;
+  ondbclick?: EventHandler<MouseEvent>;
+  ondrag?: EventHandler<DragEvent>;
+  ondragend?: EventHandler<DragEvent>;
+  ondragenter?: EventHandler<DragEvent>;
+  ondragleave?: EventHandler<DragEvent>;
+  ondragover?: EventHandler<DragEvent>;
+  ondragstart?: EventHandler<DragEvent>;
+  ondrop?: EventHandler<DragEvent>;
+  onerror?: EventHandler<Event>;
+  onfocus?: EventHandler<FocusEvent>;
+  oninput?: EventHandler<Event>;
+  onkeydown?: EventHandler<KeyboardEvent>;
+  onkeypress?: EventHandler<KeyboardEvent>;
+  onkeyup?: EventHandler<KeyboardEvent>;
+  onload?: EventHandler<Event>;
+  onmousedown?: EventHandler<MouseEvent>;
+  onmousemove?: EventHandler<MouseEvent>;
+  onmouseout?: EventHandler<MouseEvent>;
+  onmouseover?: EventHandler<MouseEvent>;
+  onmouseup?: EventHandler<MouseEvent>;
+  onpaste?: EventHandler<ClipboardEvent>;
+  onreset?: EventHandler<Event>;
+  onresize?: EventHandler<UIEvent>;
+  onscroll?: EventHandler<Event>;
+  onselect?: EventHandler<Event>;
+  onsubmit?: EventHandler<Event>;
+  onunload?: EventHandler<Event>;
+  onwheel?: EventHandler<WheelEvent>;
+};
+
+// Form-specific attributes
+type FormAttributes = {
+  name?: string | Signal<string> | Computed<string>;
+  value?: string | number | Signal<string | number> | Computed<string | number>;
+  disabled?: boolean | Signal<boolean> | Computed<boolean>;
+  readonly?: boolean | Signal<boolean> | Computed<boolean>;
+  required?: boolean | Signal<boolean> | Computed<boolean>;
+  autocomplete?: 'on' | 'off' | Signal<'on' | 'off'> | Computed<'on' | 'off'>;
+  autofocus?: boolean | Signal<boolean> | Computed<boolean>;
+  form?: string | Signal<string> | Computed<string>;
+  formaction?: string | Signal<string> | Computed<string>;
+  formenctype?:
+    | 'application/x-www-form-urlencoded'
+    | 'multipart/form-data'
+    | 'text/plain'
+    | Signal<
+        | 'application/x-www-form-urlencoded'
+        | 'multipart/form-data'
+        | 'text/plain'
+      >
+    | Computed<
+        | 'application/x-www-form-urlencoded'
+        | 'multipart/form-data'
+        | 'text/plain'
+      >;
+  formmethod?:
+    | 'get'
+    | 'post'
+    | Signal<'get' | 'post'>
+    | Computed<'get' | 'post'>;
+  formnovalidate?: boolean | Signal<boolean> | Computed<boolean>;
+  formtarget?: string | Signal<string> | Computed<string>;
+};
+
+// Input-specific attributes
+type InputAttributes = FormAttributes & {
+  type?:
+    | 'text'
+    | 'password'
+    | 'email'
+    | 'number'
+    | 'tel'
+    | 'url'
+    | 'search'
+    | 'date'
+    | 'time'
+    | 'datetime-local'
+    | 'month'
+    | 'week'
+    | 'color'
+    | 'file'
+    | 'range'
+    | 'checkbox'
+    | 'radio'
+    | 'submit'
+    | 'reset'
+    | 'button'
+    | 'image'
+    | 'hidden'
+    | Signal<string>
+    | Computed<string>;
+  placeholder?: string | Signal<string> | Computed<string>;
+  size?: number | string | Signal<number | string> | Computed<number | string>;
+  maxlength?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  minlength?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  pattern?: string | Signal<string> | Computed<string>;
+  min?: string | number | Signal<string | number> | Computed<string | number>;
+  max?: string | number | Signal<string | number> | Computed<string | number>;
+  step?: string | number | Signal<string | number> | Computed<string | number>;
+  multiple?: boolean | Signal<boolean> | Computed<boolean>;
+  accept?: string | Signal<string> | Computed<string>;
+  checked?: boolean | Signal<boolean> | Computed<boolean>;
+  src?: string | Signal<string> | Computed<string>;
+  alt?: string | Signal<string> | Computed<string>;
+  width?: number | string | Signal<number | string> | Computed<number | string>;
+  height?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+};
+
+// Anchor-specific attributes
+type AnchorAttributes = {
+  href?: string | Signal<string> | Computed<string>;
+  target?:
+    | '_blank'
+    | '_self'
+    | '_parent'
+    | '_top'
+    | string
+    | Signal<string>
+    | Computed<string>;
+  rel?: string | Signal<string> | Computed<string>;
+  download?: string | Signal<string> | Computed<string>;
+  hreflang?: string | Signal<string> | Computed<string>;
+  type?: string | Signal<string> | Computed<string>;
+};
+
+// Image-specific attributes
+type ImageAttributes = {
+  src?: string | Signal<string> | Computed<string>;
+  alt?: string | Signal<string> | Computed<string>;
+  width?: number | string | Signal<number | string> | Computed<number | string>;
+  height?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  loading?:
+    | 'lazy'
+    | 'eager'
+    | Signal<'lazy' | 'eager'>
+    | Computed<'lazy' | 'eager'>;
+  decoding?:
+    | 'sync'
+    | 'async'
+    | 'auto'
+    | Signal<'sync' | 'async' | 'auto'>
+    | Computed<'sync' | 'async' | 'auto'>;
+  crossorigin?:
+    | 'anonymous'
+    | 'use-credentials'
+    | Signal<'anonymous' | 'use-credentials'>
+    | Computed<'anonymous' | 'use-credentials'>;
+  usemap?: string | Signal<string> | Computed<string>;
+  ismap?: boolean | Signal<boolean> | Computed<boolean>;
+};
+
+// Video-specific attributes
+type VideoAttributes = {
+  src?: string | Signal<string> | Computed<string>;
+  poster?: string | Signal<string> | Computed<string>;
+  preload?:
+    | 'none'
+    | 'metadata'
+    | 'auto'
+    | Signal<'none' | 'metadata' | 'auto'>
+    | Computed<'none' | 'metadata' | 'auto'>;
+  autoplay?: boolean | Signal<boolean> | Computed<boolean>;
+  loop?: boolean | Signal<boolean> | Computed<boolean>;
+  muted?: boolean | Signal<boolean> | Computed<boolean>;
+  controls?: boolean | Signal<boolean> | Computed<boolean>;
+  width?: number | string | Signal<number | string> | Computed<number | string>;
+  height?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+};
+
+// Audio-specific attributes
+type AudioAttributes = {
+  src?: string | Signal<string> | Computed<string>;
+  preload?:
+    | 'none'
+    | 'metadata'
+    | 'auto'
+    | Signal<'none' | 'metadata' | 'auto'>
+    | Computed<'none' | 'metadata' | 'auto'>;
+  autoplay?: boolean | Signal<boolean> | Computed<boolean>;
+  loop?: boolean | Signal<boolean> | Computed<boolean>;
+  muted?: boolean | Signal<boolean> | Computed<boolean>;
+  controls?: boolean | Signal<boolean> | Computed<boolean>;
+};
+
+// Form-specific attributes
+type FormElementAttributes = {
+  action?: string | Signal<string> | Computed<string>;
+  method?: 'get' | 'post' | Signal<'get' | 'post'> | Computed<'get' | 'post'>;
+  enctype?:
+    | 'application/x-www-form-urlencoded'
+    | 'multipart/form-data'
+    | 'text/plain'
+    | Signal<
+        | 'application/x-www-form-urlencoded'
+        | 'multipart/form-data'
+        | 'text/plain'
+      >
+    | Computed<
+        | 'application/x-www-form-urlencoded'
+        | 'multipart/form-data'
+        | 'text/plain'
+      >;
+  target?: string | Signal<string> | Computed<string>;
+  novalidate?: boolean | Signal<boolean> | Computed<boolean>;
+  accept?: string | Signal<string> | Computed<string>;
+  acceptcharset?: string | Signal<string> | Computed<string>;
+};
+
+// Label-specific attributes
+type LabelAttributes = {
+  for?: string | Signal<string> | Computed<string>;
+};
+
+// Select-specific attributes
+type SelectAttributes = FormAttributes & {
+  multiple?: boolean | Signal<boolean> | Computed<boolean>;
+  size?: number | string | Signal<number | string> | Computed<number | string>;
+};
+
+// Option-specific attributes
+type OptionAttributes = {
+  value?: string | number | Signal<string | number> | Computed<string | number>;
+  disabled?: boolean | Signal<boolean> | Computed<boolean>;
+  selected?: boolean | Signal<boolean> | Computed<boolean>;
+  label?: string | Signal<string> | Computed<string>;
+};
+
+// Textarea-specific attributes
+type TextareaAttributes = FormAttributes & {
+  placeholder?: string | Signal<string> | Computed<string>;
+  rows?: number | string | Signal<number | string> | Computed<number | string>;
+  cols?: number | string | Signal<number | string> | Computed<number | string>;
+  maxlength?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  minlength?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  wrap?: 'soft' | 'hard' | Signal<'soft' | 'hard'> | Computed<'soft' | 'hard'>;
+  readonly?: boolean | Signal<boolean> | Computed<boolean>;
+};
+
+// Table-specific attributes
+type TableAttributes = {
+  border?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  cellpadding?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  cellspacing?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+  width?: number | string | Signal<number | string> | Computed<number | string>;
+  height?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+};
+
+// Canvas-specific attributes
+type CanvasAttributes = {
+  width?: number | string | Signal<number | string> | Computed<number | string>;
+  height?:
+    | number
+    | string
+    | Signal<number | string>
+    | Computed<number | string>;
+};
+
+// Details-specific attributes
+type DetailsAttributes = {
+  open?: boolean | Signal<boolean> | Computed<boolean>;
+};
+
+// Dialog-specific attributes
+type DialogAttributes = {
+  open?: boolean | Signal<boolean> | Computed<boolean>;
+};
+
+// Menu-specific attributes
+type MenuAttributes = {
+  type?:
+    | 'context'
+    | 'toolbar'
+    | Signal<'context' | 'toolbar'>
+    | Computed<'context' | 'toolbar'>;
+  label?: string | Signal<string> | Computed<string>;
+};
+
+// Strongly typed element props for different HTML elements
+export type DivProps = CommonAttributes & EventHandlers;
+export type HeadingProps = CommonAttributes & EventHandlers;
+export type ParagraphProps = CommonAttributes & EventHandlers;
+export type SpanProps = CommonAttributes & EventHandlers;
+export type AnchorProps = CommonAttributes & AnchorAttributes & EventHandlers;
+export type ButtonProps = CommonAttributes & FormAttributes & EventHandlers;
+export type InputProps = CommonAttributes & InputAttributes & EventHandlers;
+export type TextareaProps = CommonAttributes &
+  TextareaAttributes &
+  EventHandlers;
+export type SelectProps = CommonAttributes & SelectAttributes & EventHandlers;
+export type OptionProps = CommonAttributes & OptionAttributes & EventHandlers;
+export type FormProps = CommonAttributes &
+  FormElementAttributes &
+  EventHandlers;
+export type LabelProps = CommonAttributes & LabelAttributes & EventHandlers;
+export type ListProps = CommonAttributes & EventHandlers;
+export type ListItemProps = CommonAttributes & EventHandlers;
+export type TableProps = CommonAttributes & TableAttributes & EventHandlers;
+export type TableRowProps = CommonAttributes & EventHandlers;
+export type TableCellProps = CommonAttributes & EventHandlers;
+export type ImageProps = CommonAttributes & ImageAttributes & EventHandlers;
+export type VideoProps = CommonAttributes & VideoAttributes & EventHandlers;
+export type AudioProps = CommonAttributes & AudioAttributes & EventHandlers;
+export type CanvasProps = CommonAttributes & CanvasAttributes & EventHandlers;
+export type NavigationProps = CommonAttributes & EventHandlers;
+export type HeaderProps = CommonAttributes & EventHandlers;
+export type FooterProps = CommonAttributes & EventHandlers;
+export type MainProps = CommonAttributes & EventHandlers;
+export type SectionProps = CommonAttributes & EventHandlers;
+export type ArticleProps = CommonAttributes & EventHandlers;
+export type AsideProps = CommonAttributes & EventHandlers;
+export type DetailsProps = CommonAttributes & DetailsAttributes & EventHandlers;
+export type SummaryProps = CommonAttributes & EventHandlers;
+export type DialogProps = CommonAttributes & DialogAttributes & EventHandlers;
+export type MenuProps = CommonAttributes & MenuAttributes & EventHandlers;
+export type MenuItemProps = CommonAttributes & EventHandlers;
+export type PreProps = CommonAttributes & EventHandlers;
+
+// Union type for all possible element props
+export type ElementProps =
+  | DivProps
+  | HeadingProps
+  | ParagraphProps
+  | SpanProps
+  | AnchorProps
+  | ButtonProps
+  | InputProps
+  | TextareaProps
+  | SelectProps
+  | OptionProps
+  | FormProps
+  | LabelProps
+  | ListProps
+  | ListItemProps
+  | TableProps
+  | TableRowProps
+  | TableCellProps
+  | ImageProps
+  | VideoProps
+  | AudioProps
+  | CanvasProps
+  | NavigationProps
+  | HeaderProps
+  | FooterProps
+  | MainProps
+  | SectionProps
+  | ArticleProps
+  | AsideProps
+  | DetailsProps
+  | SummaryProps
+  | DialogProps
+  | MenuProps
+  | MenuItemProps
+  | PreProps;
 
 /**
  * Type for element children.
@@ -161,9 +617,12 @@ export type ElementProps = Record<string, any>;
 export type ElementChildren = (
   | string
   | number
+  | boolean
   | HTMLElement
   | Signal<any>
   | Computed<any>
+  | null
+  | undefined
 )[];
 
 /**
@@ -256,7 +715,7 @@ function createElementFactory(tagName: string): ElementCreator {
       } else if (key.startsWith('on') && typeof value === 'function') {
         // Handle event listeners
         const eventName = key.toLowerCase().slice(2);
-        element.addEventListener(eventName, value);
+        element.addEventListener(eventName, value as EventListener);
       } else {
         // Handle regular attributes
         if (key === 'className') {
@@ -431,7 +890,7 @@ function createElementFactory(tagName: string): ElementCreator {
                   element.removeAttribute(key);
                 }
               } else {
-                element.setAttribute(key, value);
+                element.setAttribute(key, String(value));
               }
             }
           }
@@ -490,7 +949,11 @@ function createElementFactory(tagName: string): ElementCreator {
           signal: child as Signal<any> | Computed<any>,
           unsubscribe,
         });
-      } else if (typeof child === 'string' || typeof child === 'number') {
+      } else if (
+        typeof child === 'string' ||
+        typeof child === 'number' ||
+        typeof child === 'boolean'
+      ) {
         element.appendChild(document.createTextNode(String(child)));
       } else if (child instanceof HTMLElement) {
         element.appendChild(child);

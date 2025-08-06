@@ -44,6 +44,16 @@ npm install
 npm run dev
 ```
 
+### Strongly Typed Props (`/strongly-typed-props`)
+
+An example demonstrating the strongly typed props functionality in reactive-dom. Shows how each HTML element has its own specific prop type for better TypeScript support.
+
+```bash
+cd strongly-typed-props
+npm install
+npm run dev
+```
+
 ## Running Examples
 
 Each example is self-contained with its own `package.json`, `vite.config.ts`, and `tsconfig.json`. To run any example:
@@ -61,6 +71,7 @@ Each example runs on a different port to avoid conflicts:
 - Debug: `http://localhost:5174`
 - Random Generator: `http://localhost:5175`
 - Router: `http://localhost:5176`
+- Strongly Typed Props: `http://localhost:3000`
 
 ## Building Examples
 
@@ -87,3 +98,4 @@ This will start all examples on their respective ports:
 - Debug: `http://localhost:5174`
 - Random Generator: `http://localhost:5175`
 - Router: `http://localhost:5176`
+- Strongly Typed Props: `http://localhost:3000`
