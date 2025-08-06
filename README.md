@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ Reactive-DOM
+# ⚡ SigDOM
 
 > A React-like library with reactive signals and computed values for building dynamic web applications
 
@@ -14,10 +14,10 @@ This project is currently a **proof of concept** and is **not suitable for produ
 
 </div>
 
-[![NPM Version](https://img.shields.io/npm/v/reactive-dom.svg)](https://www.npmjs.com/package/reactive-dom)
-[![License](https://img.shields.io/npm/l/reactive-dom.svg)](https://github.com/your-username/reactive-dom/blob/main/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/sigdom.svg)](https://www.npmjs.com/package/sigdom)
+[![License](https://img.shields.io/npm/l/sigdom.svg)](https://github.com/your-username/sigdom/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/reactive-dom/ci.yml?branch=main)](https://github.com/your-username/reactive-dom/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/sigdom/ci.yml?branch=main)](https://github.com/your-username/sigdom/actions)
 
 </div>
 
@@ -48,7 +48,7 @@ This project is currently a **proof of concept** and is **not suitable for produ
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
 
-## 🚀 Why Reactive-DOM?
+## 🚀 Why SigDOM?
 
 ### Signals vs React Hooks
 
@@ -80,7 +80,7 @@ This project is currently a **proof of concept** and is **not suitable for produ
 ## 📦 Installation
 
 ```bash
-npm install reactive-dom
+npm install sigdom
 ```
 
 ## 🚀 Quick Start
@@ -88,7 +88,7 @@ npm install reactive-dom
 Ready to build reactive apps without the React complexity? Let's dive in! 🏊‍♂️
 
 ```typescript
-import { signal, computed, div, h1, p, button, render } from 'reactive-dom';
+import { signal, computed, div, h1, p, button, render } from 'sigdom';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
@@ -170,7 +170,7 @@ render(Counter(), document.getElementById('app'));
 All HTML elements are available as factory functions:
 
 ```typescript
-import { div, h1, p, button, input, span } from 'reactive-dom';
+import { div, h1, p, button, input, span } from 'sigdom';
 
 const element = div(
   { className: 'container' },
@@ -182,7 +182,7 @@ const element = div(
 
 ## 🎯 Examples
 
-The `examples/` directory contains comprehensive examples demonstrating Reactive DOM features:
+The `examples/` directory contains comprehensive examples demonstrating SigDOM features:
 
 ### Available Examples
 
@@ -194,7 +194,7 @@ The `examples/` directory contains comprehensive examples demonstrating Reactive
 
 ### Example Features
 
-Each example demonstrates different aspects of Reactive DOM:
+Each example demonstrates different aspects of SigDOM:
 
 - **Reactive Signals**: Global state management without providers or context
 - **Computed Values**: Automatic dependency tracking and derived state

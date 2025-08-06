@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p } from 'reactive-dom';
+import { signal, computed, div, button, span, h1, p } from 'sigdom';
 
 export const app = () => {
   // Initialize a counter signal
@@ -23,7 +23,7 @@ export const app = () => {
     { className: 'container' },
     div(
       { className: 'notice' },
-      h1('Reactive DOM Counter Example'),
+      h1('SigDOM Counter Example'),
       p(
         'This example demonstrates reactive signals with increment and decrement buttons. The decrement button is disabled when the counter reaches zero.',
       ),

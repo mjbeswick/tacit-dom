@@ -1,7 +1,7 @@
 {
   "name": "strongly-typed-props-example",
   "version": "1.0.0",
-  "description": "Example demonstrating strongly typed props in reactive-dom",
+  "description": "Example demonstrating strongly typed props in sigdom",
   "main": "main.ts",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,6 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "reactive-dom": "file:../../dist"
+    "sigdom": "file:../../dist"
   }
 }

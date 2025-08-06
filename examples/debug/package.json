@@ -1,7 +1,7 @@
 {
-  "name": "reactive-dom-debug-example",
+  "name": "sigdom-debug-example",
   "version": "1.0.0",
-  "description": "Debug example for reactive-dom library",
+  "description": "Debug example for sigdom library",
   "type": "module",
   "private": true,
   "scripts": {
@@ -15,6 +15,6 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "reactive-dom": "file:../../dist"
+    "sigdom": "file:../../dist"
   }
 }
