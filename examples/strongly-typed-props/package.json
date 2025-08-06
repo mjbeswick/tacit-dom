@@ -13,6 +13,6 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "reactive-dom": "file:../.."
+    "reactive-dom": "file:../../dist"
   }
 }

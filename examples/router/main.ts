@@ -65,16 +65,20 @@ const app = () => {
       ),
       div(
         { className: 'browser-nav' },
-        button({
-          onClick: handleBack,
-          children: '← Back',
-          className: 'button',
-        }),
-        button({
-          onClick: handleForward,
-          children: 'Forward →',
-          className: 'button',
-        }),
+        button(
+          {
+            onclick: handleBack,
+            className: 'button',
+          },
+          '← Back',
+        ),
+        button(
+          {
+            onclick: handleForward,
+            className: 'button',
+          },
+          'Forward →',
+        ),
       ),
     ),
     main(
@@ -112,6 +116,7 @@ const app = () => {
               return { users: ['John', 'Jane', 'Jim'] };
             },
             component: (data) => {
+              console.log('Rendering users', data);
               return div(
                 { className: 'content' },
                 h2('Users'),
@@ -133,6 +138,7 @@ const app = () => {
               return { posts: ['Post 1', 'Post 2', 'Post 3'] };
             },
             component: (data) => {
+              console.log('Rendering posts', data);
               return div(
                 { className: 'content' },
                 h2('Posts'),

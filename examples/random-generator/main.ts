@@ -17,26 +17,25 @@ export const createRandomGeneratorApp = () => {
   return div(
     { className: 'container' },
     div(
-      { className: 'example-section' },
+      { className: 'notice' },
       h1('Reactive DOM Random Number Generator'),
       p(
         'This example demonstrates reactive signals with a button that generates random numbers. Click the button to see the value update automatically.',
       ),
       div(
-        { id: 'random-example' },
+        { className: 'grid' },
         div(
-          { className: 'counter' },
+          { className: 'card' },
           button(
             {
               id: 'generate-random',
-              className: 'button',
-              onClick: handleGenerateRandom,
+              onclick: handleGenerateRandom,
               disabled: isGenerateDisabled,
             },
             'Generate Random Number',
           ),
           span(
-            { id: 'random-value', className: 'counter-value' },
+            { id: 'random-value', className: 'badge' },
             'Random Number: ',
             randomNumber,
           ),

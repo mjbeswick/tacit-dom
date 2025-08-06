@@ -22,37 +22,34 @@ export const app = () => {
   return div(
     { className: 'container' },
     div(
-      { className: 'example-section' },
+      { className: 'notice' },
       h1('Reactive DOM Counter Example'),
       p(
         'This example demonstrates reactive signals with increment and decrement buttons. The decrement button is disabled when the counter reaches zero.',
       ),
       div(
-        { id: 'counter-example' },
+        { className: 'grid' },
         div(
-          { className: 'counter' },
-          button(
-            {
-              id: 'decrement',
-              className: 'button',
-              onClick: handleDecrement,
-              disabled: isDecrementDisabled,
-            },
-            'Decrement',
-          ),
-          span(
-            { id: 'counter-value', className: 'counter-value' },
-            'Count: ',
-            counter,
-          ),
-          button(
-            {
-              id: 'increment',
-              className: 'button',
-              onClick: handleIncrement,
-              disabled: isIncrementDisabled,
-            },
-            'Increment',
+          { className: 'card' },
+          span({ id: 'counter-value', className: 'badge' }, 'Count: ', counter),
+          div(
+            { className: 'button-group' },
+            button(
+              {
+                id: 'decrement',
+                onclick: handleDecrement,
+                disabled: isDecrementDisabled,
+              },
+              'Decrement',
+            ),
+            button(
+              {
+                id: 'increment',
+                onclick: handleIncrement,
+                disabled: isIncrementDisabled,
+              },
+              'Increment',
+            ),
           ),
         ),
       ),

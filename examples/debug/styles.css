@@ -1,4 +1,4 @@
-/* Custom styles for the counter example */
+/* Custom styles for the debug example */
 
 /* Add spacing between elements in cards */
 .card {
@@ -6,13 +6,6 @@
   flex-direction: column;
   gap: 1rem;
   align-items: center;
-}
-
-/* Arrange buttons horizontally with spacing */
-.button-group {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
 }
 
 /* Ensure buttons have proper spacing */

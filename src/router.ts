@@ -7,8 +7,9 @@
  * @module router
  */
 
-import { signal, Signal } from './reactivity';
+import { signal, Signal, Computed } from './reactivity';
 import { div, a } from './reactive-dom';
+import { computed } from './reactivity';
 
 // Types for the router
 export type RouteParams = Record<string, string>;
@@ -485,6 +486,49 @@ export function router(props: {
   // Ensure the router is set as global
   globalRouter = routerInstance;
 
-  // Return the view component
-  return routerInstance.View();
+  // Create a container element
+  const container = document.createElement('div');
+  container.className = 'router-container';
+
+  // Function to update the view
+  const updateView = () => {
+    const state = routerInstance.state.get();
+    const route = routerInstance.getCurrentRoute();
+
+    let newContent: HTMLElement;
+
+    if (state.isLoading) {
+      newContent = div({ className: 'router-loading' }, 'Loading...');
+    } else if (state.error && route?.errorBoundary) {
+      newContent = route.errorBoundary(state.error);
+    } else if (state.error) {
+      newContent = div(
+        { className: 'router-error' },
+        'Error: ',
+        state.error.message,
+      );
+    } else if (route) {
+      newContent = route.component(state.data);
+    } else if (notFoundComponent) {
+      newContent = notFoundComponent();
+    } else {
+      newContent = div({ className: 'router-not-found' }, 'Page not found');
+    }
+
+    // Clear container and append new content
+    container.innerHTML = '';
+    container.appendChild(newContent);
+  };
+
+  // Initial render
+  updateView();
+
+  // Subscribe to router state changes
+  const unsubscribe = routerInstance.state.subscribe(updateView);
+
+  // Store the subscription for cleanup (we'll need to implement this)
+  // For now, we'll just store it on the container element
+  (container as any)._routerUnsubscribe = unsubscribe;
+
+  return container;
 }
