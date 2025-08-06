@@ -61,23 +61,5 @@ export default [
     ],
     external: [],
   },
-  // Router Example
-  {
-    input: 'examples/router-example.ts',
-    output: {
-      file: 'examples/router-example.js',
-      format: 'es',
-      sourcemap: false,
-    },
-    plugins: [
-      typescript({
-        tsconfig: './tsconfig.json',
-        declaration: false,
-        outDir: './examples',
-      }),
-      nodeResolve(),
-      commonjs(),
-    ],
-    external: [],
-  },
+
 ];
