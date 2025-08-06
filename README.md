@@ -182,27 +182,51 @@ const element = div(
 
 ## 🎯 Examples
 
-The `examples/` directory contains various examples demonstrating Reactive DOM features:
+The `examples/` directory contains comprehensive examples demonstrating Reactive DOM features:
 
-- **Counter Example**: Basic reactive signals with increment/decrement buttons
-- **Random Generator**: Signal updates with automatic UI re-rendering
-- **Debug Example**: Reactive signals with disabled states and logging
-- **Router Example**: Advanced routing with navigation and error handling
+### Available Examples
+
+- **🔢 Counter** (`/counter`): Basic reactive state management with increment/decrement buttons
+- **🎲 Random Generator** (`/random-generator`): Signal updates with automatic UI re-rendering
+- **🐛 Debug** (`/debug`): Reactive signals with disabled states and real-time logging
+- **🌐 Router** (`/router`): Advanced client-side routing with navigation and error handling
+- **🔒 Strongly Typed Props** (`/strongly-typed-props`): Demonstrates TypeScript type safety for all HTML element props
+
+### Example Features
+
+Each example demonstrates different aspects of Reactive DOM:
+
+- **Reactive Signals**: Global state management without providers or context
+- **Computed Values**: Automatic dependency tracking and derived state
+- **Event Handling**: Built-in DOM event support with reactive updates
+- **CSS Modules**: Scoped styling with theme support
+- **Type Safety**: Full TypeScript support with strongly typed props
+- **Routing**: Client-side routing with dynamic route handling
+- **Error Boundaries**: Graceful error handling and recovery
 
 ### Running Examples
 
 ```bash
-# Start development server
-npm run examples
+# Run all examples simultaneously
+./examples/run-all.sh
 
-# Preview built examples
-npm run examples:preview
-
-# Build examples
-npm run examples:build
+# Or run individual examples
+cd examples/counter && npm install && npm run dev
+cd examples/router && npm install && npm run dev
+cd examples/strongly-typed-props && npm install && npm run dev
 ```
 
-Then open `http://localhost:5173` in your browser to see the examples.
+### Example Ports
+
+Each example runs on a different port:
+
+- **Counter**: `http://localhost:5173`
+- **Debug**: `http://localhost:5174`
+- **Random Generator**: `http://localhost:5175`
+- **Router**: `http://localhost:5176`
+- **Strongly Typed Props**: `http://localhost:3000`
+
+For detailed information about each example, see the [Examples README](examples/README.md).
 
 ## 🤝 Contributing
 
