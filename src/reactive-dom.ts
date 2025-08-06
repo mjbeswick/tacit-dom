@@ -1101,7 +1101,7 @@ export function render(
  *
  * @example
  * ```typescript
- * const app = div({}, 'Hello World');
+ * const app = div( 'Hello World');
  * // ... use the component
  * cleanup(app); // Clean up when done
  * ```
@@ -1129,7 +1129,7 @@ export { classNames };
  * ```typescript
  * const items = signal(['Apple', 'Banana', 'Cherry']);
  * const list = createReactiveList(items, (item, index) =>
- *   li({}, item)
+ *   li( item)
  * );
  * ```
  */

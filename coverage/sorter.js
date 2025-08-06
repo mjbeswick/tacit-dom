@@ -79,7 +79,7 @@ var addSorting = (function() {
         var tableCols = tableRow.querySelectorAll('td'),
             colNode,
             col,
-            data = {},
+            data = 
             i,
             val;
         for (i = 0; i < tableCols.length; i += 1) {

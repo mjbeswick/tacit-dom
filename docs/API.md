@@ -214,7 +214,6 @@ const formElement = form(
   input({ type: 'text', placeholder: 'Enter name' }),
   textarea({ placeholder: 'Enter description' }),
   select(
-    {},
     option({ value: '1', children: 'Option 1' }),
     option({ value: '2', children: 'Option 2' }),
   ),
@@ -228,7 +227,6 @@ const formElement = form(
 import { ul, ol, li } from 'reactive-dom';
 
 const list = ul(
-  {},
   li({ children: 'Item 1' }),
   li({ children: 'Item 2' }),
   li({ children: 'Item 3' }),
@@ -241,9 +239,8 @@ const list = ul(
 import { table, tr, td, th } from 'reactive-dom';
 
 const tableElement = table(
-  {},
-  tr({}, th({ children: 'Header 1' }), th({ children: 'Header 2' })),
-  tr({}, td({ children: 'Cell 1' }), td({ children: 'Cell 2' })),
+  tr(th({ children: 'Header 1' }), th({ children: 'Header 2' })),
+  tr(td({ children: 'Cell 1' }), td({ children: 'Cell 2' })),
 );
 ```
 
@@ -253,7 +250,6 @@ const tableElement = table(
 import { img, video, audio, canvas } from 'reactive-dom';
 
 const mediaElements = div(
-  {},
   img({ src: 'image.jpg', alt: 'Image' }),
   video({ src: 'video.mp4', controls: true }),
   audio({ src: 'audio.mp3', controls: true }),
@@ -275,11 +271,9 @@ import {
 } from 'reactive-dom';
 
 const semanticLayout = div(
-  {},
   header({ children: 'Header' }),
   nav({ children: 'Navigation' }),
   main(
-    {},
     section({ children: 'Section 1' }),
     article({ children: 'Article' }),
     aside({ children: 'Sidebar' }),
@@ -327,7 +321,6 @@ const count = signal(0);
 const doubleCount = computed(() => count.get() * 2);
 
 const reactiveElement = div(
-  {},
   p({ children: `Count: ${count}` }),
   p({ children: `Double: ${doubleCount}` }),
   button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
@@ -350,7 +343,7 @@ Renders a component to a DOM container.
 ```typescript
 const app = document.getElementById('app');
 if (app) {
-  render(MyComponent({}, []), app);
+  render(MyComponent([]), app);
 }
 ```
 
@@ -433,7 +426,6 @@ const form = form(
 const showDetails = signal(false);
 
 const component = div(
-  {},
   button(
     { onClick: () => showDetails.set(!showDetails.get()) },
     'Toggle Details',
@@ -449,7 +441,6 @@ const component = div(
 const items = signal(['apple', 'banana', 'orange']);
 
 const list = ul(
-  {},
   ...items.get().map((item) => li({ key: item, children: item })),
 );
 ```

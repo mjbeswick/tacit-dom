@@ -64,8 +64,8 @@ export class Router {
     // Initialize reactive state
     this.state = signal<RouterState>({
       currentPath: '',
-      params: {},
-      search: {},
+      params: 
+      search: 
       data: null,
       error: null,
       isLoading: false,

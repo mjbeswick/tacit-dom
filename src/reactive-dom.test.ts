@@ -251,20 +251,20 @@ describe('Element Creators', () => {
 
   describe('element with children', () => {
     it('should add text children', () => {
-      const element = div({}, 'Hello', 'World');
+      const element = div('Hello', 'World');
       expect(element.textContent).toBe('HelloWorld');
     });
 
     it('should add element children', () => {
       const child1 = span();
       const child2 = p();
-      const element = div({}, child1, child2);
+      const element = div(child1, child2);
       expect(element.children.length).toBe(2);
     });
 
     it('should handle mixed children', () => {
       const childElement = span();
-      const element = div({}, 'Text', childElement, 42);
+      const element = div('Text', childElement, 42);
       expect(element.children.length).toBe(1);
       expect(element.textContent).toContain('Text');
     });
@@ -322,14 +322,14 @@ describe('Element Creators', () => {
   describe('reactive children', () => {
     it('should handle reactive text children', () => {
       const textSignal = signal('Hello');
-      const element = div({}, textSignal);
+      const element = div(textSignal);
 
       expect(element.textContent).toBe('Hello');
     });
 
     it('should update reactive text children', () => {
       const textSignal = signal('Hello');
-      const element = div({}, textSignal);
+      const element = div(textSignal);
 
       textSignal.set('World');
       expect(element.textContent).toBe('World');
@@ -354,7 +354,6 @@ describe('Element Creators', () => {
     it('should handle errors in text node updates', () => {
       const errorSignal = signal(0);
       div(
-        {},
         computed(() => {
           if (errorSignal.get() > 0) {
             throw new Error('Text error');
@@ -386,7 +385,7 @@ describe('createElement', () => {
 describe('render', () => {
   it('should render component to container', () => {
     const container = document.createElement('div');
-    const component = () => div({}, 'Hello World');
+    const component = () => div('Hello World');
 
     render(component, container);
 
@@ -398,7 +397,7 @@ describe('render', () => {
     const container = document.createElement('div');
     container.innerHTML = '<div>Old Content</div>';
 
-    const component = () => div({}, 'New Content');
+    const component = () => div('New Content');
 
     render(component, container);
 
@@ -426,7 +425,7 @@ describe('createReactiveList', () => {
   it('should create reactive list', () => {
     const itemsSignal = signal(['Apple', 'Banana']);
     const list = createReactiveList(itemsSignal, (item, _index) =>
-      li({}, `${item}`),
+      li(`${item}`),
     );
 
     expect(list.tagName).toBe('DIV');
@@ -434,9 +433,7 @@ describe('createReactiveList', () => {
 
   it('should update when signal changes', () => {
     const itemsSignal = signal(['Apple', 'Banana']);
-    const list = createReactiveList(itemsSignal, (item, _index) =>
-      li({}, item),
-    );
+    const list = createReactiveList(itemsSignal, (item, _index) => li(item));
 
     // Initial render
     expect(list.children.length).toBe(2);
@@ -450,7 +447,7 @@ describe('createReactiveList', () => {
 
   it('should handle empty arrays', () => {
     const itemsSignal = signal([]);
-    const list = createReactiveList(itemsSignal, (item) => li({}, item));
+    const list = createReactiveList(itemsSignal, (item) => li(item));
 
     expect(list.children.length).toBe(0);
   });
@@ -528,7 +525,7 @@ describe('edge cases', () => {
   });
 
   it('should handle undefined children', () => {
-    const element = div({}, undefined as any);
+    const element = div(undefined as any);
     expect(element.tagName).toBe('DIV');
   });
 

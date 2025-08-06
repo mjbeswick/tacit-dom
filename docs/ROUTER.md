@@ -141,8 +141,8 @@ Each route can have a custom error boundary:
   errorBoundary: (error) => {
     return div(
       { className: 'error-page' },
-      h2({}, 'Something went wrong'),
-      p({}, error.message),
+      h2( 'Something went wrong'),
+      p( error.message),
       link({ to: '/users', children: 'Back to Users' })
     );
   },
@@ -247,7 +247,7 @@ Custom 404 page:
 const routerInstance = router({
   routes: [...],
   notFoundComponent: () =>
-    div({}, h1({}, '404 - Page Not Found')),
+    div( h1( '404 - Page Not Found')),
 });
 ```
 
@@ -274,19 +274,18 @@ const api = {
 };
 
 // Components
-const HomePage = () => div({}, h1({}, 'Welcome Home'));
-const NotFoundPage = () => div({}, h1({}, 'Page Not Found'));
+const HomePage = () => div(h1('Welcome Home'));
+const NotFoundPage = () => div(h1('Page Not Found'));
 
 const UsersPage = (data) => {
   const users = data.users;
 
   return div(
-    {},
-    h1({}, 'Users'),
+    h1('Users'),
     ...users.map((user) =>
       div(
         { key: user.id },
-        p({}, user.name),
+        p(user.name),
         link({ to: `/users/${user.id}`, children: 'View' }),
       ),
     ),
@@ -297,9 +296,8 @@ const UserDetailPage = (data) => {
   const user = data;
 
   return div(
-    {},
-    h1({}, `User: ${user.name}`),
-    p({}, `ID: ${user.id}`),
+    h1(`User: ${user.name}`),
+    p(`ID: ${user.id}`),
     link({ to: '/users', children: '← Back' }),
   );
 };
@@ -307,14 +305,11 @@ const UserDetailPage = (data) => {
 // Main app
 const App = () => {
   return div(
-    {},
     nav(
-      {},
       link({ to: '/', children: 'Home' }),
       link({ to: '/users', children: 'Users' }),
     ),
     main(
-      {},
       router({
         routes: [
           {
@@ -330,8 +325,7 @@ const App = () => {
             path: '/users/:id',
             component: UserDetailPage,
             loader: async (params) => await api.getUser(params.id),
-            errorBoundary: (error) =>
-              div({}, h2({}, 'Error'), p({}, error.message)),
+            errorBoundary: (error) => div(h2('Error'), p(error.message)),
           },
         ],
         notFoundComponent: NotFoundPage,
@@ -355,7 +349,7 @@ test('should navigate and load data', async () => {
     routes: [
       {
         path: '/test',
-        component: () => div({}, 'Test'),
+        component: () => div('Test'),
         loader: async () => ({ data: 'test' }),
       },
     ],

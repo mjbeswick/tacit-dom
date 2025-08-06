@@ -127,7 +127,6 @@ describe('ReactiveDOM exports', () => {
       );
 
       const display = ReactiveDOM.div(
-        {},
         'Count: ',
         count,
         ' (Doubled: ',

@@ -129,17 +129,16 @@ const handleSubmit = (event: Event) => {
 function createApp() {
   return div(
     { className: 'container' },
-    h1({}, 'Strongly Typed Props Demo'),
+    h1('Strongly Typed Props Demo'),
 
     p(
-      {},
       'This example demonstrates the strongly typed props functionality in reactive-dom. All props are now strongly typed based on the HTML element type.',
     ),
 
     // Form section
     section(
       { className: 'container' },
-      h2({}, 'Form with Strongly Typed Props'),
+      h2('Form with Strongly Typed Props'),
 
       form(
         {
@@ -240,7 +239,7 @@ function createApp() {
             checked: isActive,
             onChange: toggleActive,
           }),
-          span({}, ' Check this box'),
+          span(' Check this box'),
         ),
 
         // Rating input
@@ -256,10 +255,7 @@ function createApp() {
             value: rating,
             onInput: handleRatingChange,
           }),
-          span(
-            {},
-            computed(() => ` ${rating.get()}/10`),
-          ),
+          span(computed(() => ` ${rating.get()}/10`)),
         ),
 
         // Message textarea
@@ -304,11 +300,11 @@ function createApp() {
     // Media elements section
     section(
       { className: 'container' },
-      h2({}, 'Media Elements with Strongly Typed Props'),
+      h2('Media Elements with Strongly Typed Props'),
 
       div(
         { className: 'form-group' },
-        h3({}, 'Image Element'),
+        h3('Image Element'),
         img({
           src: 'https://via.placeholder.com/300x200',
           alt: 'Placeholder image',
@@ -320,7 +316,7 @@ function createApp() {
 
       div(
         { className: 'form-group' },
-        h3({}, 'Video Element'),
+        h3('Video Element'),
         video(
           {
             src: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
@@ -335,7 +331,7 @@ function createApp() {
 
       div(
         { className: 'form-group' },
-        h3({}, 'Audio Element'),
+        h3('Audio Element'),
         audio(
           {
             src: 'https://sample-videos.com/zip/10/mp3/SampleAudio_0.4mb.mp3',
@@ -348,7 +344,7 @@ function createApp() {
 
       div(
         { className: 'form-group' },
-        h3({}, 'Canvas Element'),
+        h3('Canvas Element'),
         canvas({
           width: 200,
           height: 100,
@@ -360,7 +356,7 @@ function createApp() {
     // Table section
     section(
       { className: 'container' },
-      h2({}, 'Table with Strongly Typed Props'),
+      h2('Table with Strongly Typed Props'),
 
       table(
         {
@@ -369,30 +365,26 @@ function createApp() {
           cellspacing: 0,
           style: 'border-collapse: collapse; width: 100%;',
         },
-        tr({}, th({}, 'Property'), th({}, 'Type'), th({}, 'Description')),
+        tr(th('Property'), th('Type'), th('Description')),
         tr(
-          {},
-          td({}, 'InputProps'),
-          td({}, 'CommonAttributes & InputAttributes & EventHandlers'),
-          td({}, 'Strongly typed props for input elements'),
+          td('InputProps'),
+          td('CommonAttributes & InputAttributes & EventHandlers'),
+          td('Strongly typed props for input elements'),
         ),
         tr(
-          {},
-          td({}, 'ButtonProps'),
-          td({}, 'CommonAttributes & FormAttributes & EventHandlers'),
-          td({}, 'Strongly typed props for button elements'),
+          td('ButtonProps'),
+          td('CommonAttributes & FormAttributes & EventHandlers'),
+          td('Strongly typed props for button elements'),
         ),
         tr(
-          {},
-          td({}, 'AnchorProps'),
-          td({}, 'CommonAttributes & AnchorAttributes & EventHandlers'),
-          td({}, 'Strongly typed props for anchor elements'),
+          td('AnchorProps'),
+          td('CommonAttributes & AnchorAttributes & EventHandlers'),
+          td('Strongly typed props for anchor elements'),
         ),
         tr(
-          {},
-          td({}, 'ImageProps'),
-          td({}, 'CommonAttributes & ImageAttributes & EventHandlers'),
-          td({}, 'Strongly typed props for image elements'),
+          td('ImageProps'),
+          td('CommonAttributes & ImageAttributes & EventHandlers'),
+          td('Strongly typed props for image elements'),
         ),
       ),
     ),
@@ -400,14 +392,11 @@ function createApp() {
     // Navigation section
     section(
       { className: 'container' },
-      h2({}, 'Navigation with Strongly Typed Props'),
+      h2('Navigation with Strongly Typed Props'),
 
       nav(
-        {},
         ul(
-          {},
           li(
-            {},
             a(
               {
                 href: '#',
@@ -418,7 +407,6 @@ function createApp() {
             ),
           ),
           li(
-            {},
             a(
               {
                 href: '#about',
@@ -428,7 +416,6 @@ function createApp() {
             ),
           ),
           li(
-            {},
             a(
               {
                 href: '#contact',
@@ -444,7 +431,7 @@ function createApp() {
     // Interactive elements
     section(
       { className: 'container' },
-      h2({}, 'Interactive Elements'),
+      h2('Interactive Elements'),
 
       div(
         { className: 'form-group' },
@@ -452,9 +439,8 @@ function createApp() {
           {
             open: isActive,
           },
-          summary({}, 'Click to expand details'),
+          summary('Click to expand details'),
           p(
-            {},
             'This is a details element with strongly typed props. The open attribute is reactive.',
           ),
         ),
@@ -466,8 +452,8 @@ function createApp() {
           {
             open: false,
           },
-          h3({}, 'Dialog Title'),
-          p({}, 'This is a dialog element with strongly typed props.'),
+          h3('Dialog Title'),
+          p('This is a dialog element with strongly typed props.'),
           button(
             {
               onClick: () => console.log('Dialog button clicked'),
@@ -483,9 +469,9 @@ function createApp() {
           {
             type: 'context',
           },
-          li({}, 'Context menu item 1'),
-          li({}, 'Context menu item 2'),
-          li({}, 'Context menu item 3'),
+          li('Context menu item 1'),
+          li('Context menu item 2'),
+          li('Context menu item 3'),
         ),
       ),
     ),
@@ -493,7 +479,7 @@ function createApp() {
     // Code example
     section(
       { className: 'container' },
-      h2({}, 'Code Example'),
+      h2('Code Example'),
 
       pre(
         {

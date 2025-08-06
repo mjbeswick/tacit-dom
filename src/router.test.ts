@@ -44,13 +44,13 @@ describe('Router', () => {
   let router: Router;
 
   // Simple test components
-  const HomeComponent = () => div({}, h1({}, 'Home'));
-  const UsersComponent = () => div({}, h1({}, 'Users'));
-  const UserDetailComponent = () => div({}, h1({}, 'User Detail'));
-  const PostsComponent = () => div({}, h1({}, 'Posts'));
-  const PostDetailComponent = () => div({}, h1({}, 'Post Detail'));
-  const SearchComponent = () => div({}, h1({}, 'Search'));
-  const NotFoundComponent = () => div({}, h1({}, 'Not Found'));
+  const HomeComponent = () => div(h1('Home'));
+  const UsersComponent = () => div(h1('Users'));
+  const UserDetailComponent = () => div(h1('User Detail'));
+  const PostsComponent = () => div(h1('Posts'));
+  const PostDetailComponent = () => div(h1('Post Detail'));
+  const SearchComponent = () => div(h1('Search'));
+  const NotFoundComponent = () => div(h1('Not Found'));
 
   // Mock loaders
   const mockUsersLoader = jest.fn().mockResolvedValue([
@@ -175,7 +175,7 @@ describe('Router', () => {
         routes: [
           {
             path: '/test',
-            component: () => div({}, 'Test'),
+            component: () => div('Test'),
             loader: failingLoader,
           },
         ],
@@ -369,13 +369,13 @@ describe('Router', () => {
 
   describe('Error boundaries', () => {
     test('should use error boundary when available', () => {
-      const errorBoundary = jest.fn().mockReturnValue(div({}, 'Error handled'));
+      const errorBoundary = jest.fn().mockReturnValue(div('Error handled'));
 
       const routerWithErrorBoundary = new Router({
         routes: [
           {
             path: '/test',
-            component: () => div({}, 'Test'),
+            component: () => div('Test'),
             errorBoundary,
           },
         ],
