@@ -11,10 +11,8 @@
  */
 
 import {
-  signal,
   div,
   button,
-  span,
   h1,
   h2,
   h3,
@@ -24,10 +22,6 @@ import {
   footer,
   main,
   link,
-  a,
-  View,
-  Route,
-  RouteParams,
   router,
   history,
   ul,
