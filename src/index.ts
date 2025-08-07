@@ -8,75 +8,97 @@
  * @module reactive-dom
  */
 
-// Export reactive primitives
-export { signal, computed, Signal, Computed } from './reactivity';
+// Core reactivity exports
+export { batch, computed, effect, signal } from './signals';
+export type { Signal, Computed } from './signals';
 
-// Export DOM elements
+// DOM exports
 export {
+  a,
+  article,
+  aside,
+  audio,
+  button,
+  canvas,
+  classNames,
+  cleanup,
+  createElement,
+  createReactiveList,
+  details,
+  dialog,
   div,
+  footer,
+  form,
   h1,
   h2,
   h3,
   h4,
   h5,
   h6,
-  p,
-  span,
-  a,
-  button,
-  input,
-  textarea,
-  select,
-  option,
-  form,
-  label,
-  ul,
-  ol,
-  li,
-  table,
-  tr,
-  td,
-  th,
-  img,
-  video,
-  audio,
-  canvas,
-  nav,
   header,
-  footer,
+  img,
+  input,
+  label,
+  li,
   main,
-  section,
-  article,
-  aside,
-  details,
-  summary,
-  dialog,
   menu,
   menuitem,
+  nav,
+  ol,
+  option,
+  p,
   pre,
-  createElement,
   render,
-  cleanup,
-} from './reactive-dom';
+  section,
+  select,
+  span,
+  summary,
+  table,
+  td,
+  textarea,
+  th,
+  tr,
+  ul,
+  video,
+} from './dom';
 
-// Export utility functions
-export { classNames, createReactiveList } from './reactive-dom';
+// Router exports
+export { createRouter } from './router';
 
-// Export router functionality
-export { link, router, history } from './router';
-
-// Export types
+// Type exports
 export type {
-  ElementProps,
-  ElementChildren,
-  ElementCreator,
-} from './reactive-dom';
-
-// Export router types
-export type {
-  Route,
-  RouteParams,
-  RouteSearch,
-  RouterState,
-  RouterConfig,
-} from './router';
+  AnchorProps,
+  ArticleProps,
+  AsideProps,
+  AudioProps,
+  ButtonProps,
+  CanvasProps,
+  DetailsProps,
+  DialogProps,
+  DivProps,
+  FooterProps,
+  FormProps,
+  HeaderProps,
+  HeadingProps,
+  ImageProps,
+  InputProps,
+  LabelProps,
+  ListItemProps,
+  ListProps,
+  MainProps,
+  MenuItemProps,
+  MenuProps,
+  NavigationProps,
+  OptionProps,
+  ParagraphProps,
+  PreProps,
+  SectionProps,
+  SelectProps,
+  SpanProps,
+  SummaryProps,
+  TableCellProps,
+  TableProps,
+  TableRowProps,
+  TextareaProps,
+  VideoProps,
+} from './dom';

@@ -13,9 +13,8 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-unused-vars": ["warn"],
     "no-undef": "error",
-    "no-console": "warn",
     "no-debugger": "error",
     "prefer-const": "error",
     "no-var": "error"

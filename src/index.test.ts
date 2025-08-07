@@ -156,8 +156,6 @@ describe('ReactiveDOM exports', () => {
         // Signal exports
         'signal',
         'computed',
-        'Signal',
-        'Computed',
         // DOM element exports
         'div',
         'h1',
