@@ -9,10 +9,13 @@
  * @module dom
  */
 
-import { Signal, Computed } from './reactivity';
+import { Computed, Signal } from './reactivity';
+
+// DOM types for event handling
+type EventListener = (event: Event) => void;
 
 // Inline classNames function to avoid circular dependency
-function classNames(
+function classNames (
   ...inputs: (
     | string
     | number
@@ -60,11 +63,12 @@ let lastResetTime = Date.now();
  * Checks if we've exceeded the maximum number of updates to prevent infinite loops.
  * @returns true if updates should be allowed, false if we've hit the limit
  */
-function checkUpdateLimit(): boolean {
+function checkUpdateLimit (): boolean {
   globalUpdateCount++;
 
   // Reset counter every 100ms to allow normal operation
   const now = Date.now();
+
   if (now - lastResetTime > 100) {
     globalUpdateCount = 0;
     lastResetTime = now;
@@ -74,8 +78,10 @@ function checkUpdateLimit(): boolean {
     console.error(
       'ReactiveDOM: Maximum update limit exceeded, possible infinite loop detected',
     );
+
     return false;
   }
+
   return true;
 }
 
@@ -83,7 +89,7 @@ function checkUpdateLimit(): boolean {
  * Checks if a value has changed and updates the stored value
  * Uses deep equality for objects and arrays to prevent unnecessary updates
  */
-function hasValueChanged(
+function hasValueChanged (
   element: HTMLElement,
   key: string,
   newValue: any,
@@ -103,6 +109,7 @@ function hasValueChanged(
 
   if (hasChanged) {
     elementValues.set(key, newValue);
+
     return true;
   }
 
@@ -112,7 +119,7 @@ function hasValueChanged(
 /**
  * Deep equality check for objects and arrays
  */
-function deepEqual(a: any, b: any): boolean {
+function deepEqual (a: any, b: any): boolean {
   if (a === b) return true;
 
   if (a == null || b == null) return a === b;
@@ -128,6 +135,7 @@ function deepEqual(a: any, b: any): boolean {
     for (let i = 0; i < a.length; i++) {
       if (!deepEqual(a[i], b[i])) return false;
     }
+
     return true;
   }
 
@@ -145,7 +153,7 @@ function deepEqual(a: any, b: any): boolean {
 }
 
 // Strongly typed event handlers
-type EventHandler<T = Event> = (event: T) => void | boolean;
+type EventHandler<T = Event> = (_event: T) => void | boolean;
 
 // Common HTML attributes that apply to most elements
 type CommonAttributes = {
@@ -676,7 +684,7 @@ const reactiveListNodes = new WeakMap<
  * @param tagName - The HTML tag name for the element
  * @returns An element creator function
  */
-function createElementFactory(tagName: string): ElementCreator {
+function createElementFactory (tagName: string): ElementCreator {
   return (
     props?: ElementProps | ElementChildren[0],
     ...children: ElementChildren
@@ -715,6 +723,7 @@ function createElementFactory(tagName: string): ElementCreator {
       } else if (key.startsWith('on') && typeof value === 'function') {
         // Handle event listeners
         const eventName = key.toLowerCase().slice(2);
+
         element.addEventListener(eventName, value as EventListener);
       } else {
         // Handle regular attributes
@@ -766,12 +775,14 @@ function createElementFactory(tagName: string): ElementCreator {
                 (typeof classNameValue === 'object' && classNameValue !== null)
                   ? classNames(classNameValue)
                   : String(classNameValue);
+
               element.className = finalClassName;
             } catch (error) {
               console.error('Error setting initial className:', error);
             }
 
             const unsubscribe = value.subscribe(updateClassName);
+
             subscriptions.push({ signal: value, unsubscribe });
           } else if (
             typeof value === 'string' ||
@@ -801,6 +812,7 @@ function createElementFactory(tagName: string): ElementCreator {
                   const inputValue = String(
                     (value as Signal<any> | Computed<any>).get(),
                   );
+
                   if (hasValueChanged(element, key, inputValue)) {
                     element.value = inputValue;
                   }
@@ -817,6 +829,7 @@ function createElementFactory(tagName: string): ElementCreator {
                   ) {
                     // Handle boolean attributes
                     const newDisabled = Boolean(attrValue);
+
                     if (hasValueChanged(element, key, newDisabled)) {
                       if (newDisabled) {
                         element.setAttribute(key, '');
@@ -826,6 +839,7 @@ function createElementFactory(tagName: string): ElementCreator {
                     }
                   } else {
                     const stringValue = String(attrValue);
+
                     if (hasValueChanged(element, key, stringValue)) {
                       element.setAttribute(key, stringValue);
                     }
@@ -841,6 +855,7 @@ function createElementFactory(tagName: string): ElementCreator {
             // Set initial value without triggering reactive updates
             try {
               const initialValue = (value as Signal<any> | Computed<any>).get();
+
               if (key === 'value' && element instanceof HTMLInputElement) {
                 element.value = String(initialValue);
               } else if (
@@ -868,6 +883,7 @@ function createElementFactory(tagName: string): ElementCreator {
             const unsubscribe = (
               value as Signal<any> | Computed<any>
             ).subscribe(updateAttribute);
+
             subscriptions.push({
               signal: value as Signal<any> | Computed<any>,
               unsubscribe,
@@ -903,6 +919,7 @@ function createElementFactory(tagName: string): ElementCreator {
       if (child instanceof Signal || child instanceof Computed) {
         // Handle reactive values
         const textNode = document.createTextNode('');
+
         element.appendChild(textNode);
 
         let isUpdating = false;
@@ -919,6 +936,7 @@ function createElementFactory(tagName: string): ElementCreator {
               const textValue = String(
                 (child as Signal<any> | Computed<any>).get(),
               );
+
               if (hasValueChanged(textNode as any, 'textContent', textValue)) {
                 textNode.textContent = textValue;
               }
@@ -936,6 +954,7 @@ function createElementFactory(tagName: string): ElementCreator {
           const textValue = String(
             (child as Signal<any> | Computed<any>).get(),
           );
+
           textNode.textContent = textValue;
         } catch (error) {
           console.error('Error setting initial text:', error);
@@ -945,6 +964,7 @@ function createElementFactory(tagName: string): ElementCreator {
         const unsubscribe = (child as Signal<any> | Computed<any>).subscribe(
           updateText,
         );
+
         subscriptions.push({
           signal: child as Signal<any> | Computed<any>,
           unsubscribe,
@@ -1027,7 +1047,7 @@ export const pre = createElementFactory('pre');
  * const element = customElement({ id: 'my-id' }, 'Hello World');
  * ```
  */
-export function createElement(tagName: string): ElementCreator {
+export function createElement (tagName: string): ElementCreator {
   return createElementFactory(tagName);
 }
 
@@ -1039,9 +1059,10 @@ export function createElement(tagName: string): ElementCreator {
  *
  * @param element - The HTML element to clean up
  */
-function cleanupElement(element: HTMLElement): void {
+function cleanupElement (element: HTMLElement): void {
   // Clean up regular reactive nodes
   const subscriptions = reactiveNodes.get(element);
+
   if (subscriptions) {
     subscriptions.forEach(({ unsubscribe }) => {
       unsubscribe();
@@ -1051,6 +1072,7 @@ function cleanupElement(element: HTMLElement): void {
 
   // Clean up reactive list nodes
   const listSubscriptions = reactiveListNodes.get(element);
+
   if (listSubscriptions) {
     listSubscriptions.forEach(({ unsubscribe }) => {
       unsubscribe();
@@ -1075,12 +1097,13 @@ function cleanupElement(element: HTMLElement): void {
  * render(app, document.getElementById('root'));
  * ```
  */
-export function render(
+export function render (
   component: () => HTMLElement,
   container: HTMLElement,
 ): void {
   // Clean up any existing reactive subscriptions
   const existingElements = container.querySelectorAll('*');
+
   existingElements.forEach((el) => {
     if (el instanceof HTMLElement) {
       cleanupElement(el);
@@ -1106,7 +1129,7 @@ export function render(
  * cleanup(app); // Clean up when done
  * ```
  */
-export function cleanup(component: HTMLElement): void {
+export function cleanup (component: HTMLElement): void {
   cleanupElement(component);
 }
 
@@ -1133,7 +1156,7 @@ export { classNames };
  * );
  * ```
  */
-export function createReactiveList<T>(
+export function createReactiveList<T> (
   signal: Signal<T[]>,
   renderItem: (_item: T, _index: number) => HTMLElement,
 ): HTMLElement {
@@ -1156,6 +1179,7 @@ export function createReactiveList<T>(
       'items',
       JSON.stringify(newItems),
     );
+
     if (!hasChanged) return;
 
     // Clear existing content
@@ -1164,12 +1188,14 @@ export function createReactiveList<T>(
     // Render new items
     newItems.forEach((item, index) => {
       const element = renderItem(item, index);
+
       container.appendChild(element);
     });
   };
 
   updateList();
   const unsubscribe = signal.subscribe(updateList);
+
   subscriptions.push({ signal, unsubscribe, container });
 
   // Store for cleanup
