@@ -15,7 +15,7 @@ import { Computed, Signal } from './reactivity';
 type EventListener = (event: Event) => void;
 
 // Inline classNames function to avoid circular dependency
-function classNames (
+function classNames(
   ...inputs: (
     | string
     | number
@@ -63,7 +63,7 @@ let lastResetTime = Date.now();
  * Checks if we've exceeded the maximum number of updates to prevent infinite loops.
  * @returns true if updates should be allowed, false if we've hit the limit
  */
-function checkUpdateLimit (): boolean {
+function checkUpdateLimit(): boolean {
   globalUpdateCount++;
 
   // Reset counter every 100ms to allow normal operation
@@ -89,7 +89,7 @@ function checkUpdateLimit (): boolean {
  * Checks if a value has changed and updates the stored value
  * Uses deep equality for objects and arrays to prevent unnecessary updates
  */
-function hasValueChanged (
+function hasValueChanged(
   element: HTMLElement,
   key: string,
   newValue: any,
@@ -119,7 +119,7 @@ function hasValueChanged (
 /**
  * Deep equality check for objects and arrays
  */
-function deepEqual (a: any, b: any): boolean {
+function deepEqual(a: any, b: any): boolean {
   if (a === b) return true;
 
   if (a == null || b == null) return a === b;
@@ -684,7 +684,7 @@ const reactiveListNodes = new WeakMap<
  * @param tagName - The HTML tag name for the element
  * @returns An element creator function
  */
-function createElementFactory (tagName: string): ElementCreator {
+function createElementFactory(tagName: string): ElementCreator {
   return (
     props?: ElementProps | ElementChildren[0],
     ...children: ElementChildren
@@ -1047,7 +1047,7 @@ export const pre = createElementFactory('pre');
  * const element = customElement({ id: 'my-id' }, 'Hello World');
  * ```
  */
-export function createElement (tagName: string): ElementCreator {
+export function createElement(tagName: string): ElementCreator {
   return createElementFactory(tagName);
 }
 
@@ -1059,7 +1059,7 @@ export function createElement (tagName: string): ElementCreator {
  *
  * @param element - The HTML element to clean up
  */
-function cleanupElement (element: HTMLElement): void {
+function cleanupElement(element: HTMLElement): void {
   // Clean up regular reactive nodes
   const subscriptions = reactiveNodes.get(element);
 
@@ -1097,7 +1097,7 @@ function cleanupElement (element: HTMLElement): void {
  * render(app, document.getElementById('root'));
  * ```
  */
-export function render (
+export function render(
   component: () => HTMLElement,
   container: HTMLElement,
 ): void {
@@ -1129,7 +1129,7 @@ export function render (
  * cleanup(app); // Clean up when done
  * ```
  */
-export function cleanup (component: HTMLElement): void {
+export function cleanup(component: HTMLElement): void {
   cleanupElement(component);
 }
 
@@ -1156,7 +1156,7 @@ export { classNames };
  * );
  * ```
  */
-export function createReactiveList<T> (
+export function createReactiveList<T>(
   signal: Signal<T[]>,
   renderItem: (_item: T, _index: number) => HTMLElement,
 ): HTMLElement {
