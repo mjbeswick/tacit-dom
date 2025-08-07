@@ -1,18 +1,8 @@
-# Reactive-DOM Examples
+# Domitor Examples
 
-This directory contains examples demonstrating how to use the reactive-dom library.
+This directory contains examples demonstrating how to use the Domitor library.
 
 ## Examples
-
-### Counter (`/counter`)
-
-A simple counter example showing basic reactive state management.
-
-```bash
-cd counter
-npm install
-npm run dev
-```
 
 ### Debug (`/debug`)
 
@@ -36,7 +26,7 @@ npm run dev
 
 ### Router (`/router`)
 
-A more complex example demonstrating client-side routing with reactive-dom.
+A more complex example demonstrating client-side routing with Domitor.
 
 ```bash
 cd router
@@ -46,10 +36,30 @@ npm run dev
 
 ### Strongly Typed Props (`/strongly-typed-props`)
 
-An example demonstrating the strongly typed props functionality in reactive-dom. Shows how each HTML element has its own specific prop type for better TypeScript support.
+An example demonstrating the strongly typed props functionality in Domitor. Shows how each HTML element has its own specific prop type for better TypeScript support.
 
 ```bash
 cd strongly-typed-props
+npm install
+npm run dev
+```
+
+### Signals (`/signals`)
+
+An example demonstrating the unified signal API with preserved signals and reactive updates.
+
+```bash
+cd signals
+npm install
+npm run dev
+```
+
+### ClassNames (`/classnames`)
+
+An example demonstrating the classNames utility for dynamic CSS class management.
+
+```bash
+cd classnames
 npm install
 npm run dev
 ```
@@ -67,11 +77,12 @@ Each example is self-contained with its own `package.json`, `vite.config.ts`, an
 
 Each example runs on a different port to avoid conflicts:
 
-- Counter: `http://localhost:5173`
-- Debug: `http://localhost:5174`
-- Random Generator: `http://localhost:5175`
-- Router: `http://localhost:5176`
-- Strongly Typed Props: `http://localhost:3000`
+- Debug: `http://localhost:5173`
+- Random Generator: `http://localhost:5174`
+- Router: `http://localhost:5175`
+- Strongly Typed Props: `http://localhost:5176`
+- Signals: `http://localhost:5177`
+- ClassNames: `http://localhost:5178`
 
 ## Building Examples
 
@@ -94,8 +105,9 @@ To run all examples simultaneously:
 
 This will start all examples on their respective ports:
 
-- Counter: `http://localhost:5173`
-- Debug: `http://localhost:5174`
-- Random Generator: `http://localhost:5175`
-- Router: `http://localhost:5176`
-- Strongly Typed Props: `http://localhost:3000`
+- Debug: `http://localhost:5173`
+- Random Generator: `http://localhost:5174`
+- Router: `http://localhost:5175`
+- Strongly Typed Props: `http://localhost:5176`
+- Signals: `http://localhost:5177`
+- ClassNames: `http://localhost:5178`

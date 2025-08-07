@@ -349,11 +349,12 @@ The `examples/` directory contains comprehensive examples demonstrating Domitor 
 
 ### Available Examples
 
-- **🔢 Counter** (`/counter`): Basic reactive state management with increment/decrement buttons
 - **🎲 Random Generator** (`/random-generator`): Signal updates with automatic UI re-rendering
 - **🐛 Debug** (`/debug`): Reactive signals with disabled states and real-time logging
 - **🌐 Router** (`/router`): Advanced client-side routing with navigation and error handling
 - **🔒 Strongly Typed Props** (`/strongly-typed-props`): Demonstrates TypeScript type safety for all HTML element props
+- **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
+- **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
 
 ### Example Features
 
@@ -374,7 +375,7 @@ Each example demonstrates different aspects of Domitor:
 ./examples/run-all.sh
 
 # Or run individual examples
-cd examples/counter && npm install && npm run dev
+cd examples/debug && npm install && npm run dev
 cd examples/router && npm install && npm run dev
 cd examples/strongly-typed-props && npm install && npm run dev
 ```
@@ -383,11 +384,12 @@ cd examples/strongly-typed-props && npm install && npm run dev
 
 Each example runs on a different port:
 
-- **Counter**: `http://localhost:5173`
-- **Debug**: `http://localhost:5174`
-- **Random Generator**: `http://localhost:5175`
-- **Router**: `http://localhost:5176`
-- **Strongly Typed Props**: `http://localhost:3000`
+- **Debug**: `http://localhost:5173`
+- **Random Generator**: `http://localhost:5174`
+- **Router**: `http://localhost:5175`
+- **Strongly Typed Props**: `http://localhost:5176`
+- **Signals**: `http://localhost:5177`
+- **ClassNames**: `http://localhost:5178`
 
 For detailed information about each example, see the [Examples README](examples/README.md).
 
@@ -397,4 +399,4 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](LICENSE).

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Run all reactive-dom examples
-echo "Starting all reactive-dom examples..."
+# Run all Domitor examples
+echo "Starting all Domitor examples..."
 
 # Function to run an example
 run_example() {
@@ -16,17 +16,21 @@ run_example() {
 }
 
 # Start all examples
-run_example "counter" "5173"
-run_example "debug" "5174"
-run_example "random-generator" "5175"
-run_example "router" "5176"
+run_example "debug" "5173"
+run_example "random-generator" "5174"
+run_example "router" "5175"
+run_example "strongly-typed-props" "5176"
+run_example "signals" "5177"
+run_example "classnames" "5178"
 
 echo ""
 echo "All examples are starting..."
-echo "Counter: http://localhost:5173"
-echo "Debug: http://localhost:5174"
-echo "Random Generator: http://localhost:5175"
-echo "Router: http://localhost:5176"
+echo "Debug: http://localhost:5173"
+echo "Random Generator: http://localhost:5174"
+echo "Router: http://localhost:5175"
+echo "Strongly Typed Props: http://localhost:5176"
+echo "Signals: http://localhost:5177"
+echo "ClassNames: http://localhost:5178"
 echo ""
 echo "Press Ctrl+C to stop all examples"
 
