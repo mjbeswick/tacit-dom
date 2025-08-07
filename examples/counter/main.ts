@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p } from 'domitor';
+import { signal, computed, div, button, span, h1, p, render } from 'domitor';
 
 export const app = () => {
   // Initialize a counter signal
@@ -57,4 +57,9 @@ export const app = () => {
   );
 };
 
-document.getElementById('app')?.appendChild(app());
+// Use render function instead of direct DOM manipulation
+const appContainer = document.getElementById('app');
+
+if (appContainer) {
+  render(app, appContainer);
+}

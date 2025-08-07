@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p } from 'domitor';
+import { signal, computed, div, button, span, h1, p, render } from 'domitor';
 
 // Create the debug app
 export const createDebugApp = () => {
@@ -37,4 +37,9 @@ export const createDebugApp = () => {
   );
 };
 
-document.getElementById('app')?.appendChild(createDebugApp());
+// Use render function instead of direct DOM manipulation
+const appContainer = document.getElementById('app');
+
+if (appContainer) {
+  render(createDebugApp, appContainer);
+}

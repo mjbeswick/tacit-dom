@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p } from 'domitor';
+import { signal, computed, div, button, span, h1, p, render } from 'domitor';
 
 // Create the random generator app
 export const createRandomGeneratorApp = () => {
@@ -11,6 +11,7 @@ export const createRandomGeneratorApp = () => {
   // Create event handlers
   const handleGenerateRandom = () => {
     const newRandomNumber = Math.floor(Math.random() * 100) + 1; // Generate number between 1-100
+
     randomNumber.set(newRandomNumber);
   };
 
@@ -45,4 +46,9 @@ export const createRandomGeneratorApp = () => {
   );
 };
 
-document.getElementById('app')?.appendChild(createRandomGeneratorApp());
+// Use render function instead of direct DOM manipulation
+const appContainer = document.getElementById('app');
+
+if (appContainer) {
+  render(createRandomGeneratorApp, appContainer);
+}
