@@ -1,4 +1,4 @@
-# Reactive-DOM API Reference
+# Domitor API Reference
 
 ## Core Concepts
 
@@ -7,7 +7,7 @@
 Signals are reactive values that automatically update when their dependencies change.
 
 ```typescript
-import { signal } from 'reactive-dom';
+import { signal } from 'domitor';
 
 const count = signal(0);
 console.log(count.get()); // 0
@@ -20,7 +20,7 @@ console.log(count.get()); // 5
 Computed values are derived from signals and automatically update when their dependencies change.
 
 ```typescript
-import { signal, computed } from 'reactive-dom';
+import { signal, computed } from 'domitor';
 
 const a = signal(1);
 const b = signal(2);
@@ -33,13 +33,14 @@ console.log(sum.get()); // 7
 
 ## API Reference
 
-### `signal<T>(initialValue: T): Signal<T>`
+### `signal<T>(initialValue: T, key?: string): Signal<T>`
 
-Creates a reactive signal with an initial value.
+Creates a reactive signal with an initial value. When used inside components, signals can optionally preserve their state between renders by providing a unique key.
 
 **Parameters:**
 
 - `initialValue: T` - The initial value for the signal
+- `key?: string` - Optional unique key for preserving state between component renders
 
 **Returns:**
 
@@ -48,9 +49,18 @@ Creates a reactive signal with an initial value.
 **Example:**
 
 ```typescript
-const count = signal(0);
-const name = signal('John');
-const items = signal(['apple', 'banana']);
+// Global signal (no preservation needed)
+const globalCount = signal(0);
+
+// Component-local signal with preservation
+const app = () => {
+  const localCount = signal(0, 'count'); // Preserved between renders
+  const tempValue = signal('temp'); // Recreated each render
+
+  return div(
+    button({ onclick: () => localCount.set(localCount.get() + 1) }, localCount),
+  );
+};
 ```
 
 ### `Signal<T>`
@@ -73,6 +83,14 @@ Sets a new value for the signal and notifies all subscribers.
 
 - `value: T` - The new value
 
+#### `update(fn: (prev: T) => T): void`
+
+Updates the signal value based on the previous value.
+
+**Parameters:**
+
+- `fn: (prev: T) => T` - Function that receives the previous value and returns the new value
+
 #### `subscribe(callback: () => void): () => void`
 
 Subscribes to changes in the signal.
@@ -94,10 +112,11 @@ const unsubscribe = count.subscribe(() => {
 });
 
 count.set(5); // Logs: "Count changed to: 5"
+count.update((prev) => prev + 1); // Logs: "Count changed to: 6"
 unsubscribe(); // Stop listening for changes
 ```
 
-### `computed<T>(fn: () => T): Computation`
+### `computed<T>(fn: () => T): Computed<T>`
 
 Creates a computed value that automatically updates when its dependencies change.
 
@@ -107,7 +126,7 @@ Creates a computed value that automatically updates when its dependencies change
 
 **Returns:**
 
-- `Computation` - A computed value object
+- `Computed<T>` - A computed value object
 
 **Example:**
 
@@ -118,7 +137,7 @@ const sum = computed(() => a.get() + b.get());
 const doubleSum = computed(() => sum.get() * 2);
 ```
 
-### `Computation`
+### `Computed<T>`
 
 A computed value object with the following methods:
 
@@ -142,6 +161,74 @@ Subscribes to changes in the computed value.
 
 - `() => void` - Unsubscribe function
 
+### `effect(fn: () => void, options?: EffectOptions): () => void`
+
+Runs a reactive effect that re-executes when its dependencies change.
+
+**Parameters:**
+
+- `fn: () => void` - Function to execute
+- `options?: EffectOptions` - Optional configuration
+
+**Returns:**
+
+- `() => void` - Cleanup function
+
+**Example:**
+
+```typescript
+const count = signal(0);
+
+effect(() => {
+  console.log('Count is now:', count.get());
+});
+
+count.set(5); // Logs: "Count is now: 5"
+```
+
+### `batch(fn: () => void): void`
+
+Batches multiple signal updates into a single effect flush.
+
+**Parameters:**
+
+- `fn: () => void` - Function containing signal updates
+
+**Example:**
+
+```typescript
+const firstName = signal('John');
+const lastName = signal('Doe');
+
+// Updates are batched together
+batch(() => {
+  firstName.set('Jane');
+  lastName.set('Smith');
+});
+```
+
+### `classNames(...inputs: ClassValue[]): string`
+
+Conditionally joins CSS class names together.
+
+**Parameters:**
+
+- `...inputs: ClassValue[]` - Any number of class name values to join
+
+**Returns:**
+
+- `string` - A space-separated string of class names
+
+**Example:**
+
+```typescript
+import { classNames } from 'domitor';
+
+classNames('foo', 'bar'); // 'foo bar'
+classNames({ active: true, disabled: false }); // 'active'
+classNames('button', { primary: true }, ['icon', 'large']); // 'button primary icon large'
+```
+
 ## DOM Elements
 
 All HTML elements are available as factory functions that return DOM elements.
@@ -149,14 +236,14 @@ All HTML elements are available as factory functions that return DOM elements.
 ### Basic Elements
 
 ```typescript
-import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'reactive-dom';
+import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'domitor';
 
 const element = div(
   { className: 'container' },
-  h1({ children: 'Title' }),
-  p({ children: 'Content' }),
-  span({ children: 'Inline text' }),
-  a({ href: '#', children: 'Link' }),
+  h1('Title'),
+  p('Content'),
+  span('Inline text'),
+  a({ href: '#' }, 'Link'),
 );
 ```
 
@@ -165,7 +252,7 @@ const element = div(
 The library includes a utility for handling dynamic className props with arrays and objects:
 
 ```typescript
-import { classNames } from 'reactive-dom';
+import { classNames } from 'domitor';
 
 // String
 classNames('foo'); // 'foo'
@@ -198,56 +285,44 @@ const classes = computed(() =>
 ### Form Elements
 
 ```typescript
-import {
-  form,
-  input,
-  textarea,
-  select,
-  option,
-  label,
-  button,
-} from 'reactive-dom';
+import { form, input, textarea, select, option, label, button } from 'domitor';
 
 const formElement = form(
-  { onSubmit: (e) => e.preventDefault() },
-  label({ children: 'Name:' }),
+  { onsubmit: (e) => e.preventDefault() },
+  label('Name:'),
   input({ type: 'text', placeholder: 'Enter name' }),
   textarea({ placeholder: 'Enter description' }),
   select(
-    option({ value: '1', children: 'Option 1' }),
-    option({ value: '2', children: 'Option 2' }),
+    option({ value: '1' }, 'Option 1'),
+    option({ value: '2' }, 'Option 2'),
   ),
-  button({ type: 'submit', children: 'Submit' }),
+  button({ type: 'submit' }, 'Submit'),
 );
 ```
 
 ### List Elements
 
 ```typescript
-import { ul, ol, li } from 'reactive-dom';
+import { ul, ol, li } from 'domitor';
 
-const list = ul(
-  li({ children: 'Item 1' }),
-  li({ children: 'Item 2' }),
-  li({ children: 'Item 3' }),
-);
+const list = ul(li('Item 1'), li('Item 2'), li('Item 3'));
 ```
 
 ### Table Elements
 
 ```typescript
-import { table, tr, td, th } from 'reactive-dom';
+import { table, tr, td, th } from 'domitor';
 
 const tableElement = table(
-  tr(th({ children: 'Header 1' }), th({ children: 'Header 2' })),
-  tr(td({ children: 'Cell 1' }), td({ children: 'Cell 2' })),
+  tr(th('Header 1'), th('Header 2')),
+  tr(td('Cell 1'), td('Cell 2')),
 );
 ```
 
 ### Media Elements
 
 ```typescript
-import { img, video, audio, canvas } from 'reactive-dom';
+import { img, video, audio, canvas } from 'domitor';
 
 const mediaElements = div(
   img({ src: 'image.jpg', alt: 'Image' }),
@@ -260,25 +335,13 @@ const mediaElements = div(
 ### Semantic Elements
 
 ```typescript
-import {
-  nav,
-  header,
-  footer,
-  main,
-  section,
-  article,
-  aside,
-} from 'reactive-dom';
+import { nav, header, footer, main, section, article, aside } from 'domitor';
 
 const semanticLayout = div(
-  header({ children: 'Header' }),
-  nav({ children: 'Navigation' }),
-  main(
-    section({ children: 'Section 1' }),
-    article({ children: 'Article' }),
-    aside({ children: 'Sidebar' }),
-  ),
-  footer({ children: 'Footer' }),
+  header('Header'),
+  nav('Navigation'),
+  main(section('Section 1'), article('Article'), aside('Sidebar')),
+  footer('Footer'),
 );
 ```
 
@@ -289,10 +352,10 @@ All DOM elements support event handlers through props:
 ```typescript
 const button = button(
   {
-    onClick: (e) => console.log('Clicked!'),
-    onMouseEnter: () => console.log('Mouse entered'),
-    onMouseLeave: () => console.log('Mouse left'),
-    onKeyDown: (e) => console.log('Key pressed:', e.key),
+    onclick: (e) => console.log('Clicked!'),
+    onmouseenter: () => console.log('Mouse entered'),
+    onmouseleave: () => console.log('Mouse left'),
+    onkeydown: (e) => console.log('Key pressed:', e.key),
   },
   'Click me',
 );
@@ -321,45 +384,53 @@ const count = signal(0);
 const doubleCount = computed(() => count.get() * 2);
 
 const reactiveElement = div(
-  p({ children: `Count: ${count}` }),
-  p({ children: `Double: ${doubleCount}` }),
-  button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
+  p(`Count: ${count}`),
+  p(`Double: ${doubleCount}`),
+  button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
 );
 ```
 
 ## Rendering
 
-### `render(component: HTMLElement, container: HTMLElement): void`
+### `render(component: () => HTMLElement, container: HTMLElement): void`
 
 Renders a component to a DOM container.
 
 **Parameters:**
 
-- `component: HTMLElement` - The component to render
+- `component: () => HTMLElement` - The component function to render
 - `container: HTMLElement` - The container element
 
 **Example:**
 
 ```typescript
-const app = document.getElementById('app');
-if (app) {
-  render(MyComponent([]), app);
+const app = () => {
+  const count = signal(0);
+  return div(
+    p(`Count: ${count}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+};
+
+const container = document.getElementById('app');
+if (container) {
+  render(app, container);
 }
 ```
 
 ## TypeScript Types
 
 ```typescript
-import { type Signal, type Computation } from 'reactive-dom';
+import { type Signal, type Computed } from 'domitor';
 
 // Signal types
 const count: Signal<number> = signal(0);
 const name: Signal<string> = signal('John');
 const items: Signal<string[]> = signal(['apple', 'banana']);
 
-// Computation types
-const sum: Computation = computed(() => a.get() + b.get());
-const formatted: Computation = computed(() => `Count: ${count.get()}`);
+// Computed types
+const sum: Computed<number> = computed(() => a.get() + b.get());
+const formatted: Computed<string> = computed(() => `Count: ${count.get()}`);
 ```
 
 ## Best Practices
@@ -367,9 +438,9 @@ const formatted: Computation = computed(() => `Count: ${count.get()}`);
 ### 1. Component Structure
 
 ```typescript
-const MyComponent = (props: any, children: any) => {
-  // Local state
-  const localCount = signal(0);
+const MyComponent = () => {
+  // Local state with preservation
+  const localCount = signal(0, 'count');
 
   // Computed values
   const displayValue = computed(() => localCount.get() * 2);
@@ -382,9 +453,9 @@ const MyComponent = (props: any, children: any) => {
   // Return DOM element
   return div(
     { className: 'my-component' },
-    h1({ children: 'My Component' }),
-    p({ children: `Value: ${displayValue}` }),
-    button({ onClick: handleClick }, 'Increment'),
+    h1('My Component'),
+    p(`Value: ${displayValue}`),
+    button({ onclick: handleClick }, 'Increment'),
   );
 };
 ```
@@ -415,8 +486,8 @@ const handleInputChange = (e: Event) => {
 };
 
 const form = form(
-  { onSubmit: handleFormSubmit },
-  input({ onInput: handleInputChange }),
+  { onsubmit: handleFormSubmit },
+  input({ oninput: handleInputChange }),
 );
 ```
 
@@ -427,11 +498,10 @@ const showDetails = signal(false);
 
 const component = div(
   button(
-    { onClick: () => showDetails.set(!showDetails.get()) },
+    { onclick: () => showDetails.set(!showDetails.get()) },
     'Toggle Details',
   ),
-  showDetails.get() &&
-    div({ className: 'details' }, p({ children: 'Hidden details here' })),
+  showDetails.get() && div({ className: 'details' }, p('Hidden details here')),
 );
 ```
 
@@ -440,7 +510,22 @@ const component = div(
 ```typescript
 const items = signal(['apple', 'banana', 'orange']);
 
-const list = ul(
-  ...items.get().map((item) => li({ key: item, children: item })),
-);
+const list = ul(...items.get().map((item) => li({ key: item }, item)));
+```
+
+### 6. CSS Modules Integration
+
+```typescript
+import styles from './Component.module.css';
+
+const Button = ({ variant, disabled, children }) => {
+  return button(
+    {
+      className: classNames(styles.button, styles[`button--${variant}`], {
+        [styles['button--disabled']]: disabled,
+      }),
+    },
+    children,
+  );
+};
 ```
