@@ -1,6 +1,6 @@
 {
-  "name": "sigdom",
-  "version": "2.0.1",
+  "name": "reacto",
+  "version": "2.0.1-alpha.1",
   "description": "A React-like library with reactive signals and computed values",
   "type": "module",
   "main": "dist/reactive-dom.cjs.js",
