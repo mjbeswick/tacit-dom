@@ -34,9 +34,9 @@ beforeEach(() => {
   mockLocation.search = '';
   mockLocation.href = 'http://localhost/';
 
-  // Mock window properties by directly assigning
-  (window as any).location = mockLocation;
-  (window as any).history = mockHistory;
+  // Mock window properties using jest.spyOn
+  jest.spyOn(window, 'location', 'get').mockReturnValue(mockLocation as any);
+  jest.spyOn(window, 'history', 'get').mockReturnValue(mockHistory as any);
   (window as any).addEventListener = jest.fn();
 });
 
@@ -193,6 +193,7 @@ describe('Router', () => {
       await router.navigate('/users');
 
       expect(mockHistory.pushState).toHaveBeenCalledWith(null, '', '/users');
+      expect(mockLocation.pathname).toBe('/users');
     });
   });
 
@@ -225,6 +226,9 @@ describe('Router', () => {
     });
 
     test('should track navigation state correctly', async () => {
+      // Mock window.history.length to be 1 initially
+      jest.spyOn(window.history, 'length', 'get').mockReturnValue(1);
+
       expect(router.canGoBack()).toBe(false);
       expect(router.canGoForward()).toBe(false);
 
@@ -333,7 +337,7 @@ describe('Router', () => {
       router['currentRoute'].set(null);
 
       const view = router.View();
-      expect(view.textContent).toContain('Page not found');
+      expect(view.textContent).toContain('Not Found');
     });
   });
 
