@@ -297,6 +297,8 @@ For detailed API documentation, see [API.md](docs/API.md).
 - **[API Reference](docs/API.md)**: Complete API documentation
 - **[Signals Guide](docs/SIGNALS.md)**: Comprehensive guide to reactive signals
 - **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class name utility
+- **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
+- **[Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
 
 ### Core Functions
 
