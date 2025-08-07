@@ -21,6 +21,7 @@
     "security-audit": "npm audit --audit-level moderate",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
+    "postinstall": "npm run build",
     "pre-commit": "npm run format:fix && npm run type-check && npm test"
   },
   "lint-staged": {
