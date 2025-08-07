@@ -9,7 +9,15 @@
  */
 
 // Core reactivity exports
-export { batch, computed, effect, signal } from './signals';
+export {
+  batch,
+  cleanupPreservedSignals,
+  clearComponentInstance,
+  computed,
+  effect,
+  setComponentInstance,
+  signal,
+} from './signals';
 export type { Computed, Signal } from './signals';
 
 // DOM exports

@@ -38,11 +38,43 @@ const registeredEffects = new Set<Subscriber>();
 let debugMode = false;
 const DEFAULT_MAX_RUNS = 100;
 
+// Signal preservation for components
+const preservedSignals = new WeakMap<object, Map<string, Signal<any>>>();
+let currentComponentInstance: object | null = null;
+
 /**
  * Enable or disable debug mode (console logs).
  */
 function setDebugMode(enabled: boolean) {
   debugMode = enabled;
+}
+
+/**
+ * Sets the current component instance for signal preservation.
+ * This should be called by the rendering system before rendering a component.
+ *
+ * @param componentInstance - The component instance
+ */
+function setComponentInstance(componentInstance: object): void {
+  currentComponentInstance = componentInstance;
+}
+
+/**
+ * Clears the current component instance.
+ * This should be called by the rendering system after rendering a component.
+ */
+function clearComponentInstance(): void {
+  currentComponentInstance = null;
+}
+
+/**
+ * Cleans up preserved signals for a component instance.
+ * This should be called when a component is unmounted.
+ *
+ * @param componentInstance - The component instance to clean up
+ */
+function cleanupPreservedSignals(componentInstance: object): void {
+  preservedSignals.delete(componentInstance);
 }
 
 /**
@@ -112,7 +144,31 @@ class ReactiveEffect implements EffectContext {
   }
 }
 
-function signal<T>(initialValue: T): Signal<T> {
+function signal<T>(initialValue: T, key?: string): Signal<T> {
+  // If we're in a component context and a key is provided, preserve the signal
+  if (currentComponentInstance && key) {
+    // Get or create preserved signals map for this component
+    let signalsMap = preservedSignals.get(currentComponentInstance);
+    if (!signalsMap) {
+      signalsMap = new Map();
+      preservedSignals.set(currentComponentInstance, signalsMap);
+    }
+
+    // Get or create the signal
+    let existingSignal = signalsMap.get(key);
+    if (!existingSignal) {
+      existingSignal = createSignal(initialValue);
+      signalsMap.set(key, existingSignal);
+    }
+
+    return existingSignal;
+  }
+
+  // Otherwise, create a regular signal
+  return createSignal(initialValue);
+}
+
+function createSignal<T>(initialValue: T): Signal<T> {
   let value = initialValue;
   const subscribers = new Set<Subscriber>();
 
@@ -335,5 +391,14 @@ function flushUpdates(): void {
   }
 }
 
-export { batch, computed, effect, setDebugMode, signal };
+export {
+  batch,
+  cleanupPreservedSignals,
+  clearComponentInstance,
+  computed,
+  effect,
+  setComponentInstance,
+  setDebugMode,
+  signal,
+};
 export type { Computed, EffectContext, EffectOptions, Signal, Subscriber };

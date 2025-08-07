@@ -29,7 +29,11 @@ const app = () => {
     signalB.set(random());
   };
 
-  const signalD = signal(random());
+  // Use signal with key for preserved state between renders
+  const signalD = signal(random(), 'signalD');
+
+  // Regular signal without key - will be recreated on each render
+  const regularSignal = signal(random());
 
   const computedB = computed(() => {
     console.log('computed signalB', signalD.get());
@@ -40,14 +44,27 @@ const app = () => {
     console.log('effect signalB', computedB.get());
   });
 
+  const handleReRender = () => {
+    // Force a re-render by calling render again
+    render(app, document.getElementById('app')!);
+  };
+
   return div(
     h1('Domitor Signals Example'),
-    div(button({ onclick: handleUpdate }, 'Update signals')),
+    div(
+      button({ onclick: handleUpdate }, 'Update signals'),
+      button(
+        { onclick: handleReRender },
+        'Re-render (notice preserved signals maintain state)',
+      ),
+    ),
     div(
       p('signalA: ', signalA),
       p('signalB: ', signalB),
       p('signalC (computed): ', computedA),
-      p('signalD: ', signalD),
+      p('signalD (preserved): ', signalD),
+      p('regularSignal (recreated each render): ', regularSignal),
+      p('Note: signals with keys maintain their values between renders!'),
     ),
   );
 };

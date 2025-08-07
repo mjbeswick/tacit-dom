@@ -9,7 +9,12 @@
  * @module dom
  */
 
-import { Computed, Signal } from './signals';
+import {
+  Computed,
+  Signal,
+  clearComponentInstance,
+  setComponentInstance,
+} from './signals';
 
 // DOM types for event handling
 type EventListener = (event: Event) => void | Promise<void>;
@@ -1141,7 +1146,20 @@ export function render(
   });
 
   container.innerHTML = '';
-  container.appendChild(component());
+
+  // Create a unique component instance for signal preservation
+  const componentInstance = {};
+
+  // Set the component instance for signal preservation
+  setComponentInstance(componentInstance);
+
+  try {
+    const element = component();
+    container.appendChild(element);
+  } finally {
+    // Clear the component instance after rendering
+    clearComponentInstance();
+  }
 }
 
 /**

@@ -1,46 +1,58 @@
-# Domitor Signals Example
+# Signals Example
 
-This example demonstrates the reactive signals system in Domitor, showing how signals and computed values work together to create reactive UIs.
+This example demonstrates the Domitor signal system, including the new **preserved signals** feature.
 
-## Features Demonstrated
+## What This Example Shows
 
-- **Global Signals**: `signalA` and `signalB` are global signals that can be accessed from anywhere
-- **Computed Signals**: `signalC` and `signalD` are computed values that automatically update when their dependencies change
-- **Local Signals**: `signalE` and `signalF` are created inside the component function
-- **Reactive Updates**: The UI automatically updates when signals change
+1. **Basic Signals**: Global signals that persist across renders
+2. **Computed Signals**: Derived state that updates automatically
+3. **Effects**: Side effects that run when dependencies change
+4. **Preserved Signals**: Component-local state that persists between renders
+5. **Regular Signals**: Component-local state that gets recreated on each render
 
-## How It Works
+## Key Features Demonstrated
 
-1. **Global Signals**: `signalA` and `signalB` start at 0
-2. **Computed Signals**: `signalC` and `signalD` compute `signalA.get() + signalB.get()`
-3. **Local Signals**: `signalE` is a local signal, and `signalF` computes `signalE.get() + 1`
-4. **Event Handlers**: Clicking buttons updates the respective signals
-5. **Automatic Updates**: The UI automatically reflects changes in real-time
+### Preserved Signals vs Regular Signals
 
-## Running the Example
+- **Preserved Signals** (`signalD`, `counter`): Maintain their state between renders
+- **Regular Signals** (`regularSignal`): Get recreated on each render, losing their state
 
-```bash
-# Install dependencies
-npm install
+### Interactive Elements
 
-# Start development server
-npm run dev
+- **Update signals**: Changes global signals `signalA` and `signalB`
+- **Re-render**: Forces a complete re-render to show the difference between preserved and regular signals
+- **Increment Counter**: Demonstrates that preserved signals maintain their state
+
+## How to Test
+
+1. Click "Increment Counter" a few times - notice the counter increases
+2. Click "Re-render" - notice that:
+   - The preserved signals (`signalD`, `counter`) maintain their values
+   - The regular signal (`regularSignal`) gets a new random value
+3. Click "Update signals" - changes the global signals
+
+## Code Highlights
+
+```typescript
+// Preserved signal - maintains state between renders
+const signalD = preservedSignal('signalD', random());
+
+// Regular signal - recreated on each render
+const regularSignal = signal(random());
+
+// Preserved signal for counter
+const counter = preservedSignal('counter', 0);
 ```
 
-## Key Concepts
+## Why Preserved Signals Matter
 
-- **Signals**: Reactive state containers that can be read and written
-- **Computed**: Derived values that automatically track dependencies
-- **Reactivity**: Changes to signals automatically update the UI
-- **Local vs Global**: Signals can be created globally or locally within components
+In component-based architectures, you often need local state that persists between renders. Without preserved signals, any signal created inside a component would be recreated on each render, making it impossible to maintain component state.
 
-## Console Output
+Preserved signals solve this by:
 
-Watch the browser console to see when computed values are recalculated:
+1. Using unique keys to identify signals within a component
+2. Automatically managing component instances
+3. Preserving signal state between renders
+4. Providing a clean API that feels natural
 
-- `computed signalC` - when signalC is recalculated
-- `computed signalD` - when signalD is recalculated
-- `computed signalF` - when signalF is recalculated
-- `clicked` - when buttons are clicked
-
-This demonstrates the automatic dependency tracking and reactive updates that make Domitor powerful for building dynamic UIs.
+This makes it easy to build interactive components with persistent local state!
