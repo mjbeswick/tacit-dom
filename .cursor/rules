@@ -58,6 +58,8 @@
 - Run tests before publishing
 - Use npm scripts for common tasks
 - Maintain security with regular audits
+- Commit changes as they are made to maintain clean git history
+- Use descriptive commit messages that explain the purpose of changes
 
 ## Import/Export Guidelines
 
