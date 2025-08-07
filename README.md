@@ -292,6 +292,12 @@ For development setup, building, testing, and project structure, see [DEVELOPMEN
 
 For detailed API documentation, see [API.md](docs/API.md).
 
+### Documentation
+
+- **[API Reference](docs/API.md)**: Complete API documentation
+- **[Signals Guide](docs/SIGNALS.md)**: Comprehensive guide to reactive signals
+- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class name utility
+
 ### Core Functions
 
 #### `signal<T>(initialValue: T): Signal<T>`
