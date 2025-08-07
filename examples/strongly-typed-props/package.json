@@ -1,7 +1,7 @@
 {
   "name": "strongly-typed-props-example",
   "version": "1.0.0",
-  "description": "Example demonstrating strongly typed props in sigdom",
+  "description": "Example demonstrating strongly typed props in domitor",
   "main": "main.ts",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,6 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "sigdom": "file:../../dist"
+    "domitor": "file:../../dist"
   }
 }

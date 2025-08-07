@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p } from 'sigdom';
+import { signal, computed, div, button, span, h1, p } from 'domitor';
 
 // Create the random generator app
 export const createRandomGeneratorApp = () => {
@@ -18,7 +18,7 @@ export const createRandomGeneratorApp = () => {
     { className: 'container' },
     div(
       { className: 'notice' },
-      h1('SigDOM Random Number Generator'),
+      h1('Domitor Random Number Generator'),
       p(
         'This example demonstrates reactive signals with a button that generates random numbers. Click the button to see the value update automatically.',
       ),

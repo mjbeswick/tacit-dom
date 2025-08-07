@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ SigDOM
+# ⚡ Domitor
 
 > A React-like library with reactive signals and computed values for building dynamic web applications
 
@@ -14,10 +14,10 @@ This project is currently a **proof of concept** and is **not suitable for produ
 
 </div>
 
-[![NPM Version](https://img.shields.io/npm/v/sigdom.svg)](https://www.npmjs.com/package/sigdom)
-[![License](https://img.shields.io/npm/l/sigdom.svg)](https://github.com/your-username/sigdom/blob/main/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/domitor.svg)](https://www.npmjs.com/package/domitor)
+[![License](https://img.shields.io/npm/l/domitor.svg)](https://github.com/your-username/domitor/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/sigdom/ci.yml?branch=main)](https://github.com/your-username/sigdom/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/domitor/ci.yml?branch=main)](https://github.com/your-username/domitor/actions)
 
 </div>
 
@@ -48,7 +48,7 @@ This project is currently a **proof of concept** and is **not suitable for produ
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
 
-## 🚀 Why SigDOM?
+## 🚀 Why Domitor?
 
 ### Signals vs React Hooks
 
@@ -80,7 +80,7 @@ This project is currently a **proof of concept** and is **not suitable for produ
 ## 📦 Installation
 
 ```bash
-npm install sigdom
+npm install domitor
 ```
 
 ## 🚀 Quick Start
@@ -88,7 +88,7 @@ npm install sigdom
 Ready to build reactive apps without the React complexity? Let's dive in! 🏊‍♂️
 
 ```typescript
-import { signal, computed, div, h1, p, button, render } from 'sigdom';
+import { signal, computed, div, h1, p, button, render } from 'domitor';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
@@ -170,7 +170,7 @@ render(Counter(), document.getElementById('app'));
 All HTML elements are available as factory functions:
 
 ```typescript
-import { div, h1, p, button, input, span } from 'sigdom';
+import { div, h1, p, button, input, span } from 'domitor';
 
 const element = div(
   { className: 'container' },
@@ -182,7 +182,7 @@ const element = div(
 
 ## 🎯 Examples
 
-The `examples/` directory contains comprehensive examples demonstrating SigDOM features:
+The `examples/` directory contains comprehensive examples demonstrating Domitor features:
 
 ### Available Examples
 
@@ -194,7 +194,7 @@ The `examples/` directory contains comprehensive examples demonstrating SigDOM f
 
 ### Example Features
 
-Each example demonstrates different aspects of SigDOM:
+Each example demonstrates different aspects of Domitor:
 
 - **Reactive Signals**: Global state management without providers or context
 - **Computed Values**: Automatic dependency tracking and derived state

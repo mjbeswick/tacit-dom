@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p } from 'sigdom';
+import { signal, computed, div, button, span, h1, p } from 'domitor';
 
 // Create the debug app
 export const createDebugApp = () => {
@@ -10,7 +10,7 @@ export const createDebugApp = () => {
     { className: 'container' },
     div(
       { className: 'notice' },
-      h1('SigDOM Debug Example'),
+      h1('Domitor Debug Example'),
       p(
         'This example demonstrates reactive signals with debugging. Check the console to see the reactive updates in action.',
       ),
@@ -18,11 +18,7 @@ export const createDebugApp = () => {
         { className: 'grid' },
         div(
           { className: 'card' },
-          span(
-            { className: 'badge' },
-            'Count: ',
-            counter,
-          ),
+          span({ className: 'badge' }, 'Count: ', counter),
           button(
             {
               className: 'button',
