@@ -10,7 +10,7 @@
 
 // Core reactivity exports
 export { batch, computed, effect, signal } from './signals';
-export type { Signal, Computed } from './signals';
+export type { Computed, Signal } from './signals';
 
 // DOM exports
 export {

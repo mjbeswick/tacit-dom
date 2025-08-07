@@ -11,11 +11,8 @@
 
 import { Computed, Signal } from './signals';
 
-// Re-export Signal and Computed types for convenience
-export type { Computed, Signal } from './signals';
-
 // DOM types for event handling
-type EventListener = (event: Event) => void;
+type EventListener = (event: Event) => void | Promise<void>;
 
 // Inline classNames function to avoid circular dependency
 function classNames(
@@ -682,8 +679,8 @@ export type ElementChildren = (
  * properties and children.
  */
 export type ElementCreator = (
-  _props?: ElementProps | ElementChildren[0],
-  ..._children: ElementChildren
+  props?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
 ) => HTMLElement;
 
 /**
@@ -1191,7 +1188,7 @@ export { classNames };
  */
 export function createReactiveList<T>(
   signal: Signal<T[]>,
-  renderItem: (_item: T, _index: number) => HTMLElement,
+  renderItem: (item: T, index: number) => HTMLElement,
 ): HTMLElement {
   const container = document.createElement('div');
   const subscriptions: Array<{

@@ -7,9 +7,9 @@
  * @module router
  */
 
-import { signal, Signal, Computed } from './reactivity';
-import { div, a } from './reactive-dom';
-import { computed } from './reactivity';
+import { a, div } from './dom';
+import { signal } from './signals';
+import type { Signal } from './signals';
 
 // Types for the router
 export type RouteParams = Record<string, string>;

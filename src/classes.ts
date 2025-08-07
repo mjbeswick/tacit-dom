@@ -45,43 +45,43 @@ type ClassValue =
  * @example
  * ```typescript
  * // Basic usage
- * classNames('foo', 'bar'); // 'foo bar'
+ * classes('foo', 'bar'); // 'foo bar'
  *
  * // Conditional classes
- * classNames('foo', { bar: true, baz: false }); // 'foo bar'
+ * classes('foo', { bar: true, baz: false }); // 'foo bar'
  *
  * // Arrays
- * classNames(['foo', 'bar'], 'baz'); // 'foo bar baz'
+ * classes(['foo', 'bar'], 'baz'); // 'foo bar baz'
  *
  * // Mixed types
- * classNames('foo', { bar: true }, ['baz', { qux: true }]); // 'foo bar baz qux'
+ * classes('foo', { bar: true }, ['baz', { qux: true }]); // 'foo bar baz qux'
  * ```
  */
-function classNames(...inputs: ClassValue[]): string {
-  const classes: string[] = [];
+function classes(...inputs: ClassValue[]): string {
+  const result: string[] = [];
 
   for (const input of inputs) {
     if (!input) continue;
 
     if (typeof input === 'string') {
-      classes.push(input);
+      result.push(input);
     } else if (typeof input === 'number') {
-      classes.push(String(input));
+      result.push(String(input));
     } else if (typeof input === 'boolean') {
       // Skip boolean values
     } else if (Array.isArray(input)) {
-      classes.push(classNames(...input));
+      result.push(classes(...input));
     } else if (typeof input === 'object') {
       for (const key in input) {
         if (input[key]) {
-          classes.push(key);
+          result.push(key);
         }
       }
     }
   }
 
-  return classes.join(' ');
+  return result.join(' ');
 }
 
-export { classNames };
+export { classes };
 export type { ClassValue };
