@@ -343,6 +343,172 @@ const app = () => {
 };
 ```
 
+## CSS Modules Integration
+
+Domitor supports CSS Modules, and `classNames` works perfectly with scoped class names:
+
+### Basic CSS Modules Usage
+
+```typescript
+import styles from './Button.module.css';
+
+const Button = ({ variant, disabled, children }) => {
+  return button(
+    {
+      className: classNames(styles.button, styles[`button--${variant}`], {
+        [styles['button--disabled']]: disabled,
+      }),
+    },
+    children,
+  );
+};
+```
+
+### CSS Modules with Conditional Classes
+
+```typescript
+import styles from './Form.module.css';
+
+const FormInput = ({ isValid, isDirty, error }) => {
+  return input({
+    className: classNames(
+      styles.input,
+      { [styles.valid]: isValid },
+      { [styles.invalid]: !isValid },
+      { [styles.dirty]: isDirty },
+      { [styles.error]: error },
+    ),
+  });
+};
+```
+
+### CSS Modules with Signals
+
+```typescript
+import styles from './Component.module.css';
+
+const app = () => {
+  const isVisible = signal(true);
+  const theme = signal('dark');
+
+  const containerClasses = computed(() =>
+    classNames(
+      styles.container,
+      { [styles.visible]: isVisible.get() },
+      { [styles.hidden]: !isVisible.get() },
+      styles[`theme--${theme.get()}`],
+    ),
+  );
+
+  return div({ className: containerClasses }, 'Content');
+};
+```
+
+### CSS Modules with Dynamic Classes
+
+```typescript
+import styles from './Card.module.css';
+
+const Card = ({ size, variant, elevated }) => {
+  return div({
+    className: classNames(
+      styles.card,
+      styles[`card--${size}`],
+      styles[`card--${variant}`],
+      { [styles['card--elevated']]: elevated },
+    ),
+  });
+};
+```
+
+### CSS Modules File Example
+
+```css
+/* Button.module.css */
+.button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button--primary {
+  background: #007bff;
+  color: white;
+}
+
+.button--secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.button--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+```
+
+### CSS Modules with Computed Values
+
+```typescript
+import styles from './Component.module.css';
+
+const app = () => {
+  const isLoading = signal(false);
+  const hasError = signal(false);
+
+  const wrapperClasses = computed(() =>
+    classNames(
+      styles.wrapper,
+      { [styles.loading]: isLoading.get() },
+      { [styles.error]: hasError.get() },
+      { [styles.success]: !isLoading.get() && !hasError.get() },
+    ),
+  );
+
+  return div({ className: wrapperClasses }, 'Content');
+};
+```
+
+### CSS Modules Best Practices
+
+1. **Use Bracket Notation for Dynamic Classes**
+
+   ```typescript
+   // Good
+   styles[`button--${variant}`];
+
+   // Avoid
+   styles['button--' + variant];
+   ```
+
+2. **Group Related Classes**
+
+   ```typescript
+   classNames(styles.button, styles[`button--${size}`], {
+     [styles['button--disabled']]: disabled,
+   });
+   ```
+
+3. **Use Computed for Complex Logic**
+
+   ```typescript
+   const buttonClasses = computed(() =>
+     classNames(
+       styles.button,
+       { [styles.active]: isActive.get() },
+       { [styles.loading]: isLoading.get() },
+     ),
+   );
+   ```
+
+4. **Combine with Theme System**
+   ```typescript
+   classNames(styles.component, styles[`theme--${theme.get()}`], {
+     [styles.visible]: isVisible.get(),
+   });
+   ```
+
 ## Performance Considerations
 
 - The function is lightweight and optimized for common use cases
