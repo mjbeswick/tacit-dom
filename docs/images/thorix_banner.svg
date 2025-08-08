@@ -82,6 +82,20 @@
     </path>
   </g>
 
+  <!-- HTML tags near the hammer -->
+  <g transform="translate(75, 25)" fill="#64ffda" opacity="0.8">
+    <!-- Opening div tag -->
+    <text x="0" y="0" font-family="monospace" font-size="10" fill="#64ffda">&lt;div&gt;</text>
+    <!-- Closing div tag -->
+    <text x="0" y="25" font-family="monospace" font-size="10" fill="#64ffda">&lt;/div&gt;</text>
+    <!-- Button tag -->
+    <text x="0" y="12" font-family="monospace" font-size="10" fill="#1de9b6">&lt;button&gt;</text>
+    <!-- Span tag -->
+    <text x="40" y="8" font-family="monospace" font-size="8" fill="#64ffda" opacity="0.7">&lt;span&gt;</text>
+    <!-- Input tag -->
+    <text x="40" y="20" font-family="monospace" font-size="8" fill="#1de9b6" opacity="0.7">&lt;input&gt;</text>
+  </g>
+
   <!-- Main title -->
   <text x="364" y="40" font-family="Impact, Arial Black, sans-serif" font-size="32" font-weight="bold" fill="url(#textGradient)" text-anchor="middle" letter-spacing="2px" filter="url(#glow)">THORIX</text>
 
