@@ -1,0 +1,315 @@
+# Thorix - React-like Reactive Library
+
+## Project Overview
+
+Thorix is a React-like library with reactive signals and computed values for building dynamic web applications without JSX. It provides a reactive programming model with DOM manipulation utilities.
+
+## Code Style & Conventions
+
+### TypeScript
+
+- Use **types over interfaces** (preferred by user)
+- Use strict TypeScript configuration
+- Prefer explicit type annotations for function parameters and return types
+- Use union types for reactive values: `string | Signal<string> | Computed<string>`
+- Export types from dedicated type files when possible
+
+### File Structure
+
+- Source code in `src/` directory
+- Examples in `examples/` directory
+- Tests alongside source files with `.test.ts` extension
+- Documentation in `docs/` directory
+
+### Naming Conventions
+
+- Use camelCase for variables, functions, and properties
+- Use PascalCase for types and classes
+- Use kebab-case for file names
+- Use UPPER_SNAKE_CASE for constants
+
+### Function Signatures
+
+```typescript
+// Signal creation
+function signal<T>(initialValue: T, key?: string): Signal<T>;
+
+// Computed values
+function computed<T>(computeFn: () => T): Computed<T>;
+
+// DOM element creators
+function div(props?: DivProps, ...children: ElementChildren): HTMLElement;
+
+// Event handlers
+type EventHandler<T = Event> = (event: T) => void | boolean;
+```
+
+## Reactive Programming Patterns
+
+### Signals
+
+- Create signals with `signal<T>(initialValue: T)`
+- Access values with `.get()` method
+- Update values with `.set(value)` or `.update(fn)`
+- Subscribe to changes with `.subscribe(fn)`
+
+### Computed Values
+
+- Create computed values with `computed<T>(fn: () => T)`
+- Computed values automatically track dependencies
+- Use for derived state and calculations
+
+### Effects
+
+- Use `effect(fn, options?)` for side effects
+- Effects automatically re-run when dependencies change
+- Return cleanup function from effects
+
+### Batching
+
+- Use `batch(fn)` to batch multiple updates
+- Prevents unnecessary re-renders
+
+## DOM Manipulation
+
+### Element Creation
+
+- Use factory functions: `div()`, `span()`, `button()`, etc.
+- Pass props as first argument, children as subsequent arguments
+- Props can be reactive (Signal/Computed) or static values
+
+### Event Handling
+
+- Use `onclick`, `onchange`, `oninput`, etc. for event handlers
+- Event handlers receive the native DOM event
+- Return `false` to prevent default behavior
+
+### Reactive Attributes
+
+- Attributes automatically update when signals change
+- Use `classNames()` utility for dynamic CSS classes
+- Style can be string or reactive value
+
+### Rendering
+
+- Use `render(component, container)` to mount components
+- Use `cleanup(element)` to unmount and clean up subscriptions
+
+## Component Patterns
+
+### Functional Components
+
+```typescript
+function MyComponent() {
+  const count = signal(0);
+  const doubled = computed(() => count.get() * 2);
+
+  return div(
+    { className: 'component' },
+    h1('Counter'),
+    p(`Count: ${count.get()}`),
+    p(`Doubled: ${doubled.get()}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+}
+```
+
+### List Rendering
+
+```typescript
+const items = signal(['a', 'b', 'c']);
+const list = createReactiveList(items, (item, index) =>
+  li({ key: index }, item),
+);
+```
+
+## Testing Patterns
+
+### Unit Tests
+
+- Use Jest for testing
+- Test signals, computed values, and effects
+- Mock DOM operations when needed
+- Test both synchronous and asynchronous behavior
+
+### Test Structure
+
+```typescript
+describe('Signal', () => {
+  it('should create signal with initial value', () => {
+    const s = signal(42);
+    expect(s.get()).toBe(42);
+  });
+
+  it('should update value', () => {
+    const s = signal(0);
+    s.set(10);
+    expect(s.get()).toBe(10);
+  });
+});
+```
+
+## Error Handling
+
+### Infinite Loop Prevention
+
+- Library includes built-in infinite loop detection
+- Maximum update limit prevents runaway effects
+- Console warnings for suspicious update patterns
+
+### Error Boundaries
+
+- Wrap components in try-catch when needed
+- Use cleanup functions to prevent memory leaks
+- Handle async operations carefully
+
+## Performance Considerations
+
+### Signal Optimization
+
+- Avoid creating signals in render functions
+- Use computed values for expensive calculations
+- Batch updates when possible
+- Clean up subscriptions to prevent memory leaks
+
+### DOM Optimization
+
+- Minimize DOM queries
+- Use reactive attributes instead of manual DOM manipulation
+- Leverage the library's built-in optimizations
+
+## Documentation Standards
+
+### JSDoc Comments
+
+````typescript
+/**
+ * Creates a reactive signal with an initial value.
+ *
+ * @param initialValue - The initial value for the signal
+ * @param key - Optional key for debugging
+ * @returns A signal object with get, set, update, and subscribe methods
+ *
+ * @example
+ * ```typescript
+ * const count = signal(0);
+ * count.set(10);
+ * console.log(count.get()); // 10
+ * ```
+ */
+function signal<T>(initialValue: T, key?: string): Signal<T>;
+````
+
+### README Updates
+
+- Update examples when adding new features
+- Document breaking changes clearly
+- Include usage examples for new APIs
+
+## Git Workflow
+
+### Commit Messages
+
+- Use conventional commit format: `type(scope): description`
+- Types: feat, fix, docs, style, refactor, test, chore
+- Scope: signals, dom, router, examples, etc.
+
+### Pre-commit Hooks
+
+- Lint staged files with ESLint and Prettier
+- Run type checking with TypeScript
+- Execute all tests
+- Verify build works correctly
+
+## Package Management
+
+### Dependencies
+
+- Keep dependencies minimal and focused
+- Use exact versions for critical dependencies
+- Regular security audits with `npm audit`
+
+### Publishing
+
+- Use semantic versioning
+- Run full test suite before publishing
+- Build and verify distribution files
+- Update changelog for significant changes
+
+## Development Workflow
+
+### Local Development
+
+1. `npm install` - Install dependencies
+2. `npm run dev` - Start development build with watch
+3. `npm test` - Run test suite
+4. `npm run lint` - Check code quality
+5. `npm run build` - Build for production
+
+### Code Quality
+
+- Follow ESLint rules strictly
+- Use Prettier for consistent formatting
+- Write comprehensive tests for new features
+- Document public APIs thoroughly
+
+## Common Patterns
+
+### State Management
+
+```typescript
+// Global state
+const globalState = signal({
+  user: null,
+  theme: 'light',
+  language: 'en',
+});
+
+// Local component state
+function Counter() {
+  const count = signal(0);
+  const increment = () => count.set(count.get() + 1);
+
+  return div(button({ onclick: increment }, `Count: ${count.get()}`));
+}
+```
+
+### Form Handling
+
+```typescript
+function ContactForm() {
+  const name = signal('');
+  const email = signal('');
+  const isValid = computed(
+    () => name.get().length > 0 && email.get().includes('@'),
+  );
+
+  return form(
+    { onsubmit: handleSubmit },
+    input({
+      value: name.get(),
+      oninput: (e) => name.set(e.target.value),
+    }),
+    input({
+      value: email.get(),
+      oninput: (e) => email.set(e.target.value),
+    }),
+    button({ disabled: !isValid.get() }, 'Submit'),
+  );
+}
+```
+
+### Conditional Rendering
+
+```typescript
+function ConditionalComponent() {
+  const isVisible = signal(true);
+
+  return div(
+    button({ onclick: () => isVisible.set(!isVisible.get()) }, 'Toggle'),
+    isVisible.get() ? div('Visible content') : null,
+  );
+}
+```
+
+Remember: Thorix is designed to be lightweight, performant, and developer-friendly. Always prioritize simplicity and clarity over cleverness.

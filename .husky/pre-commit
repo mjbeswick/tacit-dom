@@ -3,8 +3,14 @@
 # Run lint-staged to format and lint staged files
 npx lint-staged
 
+# Run linting on all source files
+npm run lint
+
 # Run type checking
 npm run type-check
 
 # Run tests
 npm test
+
+# Verify build works
+npm run build
