@@ -2,9 +2,13 @@ name: Test Examples
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+
+concurrency:
+  group: 'test-examples'
+  cancel-in-progress: true
 
 jobs:
   test-examples:
