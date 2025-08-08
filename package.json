@@ -1,7 +1,7 @@
 {
   "name": "thorix",
   "version": "0.0.2",
-  "description": "A React-like library with reactive signals and computed values",
+  "description": "A React-like library with reactive signals and computed values for building dynamic web applications—without the need for JSX",
   "type": "module",
   "main": "dist/thorix.cjs.js",
   "module": "dist/thorix.esm.js",
@@ -46,8 +46,16 @@
     "dom",
     "components"
   ],
-  "author": "",
+  "author": "mjbeswick",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mjbeswick/thorix.git"
+  },
+  "homepage": "https://github.com/mjbeswick/thorix#readme",
+  "bugs": {
+    "url": "https://github.com/mjbeswick/thorix/issues"
+  },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-node-resolve": "^16.0.1",
