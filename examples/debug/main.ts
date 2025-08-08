@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p, render } from 'domitor';
+import { signal, computed, div, button, span, h1, p, render } from 'thorix';
 
 // Create the debug app
 export const createDebugApp = () => {
@@ -10,7 +10,7 @@ export const createDebugApp = () => {
     { className: 'container' },
     div(
       { className: 'notice' },
-      h1('Domitor Debug Example'),
+      h1('Thorix Debug Example'),
       p(
         'This example demonstrates reactive signals with debugging. Check the console to see the reactive updates in action.',
       ),

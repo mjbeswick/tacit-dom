@@ -8,7 +8,7 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/reactive-dom.esm.js',
+      file: 'dist/thorix.esm.js',
       format: 'es',
       sourcemap: false,
     },
@@ -28,9 +28,9 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/reactive-dom.umd.js',
+      file: 'dist/thorix.umd.js',
       format: 'umd',
-      name: 'ReactiveDOM',
+      name: 'Thorix',
       sourcemap: false,
     },
     plugins: [
@@ -47,7 +47,7 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/reactive-dom.cjs.js',
+      file: 'dist/thorix.cjs.js',
       format: 'cjs',
       sourcemap: false,
     },

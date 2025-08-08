@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p, render } from 'domitor';
+import { signal, computed, div, button, span, h1, p, render } from 'thorix';
 
 // Create the random generator app
 export const createRandomGeneratorApp = () => {
@@ -19,7 +19,7 @@ export const createRandomGeneratorApp = () => {
     { className: 'container' },
     div(
       { className: 'notice' },
-      h1('Domitor Random Number Generator'),
+      h1('Thorix Random Number Generator'),
       p(
         'This example demonstrates reactive signals with a button that generates random numbers. Click the button to see the value update automatically.',
       ),

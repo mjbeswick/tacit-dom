@@ -1,7 +1,7 @@
 {
-  "name": "domitor-signals-example",
+  "name": "thorix-signals-example",
   "version": "1.0.0",
-  "description": "Example demonstrating Domitor reactive signals",
+  "description": "Example demonstrating Thorix reactive signals",
   "type": "module",
   "scripts": {
     "dev": "vite",

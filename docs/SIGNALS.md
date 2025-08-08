@@ -2,14 +2,14 @@
 
 ## Overview
 
-The Domitor library provides a reactive signal system that allows you to create reactive state and automatically update the DOM when that state changes.
+The Thorix library provides a reactive signal system that allows you to create reactive state and automatically update the DOM when that state changes.
 
 ## Basic Signals
 
 ### Creating Signals
 
 ```typescript
-import { signal } from 'domitor';
+import { signal } from 'thorix';
 
 // Create a signal with an initial value
 const count = signal(0);
@@ -49,7 +49,7 @@ unsubscribe();
 Computed signals automatically update when their dependencies change.
 
 ```typescript
-import { computed } from 'domitor';
+import { computed } from 'thorix';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
@@ -69,7 +69,7 @@ console.log(fullName.get()); // "Jane Doe"
 Effects run side effects when their dependencies change.
 
 ```typescript
-import { effect } from 'domitor';
+import { effect } from 'thorix';
 
 const count = signal(0);
 
@@ -169,7 +169,7 @@ const app = () => {
 Use the `batch` function to group multiple signal updates together.
 
 ```typescript
-import { batch } from 'domitor';
+import { batch } from 'thorix';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
@@ -186,7 +186,7 @@ batch(() => {
 Enable debug mode to see effect execution logs.
 
 ```typescript
-import { setDebugMode } from 'domitor';
+import { setDebugMode } from 'thorix';
 
 setDebugMode(true);
 ```
@@ -203,7 +203,7 @@ import {
   computed,
   effect,
   render,
-} from 'domitor';
+} from 'thorix';
 
 const app = () => {
   const count = signal(0, 'count');

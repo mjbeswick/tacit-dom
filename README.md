@@ -1,8 +1,8 @@
 <div align="center">
 
-# ⚡ Domitor
+# ⚡ Thorix
 
-> A React-like library with reactive signals and computed values for building dynamic web applications
+> A React-like library with reactive signals and computed values for building dynamic web applications—without the need for JSX.
 
 </div>
 
@@ -16,10 +16,10 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 
 </div>
 
-[![NPM Version](https://img.shields.io/npm/v/domitor.svg)](https://www.npmjs.com/package/domitor)
-[![License](https://img.shields.io/npm/l/domitor.svg)](https://github.com/your-username/domitor/blob/main/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/thorix.svg)](https://www.npmjs.com/package/thorix)
+[![License](https://img.shields.io/npm/l/thorix.svg)](https://github.com/your-username/thorix/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/domitor/ci.yml?branch=main)](https://github.com/your-username/domitor/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/thorix/ci.yml?branch=main)](https://github.com/your-username/thorix/actions)
 
 </div>
 
@@ -50,7 +50,7 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
 
-## 🚀 Why Domitor?
+## 🚀 Why Thorix?
 
 ### The React Reality Check 🤔
 
@@ -91,9 +91,9 @@ Let's talk about the elephant in the room: **the React bandwagon effect**.
 
 React is everywhere. It's in job postings, tutorials, bootcamps, and every developer's LinkedIn profile. But here's the thing - just because everyone's using it doesn't mean it's always the right tool for the job.
 
-Sometimes you need a sledgehammer (React), and sometimes you just need a regular hammer (Domitor). 🛠️
+Sometimes you need a sledgehammer (React), and sometimes you just need a regular hammer (Thorix). 🛠️
 
-**Domitor is for developers who:**
+**Thorix is for developers who:**
 
 - Want to build reactive UIs without the React complexity
 - Prefer direct DOM manipulation over virtual DOM abstraction
@@ -101,7 +101,7 @@ Sometimes you need a sledgehammer (React), and sometimes you just need a regular
 - Don't want to learn another framework's quirks and gotchas
 - Believe that sometimes less is more
 
-Remember: **The best tool is the one that gets the job done with the least amount of complexity.** Sometimes that's React, and sometimes it's Domitor. 🤷‍♂️
+Remember: **The best tool is the one that gets the job done with the least amount of complexity.** Sometimes that's React, and sometimes it's Thorix. 🤷‍♂️
 
 ### The Hook Horror Show 🎭
 
@@ -132,10 +132,10 @@ useEffect(() => {
 }, [dependency1, dependency2, dependency3, dependency4]); // Wait, what was I doing again?
 ```
 
-**vs Domitor signals:**
+**vs Thorix signals:**
 
 ```typescript
-// Domitor way - just update the signal
+// Thorix way - just update the signal
 const timer = signal(0);
 
 setInterval(() => {
@@ -161,7 +161,7 @@ With React hooks, you need to remember:
 - ✅ Make sure you're not causing infinite re-renders
 - ✅ Remember that useEffect cleanup runs before the next effect
 
-**With Domitor signals:**
+**With Thorix signals:**
 
 - ✅ Just use the signal
 - ✅ That's it
@@ -180,10 +180,10 @@ const [user, setUser] = useState({ name: 'John' });
 // The answer: YES, because React re-renders the entire component!
 ```
 
-**vs Domitor:**
+**vs Thorix:**
 
 ```typescript
-// Domitor - only what depends on the signal updates
+// Thorix - only what depends on the signal updates
 const count = signal(0);
 const user = signal({ name: 'John' });
 
@@ -217,10 +217,10 @@ const MyProvider = ({ children }) => {
 // Or Redux, or Zustand, or Recoil, or...
 ```
 
-**vs Domitor:**
+**vs Thorix:**
 
 ```typescript
-// Domitor - just create a signal anywhere
+// Thorix - just create a signal anywhere
 const count = signal(0);
 const user = signal({ name: 'John' });
 
@@ -233,7 +233,7 @@ const user = signal({ name: 'John' });
 ## 📦 Installation
 
 ```bash
-npm install domitor
+npm install thorix
 ```
 
 ## 🚀 Quick Start
@@ -243,7 +243,7 @@ Ready to build reactive apps without the React complexity? Let's dive in! 🏊�
 _No virtual DOM, no reconciliation, no provider hell - just pure, simple reactivity!_
 
 ```typescript
-import { signal, computed, div, h1, p, button, render } from 'domitor';
+import { signal, computed, div, h1, p, button, render } from 'thorix';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
@@ -333,7 +333,7 @@ render(Counter(), document.getElementById('app'));
 All HTML elements are available as factory functions:
 
 ```typescript
-import { div, h1, p, button, input, span } from 'domitor';
+import { div, h1, p, button, input, span } from 'thorix';
 
 const element = div(
   { className: 'container' },
@@ -345,7 +345,7 @@ const element = div(
 
 ## 🎯 Examples
 
-The `examples/` directory contains comprehensive examples demonstrating Domitor features:
+The `examples/` directory contains comprehensive examples demonstrating Thorix features:
 
 ### Available Examples
 
@@ -358,7 +358,7 @@ The `examples/` directory contains comprehensive examples demonstrating Domitor 
 
 ### Example Features
 
-Each example demonstrates different aspects of Domitor:
+Each example demonstrates different aspects of Thorix:
 
 - **Reactive Signals**: Global state management without providers or context
 - **Computed Values**: Automatic dependency tracking and derived state

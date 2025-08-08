@@ -1,6 +1,6 @@
-# Domitor Examples
+# Thorix Examples
 
-This directory contains examples demonstrating how to use the Domitor library.
+This directory contains examples demonstrating how to use the Thorix library.
 
 ## Examples
 
@@ -26,7 +26,7 @@ npm run dev
 
 ### Router (`/router`)
 
-A more complex example demonstrating client-side routing with Domitor.
+A more complex example demonstrating client-side routing with Thorix.
 
 ```bash
 cd router
@@ -36,7 +36,7 @@ npm run dev
 
 ### Strongly Typed Props (`/strongly-typed-props`)
 
-An example demonstrating the strongly typed props functionality in Domitor. Shows how each HTML element has its own specific prop type for better TypeScript support.
+An example demonstrating the strongly typed props functionality in Thorix. Shows how each HTML element has its own specific prop type for better TypeScript support.
 
 ```bash
 cd strongly-typed-props

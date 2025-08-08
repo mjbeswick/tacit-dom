@@ -1,4 +1,4 @@
-# Domitor API Reference
+# Thorix API Reference
 
 ## Core Concepts
 
@@ -7,7 +7,7 @@
 Signals are reactive values that automatically update when their dependencies change.
 
 ```typescript
-import { signal } from 'domitor';
+import { signal } from 'thorix';
 
 const count = signal(0);
 console.log(count.get()); // 0
@@ -20,7 +20,7 @@ console.log(count.get()); // 5
 Computed values are derived from signals and automatically update when their dependencies change.
 
 ```typescript
-import { signal, computed } from 'domitor';
+import { signal, computed } from 'thorix';
 
 const a = signal(1);
 const b = signal(2);
@@ -222,7 +222,7 @@ Conditionally joins CSS class names together.
 **Example:**
 
 ```typescript
-import { classNames } from 'domitor';
+import { classNames } from 'thorix';
 
 classNames('foo', 'bar'); // 'foo bar'
 classNames({ active: true, disabled: false }); // 'active'
@@ -236,7 +236,7 @@ All HTML elements are available as factory functions that return DOM elements.
 ### Basic Elements
 
 ```typescript
-import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'domitor';
+import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'thorix';
 
 const element = div(
   { className: 'container' },
@@ -252,7 +252,7 @@ const element = div(
 The library includes a utility for handling dynamic className props with arrays and objects:
 
 ```typescript
-import { classNames } from 'domitor';
+import { classNames } from 'thorix';
 
 // String
 classNames('foo'); // 'foo'
@@ -285,7 +285,7 @@ const classes = computed(() =>
 ### Form Elements
 
 ```typescript
-import { form, input, textarea, select, option, label, button } from 'domitor';
+import { form, input, textarea, select, option, label, button } from 'thorix';
 
 const formElement = form(
   { onsubmit: (e) => e.preventDefault() },
@@ -303,7 +303,7 @@ const formElement = form(
 ### List Elements
 
 ```typescript
-import { ul, ol, li } from 'domitor';
+import { ul, ol, li } from 'thorix';
 
 const list = ul(li('Item 1'), li('Item 2'), li('Item 3'));
 ```
@@ -311,7 +311,7 @@ const list = ul(li('Item 1'), li('Item 2'), li('Item 3'));
 ### Table Elements
 
 ```typescript
-import { table, tr, td, th } from 'domitor';
+import { table, tr, td, th } from 'thorix';
 
 const tableElement = table(
   tr(th('Header 1'), th('Header 2')),
@@ -322,7 +322,7 @@ const tableElement = table(
 ### Media Elements
 
 ```typescript
-import { img, video, audio, canvas } from 'domitor';
+import { img, video, audio, canvas } from 'thorix';
 
 const mediaElements = div(
   img({ src: 'image.jpg', alt: 'Image' }),
@@ -335,7 +335,7 @@ const mediaElements = div(
 ### Semantic Elements
 
 ```typescript
-import { nav, header, footer, main, section, article, aside } from 'domitor';
+import { nav, header, footer, main, section, article, aside } from 'thorix';
 
 const semanticLayout = div(
   header('Header'),
@@ -421,7 +421,7 @@ if (container) {
 ## TypeScript Types
 
 ```typescript
-import { type Signal, type Computed } from 'domitor';
+import { type Signal, type Computed } from 'thorix';
 
 // Signal types
 const count: Signal<number> = signal(0);

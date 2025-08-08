@@ -50,7 +50,7 @@ const app = () => {
   };
 
   return div(
-    h1('Domitor Signals Example'),
+    h1('Thorix Signals Example'),
     div(
       button({ onclick: handleUpdate }, 'Update signals'),
       button(

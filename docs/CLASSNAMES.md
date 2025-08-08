@@ -7,7 +7,7 @@ The `classNames` utility function provides a flexible way to conditionally join 
 ## Basic Usage
 
 ```typescript
-import { classNames } from 'domitor';
+import { classNames } from 'thorix';
 
 // Simple string concatenation
 classNames('foo', 'bar', 'baz'); // 'foo bar baz'
@@ -112,7 +112,7 @@ classNames('button', { active: isActive }, { disabled: isDisabled }, size); // '
 ### Dynamic Classes with Signals
 
 ```typescript
-import { signal, classNames } from 'domitor';
+import { signal, classNames } from 'thorix';
 
 const isVisible = signal(true);
 const theme = signal('dark');
@@ -316,12 +316,12 @@ const Button = ({ variant, size, disabled, children }) => {
 };
 ```
 
-## Integration with Domitor
+## Integration with Thorix
 
-The `classNames` function integrates seamlessly with Domitor's reactive system:
+The `classNames` function integrates seamlessly with Thorix's reactive system:
 
 ```typescript
-import { signal, computed, classNames, div, button } from 'domitor';
+import { signal, computed, classNames, div, button } from 'thorix';
 
 const app = () => {
   const isActive = signal(false);
@@ -345,7 +345,7 @@ const app = () => {
 
 ## CSS Modules Integration
 
-Domitor supports CSS Modules, and `classNames` works perfectly with scoped class names:
+Thorix supports CSS Modules, and `classNames` works perfectly with scoped class names:
 
 ### Basic CSS Modules Usage
 

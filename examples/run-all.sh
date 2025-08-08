@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# Run all Domitor examples
-echo "Starting all Domitor examples..."
+# Run all Thorix examples
+echo "Starting all Thorix examples..."
 
 # Function to run an example
 run_example() {
     local example=$1
     local port=$2
-    
+
     echo "Starting $example on port $port..."
     cd "$example"
     npm install --silent

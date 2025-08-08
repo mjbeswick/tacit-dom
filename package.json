@@ -1,10 +1,10 @@
 {
-  "name": "domitor",
+  "name": "thorix",
   "version": "0.0.1",
   "description": "A React-like library with reactive signals and computed values",
   "type": "module",
-  "main": "dist/reactive-dom.cjs.js",
-  "module": "dist/reactive-dom.esm.js",
+  "main": "dist/thorix.cjs.js",
+  "module": "dist/thorix.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "rollup -c",
