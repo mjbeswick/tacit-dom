@@ -83,7 +83,7 @@
   </g>
 
   <!-- HTML tags near the hammer -->
-  <g transform="translate(75, 25)" fill="#64ffda" opacity="0.8">
+  <g transform="translate(85, 25)" fill="#64ffda" opacity="0.8">
     <!-- Opening div tag -->
     <text x="0" y="0" font-family="monospace" font-size="10" fill="#64ffda">&lt;div&gt;</text>
     <!-- Closing div tag -->
