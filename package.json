@@ -21,7 +21,6 @@
     "security-audit": "npm audit --audit-level moderate",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
-    "postinstall": "npm run build",
     "pre-commit": "npm run format:fix && npm run type-check && npm test",
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
