@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -42,7 +51,7 @@ jobs:
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Reactive-DOM Documentation</title>
+              <title>Thorix Documentation</title>
               <style>
                   body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
                   h1 { color: #333; border-bottom: 2px solid #007bff; }
@@ -55,21 +64,36 @@ jobs:
               </style>
           </head>
           <body>
-              <h1>Reactive-DOM Documentation</h1>
+              <h1>Thorix Documentation</h1>
               <div class="nav">
                   <a href="README.md">README</a>
                   <a href="API.md">API Reference</a>
                   <a href="DEVELOPMENT.md">Development Guide</a>
+                  <a href="SIGNALS.md">Signals Guide</a>
+                  <a href="CLASSNAMES.md">ClassNames Utility</a>
+                  <a href="ROUTER.md">Router Guide</a>
               </div>
-              <p>Welcome to the Reactive-DOM documentation. Choose a link above to get started.</p>
+              <p>Welcome to the Thorix documentation. Choose a link above to get started.</p>
           </body>
           </html>
           EOF
 
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs-site
-          publish_branch: gh-pages
+          path: ./docs-site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

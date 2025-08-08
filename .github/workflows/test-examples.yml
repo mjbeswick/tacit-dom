@@ -30,13 +30,13 @@ jobs:
         run: |
           # Test that examples can be imported
           node -e "
-            const { signal, computed, div, render } = require('./dist/reactive-dom.cjs.js');
+            const { signal, computed, div, render } = require('./dist/thorix.cjs.js');
             console.log('✅ Library imports successfully');
-            
+
             const count = signal(0);
             const double = computed(() => count.get() * 2);
             console.log('✅ Signals work:', count.get(), double.get());
-            
+
             const element = div({ className: 'test' }, 'Hello');
             console.log('✅ DOM elements work:', element.tagName);
           "
@@ -44,8 +44,8 @@ jobs:
       - name: Test dynamic class names functionality
         run: |
           node -e "
-            const { classNames } = require('./dist/reactive-dom.cjs.js');
-            
+            const { classNames } = require('./dist/thorix.cjs.js');
+
             console.log('Testing classNames...');
             console.log('String:', classNames('foo'));
             console.log('Multiple:', classNames('foo', 'bar'));
@@ -58,18 +58,18 @@ jobs:
       - name: Test cleanup functionality
         run: |
           node -e "
-            const { signal, computed, div, render, cleanup } = require('./dist/reactive-dom.cjs.js');
-            
+            const { signal, computed, div, render, cleanup } = require('./dist/thorix.cjs.js');
+
             console.log('Testing cleanup...');
             const count = signal(0);
             const double = computed(() => count.get() * 2);
-            
+
             const element = div(
               { className: 'test' },
               div({ children: \`Count: \${count}\` }),
               div({ children: \`Double: \${double}\` })
             );
-            
+
             console.log('✅ Cleanup functionality works');
           "
 

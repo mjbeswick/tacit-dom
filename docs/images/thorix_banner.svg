@@ -1,0 +1,108 @@
+<svg width="728" height="90" viewBox="0 0 728 90" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#16213e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f3460;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#64ffda;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1de9b6;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0e0e0;stop-opacity:1" />
+    </linearGradient>
+
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="728" height="90" fill="url(#bgGradient)" rx="8"/>
+
+  <!-- Animated reactive particles -->
+  <g opacity="0.6">
+    <circle cx="50" cy="25" r="2" fill="#64ffda">
+      <animate attributeName="r" values="1;3;1" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="680" cy="65" r="1.5" fill="#1de9b6">
+      <animate attributeName="r" values="0.5;2.5;0.5" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.2;0.8;0.2" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="620" cy="20" r="1" fill="#64ffda">
+      <animate attributeName="r" values="0.5;2;0.5" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Connection lines (reactive data flow) -->
+  <g stroke="#64ffda" stroke-width="1" fill="none" opacity="0.4">
+    <path d="M100 30 Q200 20 300 35 T500 30">
+      <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite"/>
+    </path>
+    <path d="M150 60 Q250 50 350 65 T550 60">
+      <animate attributeName="stroke-dasharray" values="0,800;800,0" dur="3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Thor's hammer Mjolnir (stylized) -->
+  <g transform="translate(35, 20)" fill="url(#logoGradient)" filter="url(#glow)">
+    <!-- Main hammer head - more rectangular and massive -->
+    <rect x="0" y="15" width="30" height="15" rx="3"/>
+    <!-- Side flanges/wings -->
+    <rect x="-3" y="12" width="8" height="21" rx="2"/>
+    <rect x="25" y="12" width="8" height="21" rx="2"/>
+    <!-- Top ridge detail -->
+    <rect x="2" y="13" width="26" height="3" rx="1" fill="#1de9b6"/>
+    <!-- Handle - longer and more tapered -->
+    <rect x="14" y="30" width="4" height="25" rx="2"/>
+    <!-- Handle grip details -->
+    <rect x="13" y="35" width="6" height="2" rx="1" fill="#1de9b6" opacity="0.7"/>
+    <rect x="13" y="40" width="6" height="2" rx="1" fill="#1de9b6" opacity="0.7"/>
+    <rect x="13" y="45" width="6" height="2" rx="1" fill="#1de9b6" opacity="0.7"/>
+    <!-- Handle pommel -->
+    <circle cx="16" cy="57" r="3" fill="#1de9b6"/>
+    <!-- Mystical runes on hammer head -->
+    <rect x="8" y="20" width="2" height="5" rx="1" fill="#64ffda" opacity="0.9"/>
+    <rect x="12" y="18" width="2" height="9" rx="1" fill="#64ffda" opacity="0.9"/>
+    <rect x="16" y="20" width="2" height="5" rx="1" fill="#64ffda" opacity="0.9"/>
+    <rect x="20" y="18" width="2" height="9" rx="1" fill="#64ffda" opacity="0.9"/>
+    <!-- Lightning bolt accent - more dynamic -->
+    <path d="M35 18 L42 12 L38 20 L45 26 L37 22 L40 18 Z" fill="#64ffda" opacity="0.8">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+
+  <!-- Main title -->
+  <text x="364" y="40" font-family="Impact, Arial Black, sans-serif" font-size="32" font-weight="bold" fill="url(#textGradient)" text-anchor="middle" letter-spacing="2px" filter="url(#glow)">THORIX</text>
+
+  <!-- Fun slogan -->
+  <text x="364" y="65" font-family="Arial, sans-serif" font-size="12" fill="#64ffda" opacity="0.9" font-style="italic" text-anchor="middle">Reactivity without the complexity!</text>
+
+  <!-- Reactive flow indicators -->
+  <g transform="translate(300, 45)" opacity="0.7">
+    <circle cx="0" cy="0" r="3" fill="#1de9b6">
+      <animate attributeName="cx" values="0;50;100;150;200" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0.5;1;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="0" cy="0" r="2" fill="#64ffda">
+      <animate attributeName="cx" values="0;60;120;180;240" dur="2.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0.3;0.8;0.3;0.8" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Tech accent lines -->
+  <g stroke="#1de9b6" stroke-width="1" opacity="0.3">
+    <line x1="0" y1="1" x2="728" y2="1"/>
+    <line x1="0" y1="89" x2="728" y2="89"/>
+  </g>
+</svg>
