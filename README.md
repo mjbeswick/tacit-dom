@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚡ Thorix
+![Thorix Banner](docs/images/thorix_banner.svg)
 
 > A React-like library with reactive signals and computed values for building dynamic web applications—without the need for JSX.
 
