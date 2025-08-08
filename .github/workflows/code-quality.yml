@@ -2,9 +2,13 @@ name: Code Quality
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+
+concurrency:
+  group: 'code-quality'
+  cancel-in-progress: true
 
 jobs:
   lint-and-format:
