@@ -1,4 +1,4 @@
-name: Test Examples
+name: Library Tests & Examples Validation
 
 on:
   push:
@@ -97,3 +97,9 @@ jobs:
           # Test that type checking passes
           npm run type-check
           echo "✅ Type checking passed"
+
+      - name: Run unit tests
+        run: |
+          # Run Jest unit tests
+          npm test
+          echo "✅ Unit tests passed"
