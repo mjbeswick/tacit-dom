@@ -17,9 +17,9 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 </div>
 
 [![NPM Version](https://img.shields.io/npm/v/thorix.svg)](https://www.npmjs.com/package/thorix)
-[![License](https://img.shields.io/npm/l/thorix.svg)](https://github.com/your-username/thorix/blob/main/LICENSE)
+[![License](https://img.shields.io/npm/l/thorix.svg)](https://github.com/mjbeswick/thorix/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/thorix/ci.yml?branch=main)](https://github.com/your-username/thorix/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/mjbeswick/thorix/test-examples.yml?branch=main)](https://github.com/mjbeswick/thorix/actions)
 
 </div>
 
