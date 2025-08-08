@@ -12,5 +12,8 @@ npm run type-check
 # Run tests
 npm test
 
+# Run security audit
+npm run security-audit
+
 # Verify build works
 npm run build
