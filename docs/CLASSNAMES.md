@@ -2,54 +2,57 @@
 
 ## Overview
 
-The `classNames` utility function provides a flexible way to conditionally join CSS class names together. It's similar to popular libraries like `clsx` or `classnames`, offering intelligent handling of various input types.
+The `classNames` prop provides a flexible way to conditionally join CSS class names together directly on DOM elements. It's similar to popular libraries like `clsx` or `classnames`, offering intelligent handling of various input types without needing to call a separate function.
 
 ## Basic Usage
 
+Instead of calling a function, you pass the class names directly to the `classNames` prop:
+
 ```typescript
-import { classNames } from 'thorix';
+import { div, button } from 'thorix';
 
 // Simple string concatenation
-classNames('foo', 'bar', 'baz'); // 'foo bar baz'
+div({ classNames: ['foo', 'bar', 'baz'] }); // 'foo bar baz'
 
 // Single class
-classNames('button'); // 'button'
+div({ classNames: 'button' }); // 'button'
 
 // Empty result
-classNames(); // ''
+div({ classNames: [] }); // ''
 ```
 
 ## Input Types
 
-The `classNames` function accepts various input types:
+The `classNames` prop accepts various input types:
 
 ### Strings
 
 ```typescript
-classNames('foo', 'bar'); // 'foo bar'
-classNames(''); // ''
+div({ classNames: 'foo' }); // 'foo'
+div({ classNames: ['foo', 'bar'] }); // 'foo bar'
+div({ classNames: '' }); // ''
 ```
 
 ### Numbers
 
 ```typescript
-classNames(1, 2, 3); // '1 2 3'
-classNames(0); // '' (falsy values are ignored)
-classNames(-1, -2); // '-1 -2'
+div({ classNames: [1, 2, 3] }); // '1 2 3'
+div({ classNames: 0 }); // '' (falsy values are ignored)
+div({ classNames: [-1, -2] }); // '-1 -2'
 ```
 
 ### Booleans
 
 ```typescript
-classNames(true, false, 'foo'); // 'foo'
-classNames(true, false); // '' (all falsy)
+div({ classNames: [true, false, 'foo'] }); // 'foo'
+div({ classNames: [true, false] }); // '' (all falsy)
 ```
 
 ### Null and Undefined
 
 ```typescript
-classNames(null, undefined, 'foo'); // 'foo'
-classNames(null, undefined); // ''
+div({ classNames: [null, undefined, 'foo'] }); // 'foo'
+div({ classNames: [null, undefined] }); // ''
 ```
 
 ### Objects
@@ -57,26 +60,32 @@ classNames(null, undefined); // ''
 Objects use keys as class names when values are truthy:
 
 ```typescript
-classNames({
-  button: true,
-  primary: true,
-  disabled: false,
+div({
+  classNames: {
+    button: true,
+    primary: true,
+    disabled: false,
+  },
 }); // 'button primary'
 
-classNames({
-  active: true,
-  hidden: false,
-  visible: true,
+div({
+  classNames: {
+    active: true,
+    hidden: false,
+    visible: true,
+  },
 }); // 'active visible'
 
 // Empty object
-classNames({}); // ''
+div({ classNames: {} }); // ''
 
 // All falsy values
-classNames({
-  foo: false,
-  bar: null,
-  baz: undefined,
+div({
+  classNames: {
+    foo: false,
+    bar: null,
+    baz: undefined,
+  },
 }); // ''
 ```
 
@@ -85,16 +94,18 @@ classNames({
 Arrays are processed recursively:
 
 ```typescript
-classNames(['foo', 'bar'], 'baz'); // 'foo bar baz'
+div({ classNames: [['foo', 'bar'], 'baz'] }); // 'foo bar baz'
 
 // Nested arrays
-classNames(['foo', ['bar', 'baz']], 'qux'); // 'foo bar baz qux'
+div({ classNames: [['foo', ['bar', 'baz']], 'qux'] }); // 'foo bar baz qux'
 
 // Arrays with mixed types
-classNames(['foo', { bar: true, baz: false }, 'qux']); // 'foo bar qux'
+div({
+  classNames: [['foo', { bar: true, baz: false }, 'qux']],
+}); // 'foo bar qux'
 
 // Empty arrays
-classNames([], 'foo'); // ' foo'
+div({ classNames: [[], 'foo'] }); // ' foo'
 ```
 
 ## Advanced Examples
@@ -106,22 +117,26 @@ const isActive = true;
 const isDisabled = false;
 const size = 'large';
 
-classNames('button', { active: isActive }, { disabled: isDisabled }, size); // 'button active large'
+div({
+  classNames: ['button', { active: isActive }, { disabled: isDisabled }, size],
+}); // 'button active large'
 ```
 
 ### Dynamic Classes with Signals
 
 ```typescript
-import { signal, classNames } from 'thorix';
+import { signal, div } from 'thorix';
 
 const isVisible = signal(true);
 const theme = signal('dark');
 
-const className = classNames(
+const className = [
   'container',
   { visible: isVisible.get() },
   `theme-${theme.get()}`,
-); // 'container visible theme-dark'
+];
+
+div({ classNames: className }); // 'container visible theme-dark'
 ```
 
 ### Complex Conditional Logic
@@ -130,13 +145,15 @@ const className = classNames(
 const user = { role: 'admin', isOnline: true };
 const page = 'dashboard';
 
-classNames(
-  'user-card',
-  { admin: user.role === 'admin' },
-  { online: user.isOnline },
-  { offline: !user.isOnline },
-  `page-${page}`,
-); // 'user-card admin online page-dashboard'
+div({
+  classNames: [
+    'user-card',
+    { admin: user.role === 'admin' },
+    { online: user.isOnline },
+    { offline: !user.isOnline },
+    `page-${page}`,
+  ],
+}); // 'user-card admin online page-dashboard'
 ```
 
 ### Component State Classes
@@ -149,12 +166,12 @@ const app = () => {
 
   return div(
     {
-      className: classNames(
+      classNames: [
         'form',
         { loading: isLoading.get() },
         { error: hasError.get() },
         { success: isSuccess.get() },
-      ),
+      ],
     },
     'Form content',
   );
@@ -168,12 +185,14 @@ const isMobile = signal(true);
 const isTablet = signal(false);
 const isDesktop = signal(false);
 
-classNames(
-  'layout',
-  { mobile: isMobile.get() },
-  { tablet: isTablet.get() },
-  { desktop: isDesktop.get() },
-); // 'layout mobile'
+div({
+  classNames: [
+    'layout',
+    { mobile: isMobile.get() },
+    { tablet: isTablet.get() },
+    { desktop: isDesktop.get() },
+  ],
+}); // 'layout mobile'
 ```
 
 ### Theme and Variant Classes
@@ -183,12 +202,14 @@ const theme = signal('dark');
 const variant = signal('primary');
 const size = signal('medium');
 
-classNames(
-  'button',
-  `theme-${theme.get()}`,
-  `variant-${variant.get()}`,
-  `size-${size.get()}`,
-); // 'button theme-dark variant-primary size-medium'
+div({
+  classNames: [
+    'button',
+    `theme-${theme.get()}`,
+    `variant-${variant.get()}`,
+    `size-${size.get()}`,
+  ],
+}); // 'button theme-dark variant-primary size-medium'
 ```
 
 ### Form Validation Classes
@@ -198,13 +219,15 @@ const isValid = signal(true);
 const isDirty = signal(false);
 const hasError = signal(false);
 
-classNames(
-  'input',
-  { valid: isValid.get() },
-  { invalid: !isValid.get() },
-  { dirty: isDirty.get() },
-  { error: hasError.get() },
-); // 'input valid'
+div({
+  classNames: [
+    'input',
+    { valid: isValid.get() },
+    { invalid: !isValid.get() },
+    { dirty: isDirty.get() },
+    { error: hasError.get() },
+  ],
+}); // 'input valid'
 ```
 
 ### Navigation Classes
@@ -213,11 +236,13 @@ classNames(
 const currentPage = signal('home');
 const pages = ['home', 'about', 'contact'];
 
-classNames(
-  'nav-item',
-  { active: currentPage.get() === 'home' },
-  { current: true },
-); // 'nav-item active current'
+div({
+  classNames: [
+    'nav-item',
+    { active: currentPage.get() === 'home' },
+    { current: true },
+  ],
+}); // 'nav-item active current'
 ```
 
 ### Loading States
@@ -227,12 +252,14 @@ const isLoading = signal(true);
 const isSaving = signal(false);
 const isDeleting = signal(false);
 
-classNames(
-  'spinner',
-  { loading: isLoading.get() },
-  { saving: isSaving.get() },
-  { deleting: isDeleting.get() },
-); // 'spinner loading'
+div({
+  classNames: [
+    'spinner',
+    { loading: isLoading.get() },
+    { saving: isSaving.get() },
+    { deleting: isDeleting.get() },
+  ],
+}); // 'spinner loading'
 ```
 
 ### Utility Classes
@@ -242,12 +269,14 @@ const isHidden = signal(false);
 const isCentered = signal(true);
 const isResponsive = signal(true);
 
-classNames(
-  'container',
-  { hidden: isHidden.get() },
-  { centered: isCentered.get() },
-  { responsive: isResponsive.get() },
-); // 'container centered responsive'
+div({
+  classNames: [
+    'container',
+    { hidden: isHidden.get() },
+    { centered: isCentered.get() },
+    { responsive: isResponsive.get() },
+  ],
+}); // 'container centered responsive'
 ```
 
 ## Best Practices
@@ -256,35 +285,45 @@ classNames(
 
 ```typescript
 // Good
-classNames('user-profile', { active: isActive });
+div({ classNames: ['user-profile', { active: isActive }] });
 
 // Avoid
-classNames('up', { a: isActive });
+div({ classNames: ['up', { a: isActive }] });
 ```
 
 ### 2. Group Related Classes
 
 ```typescript
 // Good
-classNames(
-  'button',
-  'primary',
-  { disabled: isDisabled },
-  { loading: isLoading },
-);
+div({
+  classNames: [
+    'button',
+    'primary',
+    { disabled: isDisabled },
+    { loading: isLoading },
+  ],
+});
 
 // Avoid
-classNames('button', 'primary', 'disabled', 'loading');
+div({ classNames: ['button', 'primary', 'disabled', 'loading'] });
 ```
 
 ### 3. Use Objects for Conditional Classes
 
 ```typescript
 // Good
-classNames('button', { active: isActive, disabled: isDisabled });
+div({
+  classNames: ['button', { active: isActive, disabled: isDisabled }],
+});
 
 // Avoid
-classNames('button', isActive ? 'active' : '', isDisabled ? 'disabled' : '');
+div({
+  classNames: [
+    'button',
+    isActive ? 'active' : '',
+    isDisabled ? 'disabled' : '',
+  ],
+});
 ```
 
 ### 4. Combine with Signals for Reactive Classes
@@ -294,11 +333,13 @@ const isVisible = signal(true);
 const theme = signal('dark');
 
 // Reactive class names
-const className = classNames(
+const className = [
   'container',
   { visible: isVisible.get() },
   `theme-${theme.get()}`,
-);
+];
+
+div({ classNames: className });
 ```
 
 ### 5. Use for Component Props
@@ -307,9 +348,12 @@ const className = classNames(
 const Button = ({ variant, size, disabled, children }) => {
   return button(
     {
-      className: classNames('button', `button--${variant}`, `button--${size}`, {
-        'button--disabled': disabled,
-      }),
+      classNames: [
+        'button',
+        `button--${variant}`,
+        `button--${size}`,
+        { 'button--disabled': disabled },
+      ],
     },
     children,
   );
@@ -318,23 +362,25 @@ const Button = ({ variant, size, disabled, children }) => {
 
 ## Integration with Thorix
 
-The `classNames` function integrates seamlessly with Thorix's reactive system:
+The `classNames` prop integrates seamlessly with Thorix's reactive system:
 
 ```typescript
-import { signal, computed, classNames, div, button } from 'thorix';
+import { signal, computed, div, button } from 'thorix';
 
 const app = () => {
   const isActive = signal(false);
   const theme = signal('light');
 
-  const buttonClasses = computed(() =>
-    classNames('button', { active: isActive.get() }, `theme-${theme.get()}`),
-  );
+  const buttonClasses = computed(() => [
+    'button',
+    { active: isActive.get() },
+    `theme-${theme.get()}`,
+  ]);
 
   return div(
     button(
       {
-        className: buttonClasses,
+        classNames: buttonClasses,
         onclick: () => isActive.set(!isActive.get()),
       },
       'Toggle Active',
@@ -345,7 +391,7 @@ const app = () => {
 
 ## CSS Modules Integration
 
-Thorix supports CSS Modules, and `classNames` works perfectly with scoped class names:
+Thorix supports CSS Modules, and the `classNames` prop works perfectly with scoped class names:
 
 ### Basic CSS Modules Usage
 
@@ -355,9 +401,11 @@ import styles from './Button.module.css';
 const Button = ({ variant, disabled, children }) => {
   return button(
     {
-      className: classNames(styles.button, styles[`button--${variant}`], {
-        [styles['button--disabled']]: disabled,
-      }),
+      classNames: [
+        styles.button,
+        styles[`button--${variant}`],
+        { [styles['button--disabled']]: disabled },
+      ],
     },
     children,
   );
@@ -371,13 +419,13 @@ import styles from './Form.module.css';
 
 const FormInput = ({ isValid, isDirty, error }) => {
   return input({
-    className: classNames(
+    classNames: [
       styles.input,
       { [styles.valid]: isValid },
       { [styles.invalid]: !isValid },
       { [styles.dirty]: isDirty },
       { [styles.error]: error },
-    ),
+    ],
   });
 };
 ```
@@ -391,16 +439,14 @@ const app = () => {
   const isVisible = signal(true);
   const theme = signal('dark');
 
-  const containerClasses = computed(() =>
-    classNames(
-      styles.container,
-      { [styles.visible]: isVisible.get() },
-      { [styles.hidden]: !isVisible.get() },
-      styles[`theme--${theme.get()}`],
-    ),
-  );
+  const containerClasses = computed(() => [
+    styles.container,
+    { [styles.visible]: isVisible.get() },
+    { [styles.hidden]: !isVisible.get() },
+    styles[`theme--${theme.get()}`],
+  ]);
 
-  return div({ className: containerClasses }, 'Content');
+  return div({ classNames: containerClasses }, 'Content');
 };
 ```
 
@@ -411,12 +457,12 @@ import styles from './Card.module.css';
 
 const Card = ({ size, variant, elevated }) => {
   return div({
-    className: classNames(
+    classNames: [
       styles.card,
       styles[`card--${size}`],
       styles[`card--${variant}`],
       { [styles['card--elevated']]: elevated },
-    ),
+    ],
   });
 };
 ```
@@ -457,16 +503,14 @@ const app = () => {
   const isLoading = signal(false);
   const hasError = signal(false);
 
-  const wrapperClasses = computed(() =>
-    classNames(
-      styles.wrapper,
-      { [styles.loading]: isLoading.get() },
-      { [styles.error]: hasError.get() },
-      { [styles.success]: !isLoading.get() && !hasError.get() },
-    ),
-  );
+  const wrapperClasses = computed(() => [
+    styles.wrapper,
+    { [styles.loading]: isLoading.get() },
+    { [styles.error]: hasError.get() },
+    { [styles.success]: !isLoading.get() && !hasError.get() },
+  ]);
 
-  return div({ className: wrapperClasses }, 'Content');
+  return div({ classNames: wrapperClasses }, 'Content');
 };
 ```
 
@@ -485,57 +529,66 @@ const app = () => {
 2. **Group Related Classes**
 
    ```typescript
-   classNames(styles.button, styles[`button--${size}`], {
-     [styles['button--disabled']]: disabled,
-   });
+   [
+     styles.button,
+     styles[`button--${size}`],
+     { [styles['button--disabled']]: disabled },
+   ];
    ```
 
 3. **Use Computed for Complex Logic**
 
    ```typescript
-   const buttonClasses = computed(() =>
-     classNames(
-       styles.button,
-       { [styles.active]: isActive.get() },
-       { [styles.loading]: isLoading.get() },
-     ),
-   );
+   const buttonClasses = computed(() => [
+     styles.button,
+     { [styles.active]: isActive.get() },
+     { [styles.loading]: isLoading.get() },
+   ]);
    ```
 
 4. **Combine with Theme System**
    ```typescript
-   classNames(styles.component, styles[`theme--${theme.get()}`], {
-     [styles.visible]: isVisible.get(),
-   });
+   [
+     styles.component,
+     styles[`theme--${theme.get()}`],
+     { [styles.visible]: isVisible.get() },
+   ];
    ```
 
 ## Performance Considerations
 
-- The function is lightweight and optimized for common use cases
+- The prop is lightweight and optimized for common use cases
 - Avoid deeply nested arrays for better performance
 - Consider memoizing complex class name computations with `computed`
 
 ```typescript
 // Good - memoized computation
-const className = computed(() =>
-  classNames('button', { active: isActive.get() }),
-);
+const className = computed(() => ['button', { active: isActive.get() }]);
 
 // Avoid - recalculated on every render
-const className = classNames('button', { active: isActive.get() });
+const className = ['button', { active: isActive.get() }];
 ```
 
 ## TypeScript Support
 
-The function is fully typed and provides excellent TypeScript support:
+The prop is fully typed and provides excellent TypeScript support:
 
 ```typescript
-// TypeScript will infer the correct return type
-const classes: string = classNames('foo', { bar: true });
+// TypeScript will infer the correct types
+const classes = ['foo', { bar: true }];
 
 // Works with union types
 const variant: 'primary' | 'secondary' = 'primary';
-const classes = classNames('button', `button--${variant}`);
+const classes = ['button', `button--${variant}`];
 ```
 
-This utility makes it easy to create dynamic, conditional CSS class names in a clean and maintainable way!
+## Key Differences from className
+
+The `classNames` prop is designed to be more intuitive than the `className` prop:
+
+1. **No function call needed**: Pass arrays and objects directly
+2. **Better TypeScript support**: More specific typing for class name inputs
+3. **Cleaner syntax**: No need to wrap in `classNames()` function
+4. **Consistent behavior**: Always processes the same input types
+
+This utility makes it easy to create dynamic, conditional CSS class names in a clean and maintainable way directly on DOM elements!

@@ -28,7 +28,6 @@ export {
   audio,
   button,
   canvas,
-  classNames,
   cleanup,
   createElement,
   createReactiveList,

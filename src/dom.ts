@@ -17,7 +17,7 @@ import {
 } from './signals';
 
 // DOM types for event handling
-type EventListener = (event: Event) => void | Promise<void>;
+type EventListener = (_event: Event) => void | Promise<void>;
 
 // Inline classNames function to avoid circular dependency
 function classNames(
@@ -215,6 +215,32 @@ type CommonAttributes = {
         | { [key: string]: any }
         | any[]
       )[];
+  classNames?:
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | { [key: string]: any }
+    | any[]
+    | Signal<
+        | string
+        | number
+        | boolean
+        | null
+        | undefined
+        | { [key: string]: any }
+        | any[]
+      >
+    | Computed<
+        | string
+        | number
+        | boolean
+        | null
+        | undefined
+        | { [key: string]: any }
+        | any[]
+      >;
   style?: string | Signal<string> | Computed<string>;
   title?: string | Signal<string> | Computed<string>;
   lang?: string | Signal<string> | Computed<string>;
@@ -684,8 +710,8 @@ export type ElementChildren = (
  * properties and children.
  */
 export type ElementCreator = (
-  props?: ElementProps | ElementChildren[0],
-  ...children: ElementChildren
+  _props?: ElementProps | ElementChildren[0],
+  ..._children: ElementChildren
 ) => HTMLElement;
 
 /**
@@ -810,6 +836,71 @@ function createElementFactory(tagName: string): ElementCreator {
             }
 
             const unsubscribe = value.subscribe(updateClassName);
+
+            subscriptions.push({ signal: value, unsubscribe });
+          } else if (
+            typeof value === 'string' ||
+            typeof value === 'number' ||
+            typeof value === 'boolean' ||
+            Array.isArray(value) ||
+            (typeof value === 'object' && value !== null)
+          ) {
+            element.className = classNames(value);
+          } else {
+            element.className = String(value);
+          }
+        } else if (key === 'classNames') {
+          // Handle classNames prop with dynamic class name functionality
+          if (isReactive(value)) {
+            let isUpdating = false;
+            const updateClassNames = () => {
+              // Prevent infinite loops
+              if (isUpdating) return;
+              if (!checkUpdateLimit()) return;
+
+              isUpdating = true;
+
+              try {
+                const classNamesValue = safeGetValue(value);
+                const finalClassNames =
+                  typeof classNamesValue === 'string' ||
+                  typeof classNamesValue === 'number' ||
+                  typeof classNamesValue === 'boolean' ||
+                  Array.isArray(classNamesValue) ||
+                  (typeof classNamesValue === 'object' &&
+                    classNamesValue !== null)
+                    ? classNames(classNamesValue)
+                    : String(classNamesValue);
+
+                if (hasValueChanged(element, 'className', finalClassNames)) {
+                  element.className = finalClassNames;
+                }
+              } catch (error) {
+                console.error('Error updating classNames:', error);
+              } finally {
+                isUpdating = false;
+              }
+            };
+
+            // Set initial classNames without triggering reactive updates
+            try {
+              const classNamesValue = safeGetValue(value);
+              const finalClassNames =
+                typeof classNamesValue === 'string' ||
+                typeof classNamesValue === 'number' ||
+                typeof classNamesValue === 'boolean' ||
+                Array.isArray(classNamesValue) ||
+                (typeof classNamesValue === 'object' &&
+                  classNamesValue !== null)
+                  ? classNames(classNamesValue)
+                  : String(classNamesValue);
+
+              element.className = finalClassNames;
+            } catch (error) {
+              console.error('Error setting initial classNames:', error);
+            }
+
+            const unsubscribe = value.subscribe(updateClassNames);
 
             subscriptions.push({ signal: value, unsubscribe });
           } else if (
@@ -1181,8 +1272,7 @@ export function cleanup(component: HTMLElement): void {
   cleanupElement(component);
 }
 
-// Export classNames function
-export { classNames };
+// classNames function is internal only - not exported
 
 /**
  * Creates a reactive list that automatically updates when the source signal changes.
@@ -1206,7 +1296,7 @@ export { classNames };
  */
 export function createReactiveList<T>(
   signal: Signal<T[]>,
-  renderItem: (item: T, index: number) => HTMLElement,
+  renderItem: (_item: T, _index: number) => HTMLElement,
 ): HTMLElement {
   const container = document.createElement('div');
   const subscriptions: Array<{

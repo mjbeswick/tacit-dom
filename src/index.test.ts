@@ -77,10 +77,6 @@ describe('ReactiveDOM exports', () => {
   });
 
   describe('utility exports', () => {
-    it('should export classNames function', () => {
-      expect(typeof ReactiveDOM.classNames).toBe('function');
-    });
-
     it('should export ClassValue type', () => {
       // Test that ClassValue type is available
       const testValue: ReactiveDOM.ClassValue = 'test';
@@ -136,7 +132,7 @@ describe('ReactiveDOM exports', () => {
 
       const container = ReactiveDOM.div(
         {
-          className: ReactiveDOM.classNames('counter', { active: true }),
+          classNames: ['counter', { active: true }],
         },
         button,
         display,
@@ -202,8 +198,6 @@ describe('ReactiveDOM exports', () => {
         'createElement',
         'render',
         'cleanup',
-        // Utility exports
-        'classNames',
       ];
 
       expectedProperties.forEach((prop) => {
