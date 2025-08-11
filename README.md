@@ -23,6 +23,14 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 
 </div>
 
+## ⚠️ Project status
+
+- **Work in progress**: APIs are evolving and may change without notice.
+- **Poor test coverage**: The current test coverage is limited and many areas are untested.
+- **Expect breakage**: This will likely break badly if you try to build anything non‑trivial right now.
+
+If you want something stable for production, this is not it (yet). Contributions to improve tests and stability are very welcome.
+
 ## 📋 Table of Contents
 
 - [Features](#-features)
@@ -49,6 +57,8 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
 
 ## 🚀 Why Thorix?
+
+React is
 
 ### The React Reality Check 🤔
 
