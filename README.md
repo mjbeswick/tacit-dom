@@ -30,7 +30,7 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 - **Poor test coverage**: The current test coverage is limited and many areas are untested.
 - **Expect breakage**: This will likely break badly if you try to build anything non‑trivial right now.
 
-If you want something stable for production, this is not it (yet). Contributions to improve tests and stability are very welcome.
+If you want something stable for production, this is not it (yet).
 
 ## 📋 Table of Contents
 
