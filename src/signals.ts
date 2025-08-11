@@ -43,6 +43,29 @@ const DEFAULT_MAX_RUNS = 100;
 const preservedSignals = new WeakMap<object, Map<string, Signal<any>>>();
 let currentComponentInstance: object | null = null;
 
+// Reactive instance registry for template-string interpolation
+// We expose a stable marker in toString() so template literals can be reactive.
+const REACTIVE_MARKER_PREFIX = '__THORIX_RX__:';
+const REACTIVE_MARKER_SUFFIX = '__';
+
+const reactiveInstanceToId = new WeakMap<object, string>();
+const reactiveIdToInstance = new Map<string, Signal<any> | Computed<any>>();
+let nextReactiveId = 1;
+
+function ensureReactiveId(instance: object, register: () => void): string {
+  let id = reactiveInstanceToId.get(instance);
+  if (!id) {
+    id = String(nextReactiveId++);
+    reactiveInstanceToId.set(instance, id);
+    register();
+  }
+  return id;
+}
+
+function getReactiveById(id: string): Signal<any> | Computed<any> | undefined {
+  return reactiveIdToInstance.get(id);
+}
+
 /**
  * Enable or disable debug mode (console logs).
  */
@@ -207,7 +230,23 @@ function createSignal<T>(initialValue: T): Signal<T> {
     };
   };
 
-  return { get, set, update, subscribe, toString: () => String(get()) };
+  const signalApi: Signal<T> = {
+    get,
+    set,
+    update,
+    subscribe,
+    toString: () => {
+      // Expose a stable marker that DOM can parse and bind reactively when
+      // this signal is used inside a template string.
+      const id = ensureReactiveId(signalApi as unknown as object, () => {
+        const newId = reactiveInstanceToId.get(signalApi as unknown as object)!;
+        reactiveIdToInstance.set(newId, signalApi);
+      });
+      return `${REACTIVE_MARKER_PREFIX}${id}${REACTIVE_MARKER_SUFFIX}`;
+    },
+  };
+
+  return signalApi;
 }
 
 function computed<T>(computeFn: () => T): Computed<T> {
@@ -260,7 +299,7 @@ function computed<T>(computeFn: () => T): Computed<T> {
     deps.clear();
   };
 
-  return {
+  const computedApi: Computed<T> = {
     get() {
       // Track this computed as a dependency if we're in an effect
       if (activeEffect) {
@@ -277,9 +316,18 @@ function computed<T>(computeFn: () => T): Computed<T> {
       };
     },
     toString() {
-      return String(this.get());
+      const id = ensureReactiveId(computedApi as unknown as object, () => {
+        const newId = reactiveInstanceToId.get(
+          computedApi as unknown as object,
+        )!;
+        reactiveIdToInstance.set(newId, computedApi as unknown as Computed<T>);
+      });
+      return `${REACTIVE_MARKER_PREFIX}${id}${REACTIVE_MARKER_SUFFIX}`;
     },
+    // Remove stray Symbol.toPrimitive property if present
   };
+
+  return computedApi;
 }
 
 function scheduleUpdate(subscriber: Subscriber): void {
@@ -396,11 +444,15 @@ function flushUpdates(): void {
 }
 
 export {
+  REACTIVE_MARKER_PREFIX,
+  REACTIVE_MARKER_SUFFIX,
   batch,
   cleanupPreservedSignals,
   clearComponentInstance,
   computed,
   effect,
+  // Template-string interpolation helpers
+  getReactiveById,
   setComponentInstance,
   setDebugMode,
   signal,

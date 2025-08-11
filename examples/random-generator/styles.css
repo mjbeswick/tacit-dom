@@ -19,6 +19,20 @@
   padding: 0.5rem 1rem;
 }
 
+/* Style for template method */
+#random-value-1 {
+  background-color: #e3f2fd;
+  border: 2px solid #2196f3;
+  color: #1976d2;
+}
+
+/* Style for direct signal method */
+#random-value-2 {
+  background-color: #f3e5f5;
+  border: 2px solid #9c27b0;
+  color: #7b1fa2;
+}
+
 .container {
   padding: 2rem;
   max-width: 800px;

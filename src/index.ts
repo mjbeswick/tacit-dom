@@ -67,6 +67,7 @@ export {
   tr,
   ul,
   video,
+  template,
 } from './dom';
 
 // Router exports

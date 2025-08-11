@@ -10,10 +10,13 @@
  */
 
 import {
-  Computed,
-  Signal,
   clearComponentInstance,
+  Computed,
+  getReactiveById,
+  REACTIVE_MARKER_PREFIX,
+  REACTIVE_MARKER_SUFFIX,
   setComponentInstance,
+  Signal,
 } from './signals';
 
 // DOM types for event handling
@@ -54,6 +57,170 @@ function classNames(
   }
 
   return classes.join(' ');
+}
+
+// Creates a reactive node from a string that may include Thorix reactive markers
+function createReactiveInterpolatedNode(text: string): HTMLElement {
+  const container = document.createElement('span');
+  const parts: (string | Signal<any> | Computed<any>)[] = [];
+  let index = 0;
+
+  while (index < text.length) {
+    const start = text.indexOf(REACTIVE_MARKER_PREFIX, index);
+    if (start === -1) {
+      if (index < text.length) parts.push(text.slice(index));
+      break;
+    }
+    if (start > index) {
+      parts.push(text.slice(index, start));
+    }
+    const idStart = start + REACTIVE_MARKER_PREFIX.length;
+    const end = text.indexOf(REACTIVE_MARKER_SUFFIX, idStart);
+    if (end === -1) {
+      // No closing suffix; treat rest as static
+      parts.push(text.slice(start));
+      break;
+    }
+    const id = text.slice(idStart, end);
+    const instance = getReactiveById(id);
+    if (instance) {
+      parts.push(instance as Signal<any> | Computed<any>);
+    } else {
+      // Unknown id, keep as plain text
+      parts.push(text.slice(start, end + REACTIVE_MARKER_SUFFIX.length));
+    }
+    index = end + REACTIVE_MARKER_SUFFIX.length;
+  }
+
+  const updateText = () => {
+    const content = parts
+      .map((part) => (isReactive(part) ? String(safeGetValue(part)) : part))
+      .join('');
+    container.textContent = content;
+  };
+
+  updateText();
+
+  parts.forEach((part) => {
+    if (isReactive(part)) {
+      const unsubscribe = part.subscribe(updateText);
+      const existing = reactiveNodes.get(container) || [];
+      existing.push({ signal: part, unsubscribe });
+      reactiveNodes.set(container, existing);
+    }
+  });
+
+  return container;
+}
+
+/**
+ * Parses a template string to extract static parts and signal references.
+ * Supports both direct signal references and computed expressions.
+ */
+function parseTemplateString(
+  template: string,
+): (string | Signal<any> | Computed<any>)[] {
+  const parts: (string | Signal<any> | Computed<any>)[] = [];
+  let currentIndex = 0;
+
+  while (currentIndex < template.length) {
+    const startIndex = template.indexOf('${', currentIndex);
+
+    if (startIndex === -1) {
+      // No more template expressions, add remaining text
+      if (currentIndex < template.length) {
+        parts.push(template.slice(currentIndex));
+      }
+      break;
+    }
+
+    // Add text before the template expression
+    if (startIndex > currentIndex) {
+      parts.push(template.slice(currentIndex, startIndex));
+    }
+
+    // Find the closing brace
+    let braceCount = 1;
+    let endIndex = startIndex + 2;
+
+    while (endIndex < template.length && braceCount > 0) {
+      if (template[endIndex] === '{') braceCount++;
+      if (template[endIndex] === '}') braceCount--;
+      endIndex++;
+    }
+
+    if (braceCount === 0) {
+      // Extract the expression
+      const expression = template.slice(startIndex + 2, endIndex - 1).trim();
+
+      // Try to evaluate the expression to find signal references
+      try {
+        // This is a simplified approach - in a real implementation,
+        // you might want to use a more sophisticated expression parser
+        // For now, we'll assume the expression is a simple signal reference
+        // and let the user pass the actual signal object
+
+        // Add a placeholder that will be replaced by the actual signal
+        // when the user passes it as a separate child
+        parts.push(`[SIGNAL_PLACEHOLDER:${expression}]`);
+      } catch (error) {
+        // If evaluation fails, treat as static text
+        parts.push(`\${${expression}}`);
+      }
+    } else {
+      // Unmatched braces, treat as static text
+      parts.push(template.slice(startIndex, endIndex));
+    }
+
+    currentIndex = endIndex;
+  }
+
+  return parts;
+}
+
+/**
+ * Creates a reactive template string that can interpolate signals.
+ * This is a more powerful alternative to template strings that allows
+ * explicit signal binding.
+ */
+export function template(
+  strings: TemplateStringsArray,
+  ...values: (Signal<any> | Computed<any> | any)[]
+): HTMLElement {
+  const container = document.createElement('span');
+
+  // Create initial text content
+  const updateText = () => {
+    let textContent = '';
+    for (let i = 0; i < strings.length; i++) {
+      textContent += strings[i];
+      if (i < values.length) {
+        const value = values[i];
+        if (isReactive(value)) {
+          textContent += safeGetValue(value);
+        } else {
+          textContent += String(value);
+        }
+      }
+    }
+    container.textContent = textContent;
+  };
+
+  // Set initial content
+  updateText();
+
+  // Subscribe to all reactive values
+  values.forEach((value, index) => {
+    if (isReactive(value)) {
+      const unsubscribe = value.subscribe(updateText);
+      // Store subscription for cleanup
+      const existingSubscriptions = reactiveNodes.get(container) || [];
+      existingSubscriptions.push({ signal: value, unsubscribe });
+      reactiveNodes.set(container, existingSubscriptions);
+    }
+  });
+
+  return container;
 }
 
 // Global state for tracking reactive subscriptions and preventing infinite loops
@@ -1058,24 +1225,22 @@ function createElementFactory(tagName: string): ElementCreator {
         } else if (isReactive(child)) {
           // Handle reactive children
           let isUpdating = false;
+          // Persist a single text node for this child
+          let textNode: Text | null = null;
+
           const updateChild = () => {
-            // Prevent infinite loops
             if (isUpdating) return;
             if (!checkUpdateLimit()) return;
-
             isUpdating = true;
-
             try {
               const childValue = safeGetValue(child);
-              const textNode = document.createTextNode(String(childValue));
-
-              // Remove existing text node if it exists
-              const existingTextNode = element.querySelector('text-node');
-              if (existingTextNode) {
-                element.removeChild(existingTextNode);
+              if (!textNode) {
+                textNode = document.createTextNode(String(childValue));
+                element.appendChild(textNode);
+              } else {
+                // Update existing text node value
+                textNode.nodeValue = String(childValue);
               }
-
-              element.appendChild(textNode);
             } catch (error) {
               console.error('Error updating reactive child:', error);
             } finally {
@@ -1083,10 +1248,10 @@ function createElementFactory(tagName: string): ElementCreator {
             }
           };
 
-          // Set initial child without triggering reactive updates
+          // Set initial value
           try {
             const childValue = safeGetValue(child);
-            const textNode = document.createTextNode(String(childValue));
+            textNode = document.createTextNode(String(childValue));
             element.appendChild(textNode);
           } catch (error) {
             console.error('Error setting initial reactive child:', error);
@@ -1100,9 +1265,12 @@ function createElementFactory(tagName: string): ElementCreator {
           typeof child === 'number' ||
           typeof child === 'boolean'
         ) {
-          // For now, just append as static text
-          // TODO: Implement reactive text parsing to detect signal references
-          element.appendChild(document.createTextNode(String(child)));
+          const stringValue = String(child);
+          if (stringValue.includes(REACTIVE_MARKER_PREFIX)) {
+            element.appendChild(createReactiveInterpolatedNode(stringValue));
+          } else {
+            element.appendChild(document.createTextNode(stringValue));
+          }
         } else if (child instanceof HTMLElement) {
           element.appendChild(child);
         }
