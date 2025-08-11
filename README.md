@@ -25,6 +25,7 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 
 ## ⚠️ Project status
 
+- **Experimental**: This library is still an experiment and subject to significant change.
 - **Work in progress**: APIs are evolving and may change without notice.
 - **Poor test coverage**: The current test coverage is limited and many areas are untested.
 - **Expect breakage**: This will likely break badly if you try to build anything non‑trivial right now.
@@ -39,7 +40,6 @@ If you want something stable for production, this is not it (yet). Contributions
 - [API Reference](#-api-reference)
 - [Examples](#-examples)
 - [Development](#-development)
-- [Contributing](#-contributing)
 - [License](#-license)
 
 ## ✨ Features
@@ -58,7 +58,7 @@ If you want something stable for production, this is not it (yet). Contributions
 
 ## 🚀 Why Thorix?
 
-React is
+React has transformed web development, making it straightforward to build complex, interactive UIs with reusable components. Its approach to rendering and UI composition has become the industry standard. However, **state management in React has long been a source of frustration**. Whether it's prop drilling, context, Redux, hooks, or ongoing debates about the "best" way to handle state, managing state in React often feels unnecessarily complicated. Thorix is designed to change that—offering simple, reactive, and intuitive state management, so you can keep your UI in sync without the hassle of hooks or boilerplate.
 
 ### The React Reality Check 🤔
 
@@ -399,10 +399,6 @@ Each example runs on a different port:
 - **ClassNames**: `http://localhost:5178`
 
 For detailed information about each example, see the [Examples README](examples/README.md).
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
