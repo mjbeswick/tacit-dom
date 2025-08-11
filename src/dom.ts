@@ -748,54 +748,87 @@ function createElementFactory(tagName: string): ElementCreator {
     props?: ElementProps | ElementChildren[0],
     ...children: ElementChildren
   ): HTMLElement => {
-    // Handle case where first argument is a string (should be treated as children)
-    if (
-      typeof props === 'string' ||
-      typeof props === 'number' ||
-      props instanceof HTMLElement ||
-      isReactive(props)
-    ) {
-      children = [props, ...children];
-      props = {};
-    }
+    // Create a unique component instance for this element to enable signal preservation
+    const elementComponentInstance = {
+      tagName,
+      id: Math.random().toString(36).substr(2, 9),
+    };
 
-    // Ensure props is an object
-    props = props || {};
-    const element = document.createElement(tagName);
+    // Set the component instance for signal preservation
+    setComponentInstance(elementComponentInstance);
 
-    // Initialize subscriptions array for tracking reactive subscriptions
-    const subscriptions: Array<{
-      signal: Signal<any> | Computed<any>;
-      unsubscribe: () => void;
-    }> = [];
+    try {
+      // Handle case where first argument is a string (should be treated as children)
+      if (
+        typeof props === 'string' ||
+        typeof props === 'number' ||
+        props instanceof HTMLElement ||
+        isReactive(props)
+      ) {
+        children = [props, ...children];
+        props = {};
+      }
 
-    // Handle props
-    Object.entries(props).forEach(([key, value]) => {
-      if (key === 'children') {
-        // Handle children prop specially
-        if (Array.isArray(value)) {
-          children = [...children, ...value];
+      // Ensure props is an object
+      props = props || {};
+      const element = document.createElement(tagName);
+
+      // Initialize subscriptions array for tracking reactive subscriptions
+      const subscriptions: Array<{
+        signal: Signal<any> | Computed<any>;
+        unsubscribe: () => void;
+      }> = [];
+
+      // Handle props
+      Object.entries(props).forEach(([key, value]) => {
+        if (key === 'children') {
+          // Handle children prop specially
+          if (Array.isArray(value)) {
+            children = [...children, ...value];
+          } else {
+            children.push(value);
+          }
+        } else if (key.startsWith('on') && typeof value === 'function') {
+          // Handle event listeners
+          const eventName = key.toLowerCase().slice(2);
+
+          element.addEventListener(eventName, value as EventListener);
         } else {
-          children.push(value);
-        }
-      } else if (key.startsWith('on') && typeof value === 'function') {
-        // Handle event listeners
-        const eventName = key.toLowerCase().slice(2);
+          // Handle regular attributes
+          if (key === 'className') {
+            // Handle className with dynamic class name functionality
+            if (isReactive(value)) {
+              let isUpdating = false;
+              const updateClassName = () => {
+                // Prevent infinite loops
+                if (isUpdating) return;
+                if (!checkUpdateLimit()) return;
 
-        element.addEventListener(eventName, value as EventListener);
-      } else {
-        // Handle regular attributes
-        if (key === 'className') {
-          // Handle className with dynamic class name functionality
-          if (isReactive(value)) {
-            let isUpdating = false;
-            const updateClassName = () => {
-              // Prevent infinite loops
-              if (isUpdating) return;
-              if (!checkUpdateLimit()) return;
+                isUpdating = true;
 
-              isUpdating = true;
+                try {
+                  const classNameValue = safeGetValue(value);
+                  const finalClassName =
+                    typeof classNameValue === 'string' ||
+                    typeof classNameValue === 'number' ||
+                    typeof classNameValue === 'boolean' ||
+                    Array.isArray(classNameValue) ||
+                    (typeof classNameValue === 'object' &&
+                      classNameValue !== null)
+                      ? classNames(classNameValue)
+                      : String(classNameValue);
 
+                  if (hasValueChanged(element, 'className', finalClassName)) {
+                    element.className = finalClassName;
+                  }
+                } catch (error) {
+                  console.error('Error updating className:', error);
+                } finally {
+                  isUpdating = false;
+                }
+              };
+
+              // Set initial className without triggering reactive updates
               try {
                 const classNameValue = safeGetValue(value);
                 const finalClassName =
@@ -808,209 +841,194 @@ function createElementFactory(tagName: string): ElementCreator {
                     ? classNames(classNameValue)
                     : String(classNameValue);
 
-                if (hasValueChanged(element, 'className', finalClassName)) {
-                  element.className = finalClassName;
-                }
+                element.className = finalClassName;
               } catch (error) {
-                console.error('Error updating className:', error);
-              } finally {
-                isUpdating = false;
+                console.error('Error setting initial className:', error);
               }
-            };
 
-            // Set initial className without triggering reactive updates
-            try {
-              const classNameValue = safeGetValue(value);
-              const finalClassName =
-                typeof classNameValue === 'string' ||
-                typeof classNameValue === 'number' ||
-                typeof classNameValue === 'boolean' ||
-                Array.isArray(classNameValue) ||
-                (typeof classNameValue === 'object' && classNameValue !== null)
-                  ? classNames(classNameValue)
-                  : String(classNameValue);
+              const unsubscribe = value.subscribe(updateClassName);
 
-              element.className = finalClassName;
-            } catch (error) {
-              console.error('Error setting initial className:', error);
+              subscriptions.push({ signal: value, unsubscribe });
+            } else if (
+              typeof value === 'string' ||
+              typeof value === 'number' ||
+              typeof value === 'boolean' ||
+              Array.isArray(value) ||
+              (typeof value === 'object' && value !== null)
+            ) {
+              element.className = classNames(value);
+            } else {
+              element.className = String(value);
             }
+          } else if (key === 'classNames') {
+            // Handle classNames prop with dynamic class name functionality
+            if (isReactive(value)) {
+              let isUpdating = false;
+              const updateClassNames = () => {
+                // Prevent infinite loops
+                if (isUpdating) return;
+                if (!checkUpdateLimit()) return;
 
-            const unsubscribe = value.subscribe(updateClassName);
+                isUpdating = true;
 
-            subscriptions.push({ signal: value, unsubscribe });
-          } else if (
-            typeof value === 'string' ||
-            typeof value === 'number' ||
-            typeof value === 'boolean' ||
-            Array.isArray(value) ||
-            (typeof value === 'object' && value !== null)
-          ) {
-            element.className = classNames(value);
-          } else {
-            element.className = String(value);
-          }
-        } else if (key === 'classNames') {
-          // Handle classNames prop with dynamic class name functionality
-          if (isReactive(value)) {
-            let isUpdating = false;
-            const updateClassNames = () => {
-              // Prevent infinite loops
-              if (isUpdating) return;
-              if (!checkUpdateLimit()) return;
+                try {
+                  const classNamesValue = safeGetValue(value);
+                  const finalClassNames = classNames(classNamesValue);
 
-              isUpdating = true;
+                  if (hasValueChanged(element, 'className', finalClassNames)) {
+                    element.className = finalClassNames;
+                  }
+                } catch (error) {
+                  console.error('Error updating classNames:', error);
+                } finally {
+                  isUpdating = false;
+                }
+              };
 
+              // Set initial classNames without triggering reactive updates
               try {
                 const classNamesValue = safeGetValue(value);
-                const finalClassNames =
-                  typeof classNamesValue === 'string' ||
-                  typeof classNamesValue === 'number' ||
-                  typeof classNamesValue === 'boolean' ||
-                  Array.isArray(classNamesValue) ||
-                  (typeof classNamesValue === 'object' &&
-                    classNamesValue !== null)
-                    ? classNames(classNamesValue)
-                    : String(classNamesValue);
-
-                if (hasValueChanged(element, 'className', finalClassNames)) {
-                  element.className = finalClassNames;
-                }
+                const finalClassNames = classNames(classNamesValue);
+                element.className = finalClassNames;
               } catch (error) {
-                console.error('Error updating classNames:', error);
-              } finally {
-                isUpdating = false;
+                console.error('Error setting initial classNames:', error);
               }
-            };
 
-            // Set initial classNames without triggering reactive updates
-            try {
-              const classNamesValue = safeGetValue(value);
-              const finalClassNames =
-                typeof classNamesValue === 'string' ||
-                typeof classNamesValue === 'number' ||
-                typeof classNamesValue === 'boolean' ||
-                Array.isArray(classNamesValue) ||
-                (typeof classNamesValue === 'object' &&
-                  classNamesValue !== null)
-                  ? classNames(classNamesValue)
-                  : String(classNamesValue);
+              const unsubscribe = value.subscribe(updateClassNames);
 
-              element.className = finalClassNames;
-            } catch (error) {
-              console.error('Error setting initial classNames:', error);
+              subscriptions.push({ signal: value, unsubscribe });
+            } else {
+              element.className = classNames(value);
             }
+          } else if (key === 'style') {
+            // Handle style with dynamic updates
+            if (isReactive(value)) {
+              let isUpdating = false;
+              const updateStyle = () => {
+                // Prevent infinite loops
+                if (isUpdating) return;
+                if (!checkUpdateLimit()) return;
 
-            const unsubscribe = value.subscribe(updateClassNames);
+                isUpdating = true;
 
-            subscriptions.push({ signal: value, unsubscribe });
-          } else if (
-            typeof value === 'string' ||
-            typeof value === 'number' ||
-            typeof value === 'boolean' ||
-            Array.isArray(value) ||
-            (typeof value === 'object' && value !== null)
-          ) {
-            element.className = classNames(value);
-          } else {
-            element.className = String(value);
-          }
-        } else {
-          // Handle reactive attributes
-          if (isReactive(value)) {
-            let isUpdating = false;
-            const updateAttribute = () => {
-              // Prevent infinite loops
-              if (isUpdating) return;
-              if (!checkUpdateLimit()) return;
+                try {
+                  const styleValue = safeGetValue(value);
+                  const finalStyle = String(styleValue);
 
-              isUpdating = true;
-
-              try {
-                if (key === 'value' && element instanceof HTMLInputElement) {
-                  // Handle input value property specifically
-                  const inputValue = String(safeGetValue(value));
-
-                  if (hasValueChanged(element, key, inputValue)) {
-                    element.value = inputValue;
+                  if (hasValueChanged(element, 'style', finalStyle)) {
+                    element.style.cssText = finalStyle;
                   }
-                } else {
-                  const attrValue = safeGetValue(value);
+                } catch (error) {
+                  console.error('Error updating style:', error);
+                } finally {
+                  isUpdating = false;
+                }
+              };
 
-                  if (
-                    key === 'disabled' ||
-                    key === 'checked' ||
-                    key === 'readonly' ||
-                    key === 'required'
-                  ) {
-                    // Handle boolean attributes
-                    const newDisabled = Boolean(attrValue);
+              // Set initial style without triggering reactive updates
+              try {
+                const styleValue = safeGetValue(value);
+                const finalStyle = String(styleValue);
+                element.style.cssText = finalStyle;
+              } catch (error) {
+                console.error('Error setting initial style:', error);
+              }
 
-                    const domKey = getDomAttributeName(key);
-                    if (hasValueChanged(element, key, newDisabled)) {
-                      if (newDisabled) {
-                        element.setAttribute(domKey, '');
-                      } else {
-                        element.removeAttribute(domKey);
-                      }
+              const unsubscribe = value.subscribe(updateStyle);
+
+              subscriptions.push({ signal: value, unsubscribe });
+            } else {
+              element.style.cssText = String(value);
+            }
+          } else {
+            // Handle other attributes with dynamic updates
+            if (isReactive(value)) {
+              let isUpdating = false;
+              const updateAttribute = () => {
+                // Prevent infinite loops
+                if (isUpdating) return;
+                if (!checkUpdateLimit()) return;
+
+                isUpdating = true;
+
+                try {
+                  if (key === 'value' && element instanceof HTMLInputElement) {
+                    // Handle input value property specifically
+                    const inputValue = String(safeGetValue(value));
+
+                    if (hasValueChanged(element, key, inputValue)) {
+                      element.value = inputValue;
                     }
                   } else {
-                    const stringValue = String(attrValue);
-                    const domKey = getDomAttributeName(key);
+                    const attrValue = safeGetValue(value);
 
-                    if (hasValueChanged(element, key, stringValue)) {
-                      element.setAttribute(domKey, stringValue);
+                    if (
+                      key === 'disabled' ||
+                      key === 'checked' ||
+                      key === 'readonly' ||
+                      key === 'required'
+                    ) {
+                      // Handle boolean attributes
+                      const newValue = Boolean(attrValue);
+
+                      const domKey = getDomAttributeName(key);
+                      if (hasValueChanged(element, key, newValue)) {
+                        if (newValue) {
+                          element.setAttribute(domKey, '');
+                        } else {
+                          element.removeAttribute(domKey);
+                        }
+                      }
+                    } else {
+                      const stringValue = String(attrValue);
+                      const domKey = getDomAttributeName(key);
+
+                      if (hasValueChanged(element, key, stringValue)) {
+                        element.setAttribute(domKey, stringValue);
+                      }
                     }
                   }
+                } catch (error) {
+                  console.error(`Error updating attribute ${key}:`, error);
+                } finally {
+                  isUpdating = false;
+                }
+              };
+
+              // Set initial attribute without triggering reactive updates
+              try {
+                const initialValue = safeGetValue(value);
+
+                if (key === 'value' && element instanceof HTMLInputElement) {
+                  element.value = String(initialValue);
+                } else if (
+                  key === 'disabled' ||
+                  key === 'checked' ||
+                  key === 'readonly' ||
+                  key === 'required'
+                ) {
+                  const domKey = getDomAttributeName(key);
+                  if (initialValue) {
+                    element.setAttribute(domKey, '');
+                  } else {
+                    element.removeAttribute(domKey);
+                  }
+                } else {
+                  const domKey = getDomAttributeName(key);
+                  element.setAttribute(domKey, String(initialValue));
                 }
               } catch (error) {
-                console.error('Error updating attribute:', key, error);
-              } finally {
-                isUpdating = false;
+                console.error(`Error setting initial attribute ${key}:`, error);
               }
-            };
 
-            // Set initial value without triggering reactive updates
-            try {
-              const initialValue = safeGetValue(value);
+              const unsubscribe = value.subscribe(updateAttribute);
 
-              if (key === 'value' && element instanceof HTMLInputElement) {
-                element.value = String(initialValue);
-              } else if (
-                key === 'disabled' ||
-                key === 'checked' ||
-                key === 'readonly' ||
-                key === 'required'
-              ) {
-                const domKey = getDomAttributeName(key);
-                if (initialValue) {
-                  element.setAttribute(domKey, '');
-                } else {
-                  element.removeAttribute(domKey);
-                }
-              } else {
-                const domKey = getDomAttributeName(key);
-                element.setAttribute(domKey, String(initialValue));
-              }
-            } catch (error) {
-              console.error(
-                'Error setting initial attribute value:',
-                key,
-                error,
-              );
-            }
-
-            const unsubscribe = value.subscribe(updateAttribute);
-
-            subscriptions.push({
-              signal: value,
-              unsubscribe,
-            });
-          } else {
-            if (key === 'value' && element instanceof HTMLInputElement) {
-              // Handle input value property specifically
-              element.value = String(value);
+              subscriptions.push({ signal: value, unsubscribe });
             } else {
-              if (
+              if (key === 'value' && element instanceof HTMLInputElement) {
+                // Handle input value property specifically
+                element.value = String(value);
+              } else if (
                 key === 'disabled' ||
                 key === 'checked' ||
                 key === 'readonly' ||
@@ -1024,94 +1042,82 @@ function createElementFactory(tagName: string): ElementCreator {
                   element.removeAttribute(domKey);
                 }
               } else {
-                const domKey = getDomAttributeName(key);
-                element.setAttribute(domKey, String(value));
+                const attrName = getDomAttributeName(key);
+                element.setAttribute(attrName, String(value));
               }
             }
           }
         }
-      }
-    });
+      });
 
-    // Handle children
-    children.forEach((child) => {
-      if (isReactive(child)) {
-        // Handle reactive values
-        const textNode = document.createTextNode('');
+      // Handle children
+      children.forEach((child) => {
+        if (child === null || child === undefined) {
+          // Skip null/undefined children
+          return;
+        } else if (isReactive(child)) {
+          // Handle reactive children
+          let isUpdating = false;
+          const updateChild = () => {
+            // Prevent infinite loops
+            if (isUpdating) return;
+            if (!checkUpdateLimit()) return;
 
-        element.appendChild(textNode);
+            isUpdating = true;
 
-        let isUpdating = false;
-        let updateCount = 0;
-        const MAX_UPDATE_COUNT = 10;
+            try {
+              const childValue = safeGetValue(child);
+              const textNode = document.createTextNode(String(childValue));
 
-        const updateText = () => {
-          // Prevent infinite loops
-          if (isUpdating) {
-            updateCount++;
-            if (updateCount > MAX_UPDATE_COUNT) {
-              console.error('Infinite loop detected in text node update');
-              return;
+              // Remove existing text node if it exists
+              const existingTextNode = element.querySelector('text-node');
+              if (existingTextNode) {
+                element.removeChild(existingTextNode);
+              }
+
+              element.appendChild(textNode);
+            } catch (error) {
+              console.error('Error updating reactive child:', error);
+            } finally {
+              isUpdating = false;
             }
-            return;
-          }
+          };
 
-          if (!checkUpdateLimit()) return;
-
-          isUpdating = true;
-          updateCount = 0;
-
+          // Set initial child without triggering reactive updates
           try {
-            // Only update if the text node is still in the DOM
-            if (textNode.parentNode) {
-              const textValue = String(safeGetValue(child));
-
-              if (hasValueChanged(textNode as any, 'textContent', textValue)) {
-                textNode.textContent = textValue;
-              }
-            }
+            const childValue = safeGetValue(child);
+            const textNode = document.createTextNode(String(childValue));
+            element.appendChild(textNode);
           } catch (error) {
-            console.error('Error updating text node:', error);
-            textNode.textContent = '[Error]';
-          } finally {
-            isUpdating = false;
+            console.error('Error setting initial reactive child:', error);
           }
-        };
 
-        // Set initial text without triggering reactive updates
-        try {
-          const textValue = String(safeGetValue(child));
-          textNode.textContent = textValue;
-        } catch (error) {
-          console.error('Error setting initial text:', error);
-          textNode.textContent = '[Error]';
+          const unsubscribe = child.subscribe(updateChild);
+
+          subscriptions.push({ signal: child, unsubscribe });
+        } else if (
+          typeof child === 'string' ||
+          typeof child === 'number' ||
+          typeof child === 'boolean'
+        ) {
+          // For now, just append as static text
+          // TODO: Implement reactive text parsing to detect signal references
+          element.appendChild(document.createTextNode(String(child)));
+        } else if (child instanceof HTMLElement) {
+          element.appendChild(child);
         }
+      });
 
-        const unsubscribe = child.subscribe(updateText);
-
-        subscriptions.push({
-          signal: child,
-          unsubscribe,
-        });
-      } else if (
-        typeof child === 'string' ||
-        typeof child === 'number' ||
-        typeof child === 'boolean'
-      ) {
-        // For now, just append as static text
-        // TODO: Implement reactive text parsing to detect signal references
-        element.appendChild(document.createTextNode(String(child)));
-      } else if (child instanceof HTMLElement) {
-        element.appendChild(child);
+      // Store subscriptions for cleanup
+      if (subscriptions.length > 0) {
+        reactiveNodes.set(element, subscriptions);
       }
-    });
 
-    // Store subscriptions for cleanup
-    if (subscriptions.length > 0) {
-      reactiveNodes.set(element, subscriptions);
+      return element;
+    } finally {
+      // Clear the component instance after element creation
+      clearComponentInstance();
     }
-
-    return element;
   };
 }
 

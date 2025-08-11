@@ -23,10 +23,19 @@ effect(() => {
   console.log('effect signalA', computedA.get());
 });
 
+// Add effect to log when signalA or signalB changes
+effect(() => {
+  console.log(`Signals updated - signalA: ${signalA}, signalB: ${signalB}`);
+});
+
 const app = () => {
+  console.log(`app renders: ${signalA} ${signalB}`);
+
   const handleUpdate = () => {
     signalA.set(random());
     signalB.set(random());
+    // Trigger a re-render to see the app function console.log
+    render(app, document.getElementById('app')!);
   };
 
   // Use signal with key for preserved state between renders
@@ -59,12 +68,18 @@ const app = () => {
       ),
     ),
     div(
-      p('signalA: ', signalA),
-      p('signalB: ', signalB),
-      p('signalC (computed): ', computedA),
-      p('signalD (preserved): ', signalD),
+      p(`signalA: ${signalA.get()}`),
+      p(`signalB: ${signalB.get()}`),
+      p(`signalC (computed): ${computedA.get()}`),
+      p(`signalD (preserved): ${signalD.get()}`),
       p('regularSignal (recreated each render): ', regularSignal),
       p('Note: signals with keys maintain their values between renders!'),
+      // Demonstrate toString functionality
+      p(`Direct signal usage: ${signalA}`),
+      p(`Direct computed usage: ${computedA}`),
+      p(
+        `String concatenation: Count is ${signalA.get()}, doubled is ${computedA}`,
+      ),
     ),
   );
 };

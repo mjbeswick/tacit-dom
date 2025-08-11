@@ -5,11 +5,13 @@ type Signal<T> = {
   set(value: T): void;
   update(fn: (prev: T) => T): void;
   subscribe(fn: Subscriber): () => void;
+  toString(): string;
 };
 
 type Computed<T> = {
   get(): T;
   subscribe(fn: Subscriber): () => void;
+  toString(): string;
 };
 
 type EffectOptions = {
@@ -26,7 +28,6 @@ type EffectContext = {
 let activeEffect: EffectContext | null = null;
 let isBatching = false;
 const pendingSubscribers = new Set<Subscriber>();
-const executionCounts: WeakMap<Subscriber, number> = new WeakMap();
 const subscriberMeta = new WeakMap<
   Subscriber,
   {
@@ -206,7 +207,7 @@ function createSignal<T>(initialValue: T): Signal<T> {
     };
   };
 
-  return { get, set, update, subscribe };
+  return { get, set, update, subscribe, toString: () => String(get()) };
 }
 
 function computed<T>(computeFn: () => T): Computed<T> {
@@ -274,6 +275,9 @@ function computed<T>(computeFn: () => T): Computed<T> {
       return () => {
         subscribers.delete(fn);
       };
+    },
+    toString() {
+      return String(this.get());
     },
   };
 }

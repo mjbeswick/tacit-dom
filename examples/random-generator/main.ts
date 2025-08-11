@@ -1,4 +1,4 @@
-import { signal, computed, div, button, span, h1, p, render } from 'thorix';
+import { button, computed, div, h1, p, render, signal, span } from 'thorix';
 
 // Create the random generator app
 export const createRandomGeneratorApp = () => {
@@ -37,8 +37,7 @@ export const createRandomGeneratorApp = () => {
           ),
           span(
             { id: 'random-value', className: 'badge' },
-            'Random Number: ',
-            randomNumber,
+            `Random Number: ${randomNumber.get()}`,
           ),
         ),
       ),
