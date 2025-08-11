@@ -43,8 +43,6 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 - **🧩 Component Pattern**: Build components using a familiar JSX-like syntax
 - **🎯 Event Handling**: Built-in support for DOM events
 - **🔒 TypeScript Support**: Full TypeScript support with type safety
-- **🎨 CSS Modules**: Scoped styling with theme support
-- **🌓 Theme System**: Light, dark, and high-contrast themes
 - **🧹 Automatic Cleanup**: Prevents memory leaks with smart cleanup
 - **📦 Zero Dependencies**: Lightweight with no external dependencies
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
@@ -363,7 +361,6 @@ Each example demonstrates different aspects of Thorix:
 - **Reactive Signals**: Global state management without providers or context
 - **Computed Values**: Automatic dependency tracking and derived state
 - **Event Handling**: Built-in DOM event support with reactive updates
-- **CSS Modules**: Scoped styling with theme support
 - **Type Safety**: Full TypeScript support with strongly typed props
 - **Routing**: Client-side routing with dynamic route handling
 - **Error Boundaries**: Graceful error handling and recovery
@@ -400,5 +397,3 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
-
-# Test commit
