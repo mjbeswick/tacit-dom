@@ -366,6 +366,17 @@ function getDomAttributeName(propName: string): string {
 // Strongly typed event handlers
 type EventHandler<T = Event> = (_event: T) => void | boolean;
 
+// Helper to normalize camelCase React-like event prop names to DOM event names
+function getDomEventNameFromProp(propKey: string): string {
+  const lowerKey = propKey.toLowerCase();
+  const specialCases: Record<string, string> = {
+    // React-style onDoubleClick should map to native 'dblclick'
+    ondoubleclick: 'dblclick',
+  };
+
+  return specialCases[lowerKey] || lowerKey.slice(2);
+}
+
 // Common HTML attributes that apply to most elements
 type CommonAttributes = {
   id?: string | Signal<string> | Computed<string>;
@@ -446,8 +457,47 @@ type CommonAttributes = {
   children?: ElementChildren;
 };
 
-// Event handlers
-type EventHandlers = {
+// Event handlers - React-like camelCase props
+type CamelCaseEventHandlers = {
+  onAbort?: EventHandler<Event>;
+  onBlur?: EventHandler<FocusEvent>;
+  onChange?: EventHandler<Event>;
+  onClick?: EventHandler<MouseEvent>;
+  onContextMenu?: EventHandler<MouseEvent>;
+  onCopy?: EventHandler<ClipboardEvent>;
+  onCut?: EventHandler<ClipboardEvent>;
+  onDoubleClick?: EventHandler<MouseEvent>;
+  onDrag?: EventHandler<DragEvent>;
+  onDragEnd?: EventHandler<DragEvent>;
+  onDragEnter?: EventHandler<DragEvent>;
+  onDragLeave?: EventHandler<DragEvent>;
+  onDragOver?: EventHandler<DragEvent>;
+  onDragStart?: EventHandler<DragEvent>;
+  onDrop?: EventHandler<DragEvent>;
+  onError?: EventHandler<Event>;
+  onFocus?: EventHandler<FocusEvent>;
+  onInput?: EventHandler<Event>;
+  onKeyDown?: EventHandler<KeyboardEvent>;
+  onKeyPress?: EventHandler<KeyboardEvent>;
+  onKeyUp?: EventHandler<KeyboardEvent>;
+  onLoad?: EventHandler<Event>;
+  onMouseDown?: EventHandler<MouseEvent>;
+  onMouseMove?: EventHandler<MouseEvent>;
+  onMouseOut?: EventHandler<MouseEvent>;
+  onMouseOver?: EventHandler<MouseEvent>;
+  onMouseUp?: EventHandler<MouseEvent>;
+  onPaste?: EventHandler<ClipboardEvent>;
+  onReset?: EventHandler<Event>;
+  onResize?: EventHandler<UIEvent>;
+  onScroll?: EventHandler<Event>;
+  onSelect?: EventHandler<Event>;
+  onSubmit?: EventHandler<Event>;
+  onUnload?: EventHandler<Event>;
+  onWheel?: EventHandler<WheelEvent>;
+};
+
+// Lowercase event handlers (backward compatibility)
+type LowercaseEventHandlers = {
   onabort?: EventHandler<Event>;
   onblur?: EventHandler<FocusEvent>;
   onchange?: EventHandler<Event>;
@@ -455,7 +505,7 @@ type EventHandlers = {
   oncontextmenu?: EventHandler<MouseEvent>;
   oncopy?: EventHandler<ClipboardEvent>;
   oncut?: EventHandler<ClipboardEvent>;
-  ondbclick?: EventHandler<MouseEvent>;
+  ondblclick?: EventHandler<MouseEvent>;
   ondrag?: EventHandler<DragEvent>;
   ondragend?: EventHandler<DragEvent>;
   ondragenter?: EventHandler<DragEvent>;
@@ -484,6 +534,8 @@ type EventHandlers = {
   onunload?: EventHandler<Event>;
   onwheel?: EventHandler<WheelEvent>;
 };
+
+type EventHandlers = CamelCaseEventHandlers & LowercaseEventHandlers;
 
 // Form-specific attributes
 type FormAttributes = {
@@ -957,8 +1009,7 @@ function createElementFactory(tagName: string): ElementCreator {
           }
         } else if (key.startsWith('on') && typeof value === 'function') {
           // Handle event listeners
-          const eventName = key.toLowerCase().slice(2);
-
+          const eventName = getDomEventNameFromProp(key);
           element.addEventListener(eventName, value as EventListener);
         } else {
           // Handle regular attributes

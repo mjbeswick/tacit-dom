@@ -444,8 +444,6 @@ function flushUpdates(): void {
 }
 
 export {
-  REACTIVE_MARKER_PREFIX,
-  REACTIVE_MARKER_SUFFIX,
   batch,
   cleanupPreservedSignals,
   clearComponentInstance,
@@ -453,6 +451,8 @@ export {
   effect,
   // Template-string interpolation helpers
   getReactiveById,
+  REACTIVE_MARKER_PREFIX,
+  REACTIVE_MARKER_SUFFIX,
   setComponentInstance,
   setDebugMode,
   signal,
