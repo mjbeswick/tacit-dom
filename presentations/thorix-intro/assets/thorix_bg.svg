@@ -1,0 +1,60 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="50%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0f3460"/>
+    </linearGradient>
+
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#64ffda"/>
+      <stop offset="100%" stop-color="#1de9b6"/>
+    </linearGradient>
+
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background gradient -->
+  <rect width="1920" height="1080" fill="url(#bgGradient)"/>
+
+  <!-- Subtle diagonal accents -->
+  <g opacity="0.15">
+    <linearGradient id="diag" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#64ffda"/>
+      <stop offset="100%" stop-color="#1de9b6"/>
+    </linearGradient>
+    <rect x="-200" y="100" width="2600" height="6" transform="rotate(12 0 0)" fill="url(#diag)"/>
+    <rect x="-300" y="420" width="2500" height="6" transform="rotate(12 0 0)" fill="url(#diag)"/>
+    <rect x="-250" y="740" width="2400" height="6" transform="rotate(12 0 0)" fill="url(#diag)"/>
+  </g>
+
+  <!-- Reactive particles (very subtle) -->
+  <g opacity="0.12">
+    <circle cx="200" cy="220" r="3" fill="#64ffda"/>
+    <circle cx="450" cy="800" r="2.5" fill="#1de9b6"/>
+    <circle cx="1600" cy="300" r="2" fill="#64ffda"/>
+    <circle cx="1200" cy="950" r="3" fill="#1de9b6"/>
+    <circle cx="900" cy="150" r="2.5" fill="#64ffda"/>
+    <circle cx="1700" cy="700" r="2" fill="#1de9b6"/>
+  </g>
+
+  <!-- Soft vignette edges -->
+  <g opacity="0.5">
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="70%" stop-color="rgba(0,0,0,0)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.55)"/>
+    </radialGradient>
+    <rect width="1920" height="1080" fill="url(#vignette)"/>
+  </g>
+
+  <!-- Watermark title (very low contrast) -->
+  <g opacity="0.06" filter="url(#softGlow)">
+    <text x="960" y="560" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-size="220" letter-spacing="14" fill="url(#accentGradient)">THORIX</text>
+  </g>
+</svg>

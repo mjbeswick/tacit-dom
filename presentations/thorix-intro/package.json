@@ -1,0 +1,15 @@
+{
+  "name": "thorix-intro-slides",
+  "private": true,
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "start": "marp --port 5179 --allow-local-files --server ./",
+    "build:html": "marp index.md --html --allow-local-files -o dist/thorix-intro.html",
+    "build:pdf": "marp index.md --pdf --allow-local-files -o dist/thorix-intro.pdf",
+    "build": "npm run build:html && npm run build:pdf"
+  },
+  "devDependencies": {
+    "@marp-team/marp-cli": "^3.4.0"
+  }
+}
