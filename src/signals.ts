@@ -98,6 +98,19 @@ function clearComponentInstance(): void {
  * @param componentInstance - The component instance to clean up
  */
 function cleanupPreservedSignals(componentInstance: object): void {
+  // Clean up any registered cleanup functions
+  const componentInstanceAny = componentInstance as any;
+  if (componentInstanceAny.__cleanupFunctions) {
+    componentInstanceAny.__cleanupFunctions.forEach((cleanupFn: () => void) => {
+      try {
+        cleanupFn();
+      } catch (error) {
+        console.error('Cleanup function failed:', error);
+      }
+    });
+    delete componentInstanceAny.__cleanupFunctions;
+  }
+
   preservedSignals.delete(componentInstance);
 }
 
@@ -443,6 +456,63 @@ function flushUpdates(): void {
   }
 }
 
+/**
+ * Mounts a component effect that runs once when dependencies are first accessed,
+ * and automatically cleans up when the component unmounts.
+ *
+ * This is useful for setting up timers, event listeners, WebSocket connections,
+ * or any other resources that need to be cleaned up.
+ *
+ * @param mountFn - Function to run on mount, can return a cleanup function
+ * @param dependencies - Array of signals or computed values to track
+ *
+ * @example
+ * ```typescript
+ * function TimerComponent() {
+ *   const count = signal(0);
+ *
+ *   mount(() => {
+ *     const interval = setInterval(() => {
+ *       count.set(count.get() + 1);
+ *     }, 1000);
+ *
+ *     return () => clearInterval(interval);
+ *   }, [count]);
+ *
+ *   return div(`Count: ${count.get()}`);
+ * }
+ * ```
+ */
+function mount(
+  mountFn: () => void | (() => void),
+  dependencies: (Signal<any> | Computed<any>)[],
+): void {
+  let isMounted = false;
+  let cleanupFn: (() => void) | undefined;
+
+  effect(() => {
+    // Track all dependencies to ensure the effect runs when they change
+    dependencies.forEach((dep) => dep.get());
+
+    if (!isMounted) {
+      isMounted = true;
+      const result = mountFn();
+      if (typeof result === 'function') {
+        cleanupFn = result;
+      }
+    }
+  });
+
+  // Store cleanup function on the current component instance for later cleanup
+  if (currentComponentInstance && cleanupFn) {
+    const componentInstance = currentComponentInstance as any;
+    if (!componentInstance.__cleanupFunctions) {
+      componentInstance.__cleanupFunctions = [];
+    }
+    componentInstance.__cleanupFunctions.push(cleanupFn);
+  }
+}
+
 export {
   batch,
   cleanupPreservedSignals,
@@ -451,6 +521,7 @@ export {
   effect,
   // Template-string interpolation helpers
   getReactiveById,
+  mount,
   REACTIVE_MARKER_PREFIX,
   REACTIVE_MARKER_SUFFIX,
   setComponentInstance,

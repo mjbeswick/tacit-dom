@@ -80,6 +80,82 @@ effect(() => {
 count.set(5); // Logs: "Count is now: 5"
 ```
 
+## Mount Effects
+
+The `mount` function provides a convenient way to set up resources when a component first mounts and automatically clean them up when the component unmounts.
+
+```typescript
+import { mount } from 'thorix';
+
+function TimerComponent() {
+  const count = signal(0);
+
+  mount(() => {
+    const interval = setInterval(() => {
+      count.set(count.get() + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [count]);
+
+  return div(`Count: ${count.get()}`);
+}
+```
+
+### When to Use Mount
+
+- **Timers and Intervals**: `setInterval`, `setTimeout`
+- **Event Listeners**: Global event listeners, WebSocket connections
+- **Third-party Libraries**: Initializing libraries that need cleanup
+- **Resource Management**: Any resource that needs to be cleaned up
+
+### How It Works
+
+1. **First Run**: The mount function runs once when the component first renders
+2. **Dependency Tracking**: It tracks the specified signals/computed values
+3. **Automatic Cleanup**: When the component unmounts, cleanup functions are automatically called
+4. **No Manual Management**: No need to remember to call cleanup functions
+
+### Example with Multiple Resources
+
+```typescript
+function ChatComponent() {
+  const messages = signal<string[]>([]);
+  const isConnected = signal(false);
+
+  mount(() => {
+    // Set up WebSocket connection
+    const ws = new WebSocket('ws://localhost:8080');
+
+    ws.onopen = () => isConnected.set(true);
+    ws.onmessage = (event) => {
+      messages.update((prev) => [...prev, event.data]);
+    };
+
+    // Set up heartbeat timer
+    const heartbeat = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send('ping');
+      }
+    }, 30000);
+
+    // Return cleanup function
+    return () => {
+      ws.close();
+      clearInterval(heartbeat);
+    };
+  }, [messages, isConnected]);
+
+  return div(
+    div(
+      { className: isConnected.get() ? 'connected' : 'disconnected' },
+      isConnected.get() ? 'Connected' : 'Disconnected',
+    ),
+    div(messages.get().map((msg) => div(msg))),
+  );
+}
+```
+
 ## Signal Preservation
 
 When used inside components, signals can optionally preserve their state between renders by providing a unique key.
