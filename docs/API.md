@@ -186,6 +186,45 @@ effect(() => {
 count.set(5); // Logs: "Count is now: 5"
 ```
 
+### `EffectOptions`
+
+Configuration options for effects:
+
+```typescript
+type EffectOptions = {
+  name?: string; // Name for debugging
+  maxRuns?: number; // Maximum number of times the effect can run
+  autoDisable?: boolean; // Automatically disable after maxRuns
+};
+```
+
+### `mount(fn: () => void | (() => void), dependencies: (Signal<any> | Computed<any>)[]): void`
+
+Mounts a component effect that runs once when dependencies are first accessed, and automatically cleans up when the component unmounts.
+
+**Parameters:**
+
+- `fn: () => void | (() => void)` - Function to run on mount, can return a cleanup function
+- `dependencies: (Signal<any> | Computed<any>)[]` - Array of signals or computed values to track
+
+**Example:**
+
+```typescript
+function TimerComponent() {
+  const count = signal(0);
+
+  mount(() => {
+    const interval = setInterval(() => {
+      count.set(count.get() + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [count]);
+
+  return div(`Count: ${count.get()}`);
+}
+```
+
 ### `batch(fn: () => void): void`
 
 Batches multiple signal updates into a single effect flush.
@@ -207,9 +246,37 @@ batch(() => {
 });
 ```
 
-### `classNames(...inputs: ClassValue[]): string`
+### `setDebugMode(enabled: boolean): void`
 
-Conditionally joins CSS class names together.
+Enables or disables debug mode for console logging.
+
+**Parameters:**
+
+- `enabled: boolean` - Whether to enable debug mode
+
+### `setComponentInstance(componentInstance: object): void`
+
+Sets the current component instance for signal preservation. This is used internally by the rendering system.
+
+**Parameters:**
+
+- `componentInstance: object` - The component instance
+
+### `clearComponentInstance(): void`
+
+Clears the current component instance. This is used internally by the rendering system.
+
+### `cleanupPreservedSignals(componentInstance: object): void`
+
+Cleans up preserved signals for a component instance. This should be called when a component is unmounted.
+
+**Parameters:**
+
+- `componentInstance: object` - The component instance to clean up
+
+### `classes(...inputs: ClassValue[]): string`
+
+Conditionally joins CSS class names together. This is the preferred function name for the classNames utility.
 
 **Parameters:**
 
@@ -222,12 +289,24 @@ Conditionally joins CSS class names together.
 **Example:**
 
 ```typescript
-import { classNames } from 'thorix';
+import { classes } from 'thorix';
 
-classNames('foo', 'bar'); // 'foo bar'
-classNames({ active: true, disabled: false }); // 'active'
-classNames('button', { primary: true }, ['icon', 'large']); // 'button primary icon large'
+classes('foo', 'bar'); // 'foo bar'
+classes({ active: true, disabled: false }); // 'active'
+classes('button', { primary: true }, ['icon', 'large']); // 'button primary icon large'
 ```
+
+### `classNames(...inputs: ClassValue[]): string`
+
+Alias for `classes()` function. Conditionally joins CSS class names together.
+
+**Parameters:**
+
+- `...inputs: ClassValue[]` - Any number of class name values to join
+
+**Returns:**
+
+- `string` - A space-separated string of class names
 
 ## DOM Elements
 
@@ -244,41 +323,6 @@ const element = div(
   p('Content'),
   span('Inline text'),
   a({ href: '#' }, 'Link'),
-);
-```
-
-## Dynamic Class Names
-
-The library includes a utility for handling dynamic className props with arrays and objects:
-
-```typescript
-import { classNames } from 'thorix';
-
-// String
-classNames('foo'); // 'foo'
-
-// Multiple strings
-classNames('foo', 'bar'); // 'foo bar'
-
-// Array
-classNames(['foo', 'bar']); // 'foo bar'
-
-// Object (conditional classes)
-classNames({ foo: true, bar: false, baz: true }); // 'foo baz'
-
-// Mixed
-classNames('foo', { bar: true, baz: false }, ['qux']); // 'foo bar qux'
-
-// With reactive values
-const isActive = signal(true);
-const size = signal('large');
-
-const classes = computed(() =>
-  classNames('button', 'btn', {
-    'btn-active': isActive.get(),
-    'btn-large': size.get() === 'large',
-    'btn-small': size.get() === 'small',
-  }),
 );
 ```
 
@@ -345,6 +389,255 @@ const semanticLayout = div(
 );
 ```
 
+### Additional Elements
+
+```typescript
+import {
+  details,
+  summary,
+  dialog,
+  menu,
+  menuitem,
+  pre,
+  template,
+} from 'thorix';
+
+const additionalElements = div(
+  details(summary('Click to expand'), p('Hidden content')),
+  dialog('Modal dialog'),
+  menu(menuitem('Menu item 1'), menuitem('Menu item 2')),
+  pre('Preformatted text'),
+);
+```
+
+## DOM Utilities
+
+### `template(strings: TemplateStringsArray, ...values: (Signal<any> | Computed<any> | any)[]): HTMLElement`
+
+Creates a reactive template string that can interpolate signals. This is a more powerful alternative to template strings that allows explicit signal binding.
+
+**Parameters:**
+
+- `strings: TemplateStringsArray` - Template string literals
+- `...values: (Signal<any> | Computed<any> | any)[]` - Values to interpolate, can include signals
+
+**Returns:**
+
+- `HTMLElement` - A reactive DOM element
+
+**Example:**
+
+```typescript
+const count = signal(0);
+const name = signal('World');
+
+const element = template`Hello ${name}, count is ${count}`;
+
+// The element automatically updates when signals change
+count.set(5); // Updates the displayed count
+name.set('Universe'); // Updates the displayed name
+```
+
+### `createElement(tagName: string): ElementCreator`
+
+Creates a factory function for a custom HTML element.
+
+**Parameters:**
+
+- `tagName: string` - The HTML tag name
+
+**Returns:**
+
+- `ElementCreator` - A function that creates elements of the specified type
+
+**Example:**
+
+```typescript
+const customDiv = createElement('custom-div');
+const element = customDiv({ className: 'custom' }, 'Custom content');
+```
+
+### `createReactiveList<T>(items: Signal<T[]> | T[], renderFn: (item: T, index: number) => HTMLElement): HTMLElement`
+
+Creates a reactive list that automatically updates when the items array changes.
+
+**Parameters:**
+
+- `items: Signal<T[]> | T[]` - Array of items or signal containing array
+- `renderFn: (item: T, index: number) => HTMLElement` - Function to render each item
+
+**Returns:**
+
+- `HTMLElement` - A container element containing the rendered list
+
+**Example:**
+
+```typescript
+const items = signal(['apple', 'banana', 'orange']);
+
+const list = createReactiveList(items, (item, index) =>
+  li({ key: index }, item),
+);
+
+// When items change, the list automatically updates
+items.set(['grape', 'mango', 'kiwi']);
+```
+
+### `render(component: () => HTMLElement, container: HTMLElement): void`
+
+Renders a component to a DOM container.
+
+**Parameters:**
+
+- `component: () => HTMLElement` - The component function to render
+- `container: HTMLElement` - The container element
+
+**Example:**
+
+```typescript
+const app = () => {
+  const count = signal(0);
+  return div(
+    p(`Count: ${count}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+};
+
+const container = document.getElementById('app');
+if (container) {
+  render(app, container);
+}
+```
+
+### `cleanup(component: HTMLElement): void`
+
+Cleans up a component and its associated reactive subscriptions.
+
+**Parameters:**
+
+- `component: HTMLElement` - The component element to clean up
+
+**Example:**
+
+```typescript
+const container = document.getElementById('app');
+if (container) {
+  render(app, container);
+
+  // Later, when unmounting
+  cleanup(container);
+}
+```
+
+## Router
+
+### `createRouter(config: RouterConfig): Router`
+
+Creates a router instance with the specified configuration.
+
+**Parameters:**
+
+- `config: RouterConfig` - Router configuration object
+
+**Returns:**
+
+- `Router` - A router instance
+
+**Example:**
+
+```typescript
+const router = createRouter({
+  routes: [
+    { path: '/', component: HomePage },
+    { path: '/about', component: AboutPage },
+    { path: '/users/:id', component: UserPage },
+  ],
+  basePath: '/app',
+  defaultRoute: '/',
+  notFoundComponent: NotFoundPage,
+});
+```
+
+### `router(props: RouterConfig): HTMLElement`
+
+Router component that can be used directly in the component tree.
+
+**Parameters:**
+
+- `props: RouterConfig` - Router configuration
+
+**Returns:**
+
+- `HTMLElement` - A router container element
+
+**Example:**
+
+```typescript
+const App = () => {
+  return router({
+    routes: [
+      { path: '/', component: HomePage },
+      { path: '/about', component: AboutPage },
+    ],
+  });
+};
+```
+
+### `link(props: { to: string; className?: string; children: any; [key: string]: any }): HTMLElement`
+
+Creates a navigation link that integrates with the router.
+
+**Parameters:**
+
+- `props.to: string` - The route to navigate to
+- `props.className?: string` - Optional CSS class name
+- `props.children: any` - Link content
+- `props[key: string]: any` - Additional HTML attributes
+
+**Returns:**
+
+- `HTMLElement` - An anchor element with router integration
+
+**Example:**
+
+```typescript
+const navigation = nav(
+  link({ to: '/', className: 'nav-link' }, 'Home'),
+  link({ to: '/about', className: 'nav-link' }, 'About'),
+  link({ to: '/contact', className: 'nav-link' }, 'Contact'),
+);
+```
+
+### Router Types
+
+```typescript
+type Route = {
+  path: string;
+  component: (data?: any) => HTMLElement;
+  loader?: (params: RouteParams, search: RouteSearch) => Promise<any> | any;
+  errorBoundary?: (error: Error) => HTMLElement;
+};
+
+type RouterConfig = {
+  routes: Route[];
+  basePath?: string;
+  defaultRoute?: string;
+  notFoundComponent?: () => HTMLElement;
+};
+
+type RouteParams = Record<string, string>;
+type RouteSearch = Record<string, string>;
+
+type RouterState = {
+  currentPath: string;
+  params: RouteParams;
+  search: RouteSearch;
+  data: any;
+  error: Error | null;
+  isLoading: boolean;
+};
+```
+
 ## Event Handling
 
 All DOM elements support event handlers through props:
@@ -390,38 +683,10 @@ const reactiveElement = div(
 );
 ```
 
-## Rendering
-
-### `render(component: () => HTMLElement, container: HTMLElement): void`
-
-Renders a component to a DOM container.
-
-**Parameters:**
-
-- `component: () => HTMLElement` - The component function to render
-- `container: HTMLElement` - The container element
-
-**Example:**
-
-```typescript
-const app = () => {
-  const count = signal(0);
-  return div(
-    p(`Count: ${count}`),
-    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
-  );
-};
-
-const container = document.getElementById('app');
-if (container) {
-  render(app, container);
-}
-```
-
 ## TypeScript Types
 
 ```typescript
-import { type Signal, type Computed } from 'thorix';
+import { type Signal, type Computed, type ClassValue } from 'thorix';
 
 // Signal types
 const count: Signal<number> = signal(0);
@@ -431,6 +696,31 @@ const items: Signal<string[]> = signal(['apple', 'banana']);
 // Computed types
 const sum: Computed<number> = computed(() => a.get() + b.get());
 const formatted: Computed<string> = computed(() => `Count: ${count.get()}`);
+
+// Class value types
+const classes: ClassValue[] = ['button', { primary: true }, ['icon', 'large']];
+```
+
+### Element Props Types
+
+All DOM elements have strongly-typed props:
+
+```typescript
+import type {
+  DivProps,
+  ButtonProps,
+  InputProps,
+  FormProps,
+  // ... and many more
+} from 'thorix';
+
+// These types include common attributes, event handlers, and element-specific attributes
+const button: ButtonProps = {
+  className: 'btn',
+  onclick: (e) => console.log('clicked'),
+  disabled: false,
+  type: 'submit',
+};
 ```
 
 ## Best Practices
@@ -510,7 +800,9 @@ const component = div(
 ```typescript
 const items = signal(['apple', 'banana', 'orange']);
 
-const list = ul(...items.get().map((item) => li({ key: item }, item)));
+const list = createReactiveList(items, (item, index) =>
+  li({ key: index }, item),
+);
 ```
 
 ### 6. CSS Modules Integration
@@ -521,11 +813,72 @@ import styles from './Component.module.css';
 const Button = ({ variant, disabled, children }) => {
   return button(
     {
-      className: classNames(styles.button, styles[`button--${variant}`], {
+      className: classes(styles.button, styles[`button--${variant}`], {
         [styles['button--disabled']]: disabled,
       }),
     },
     children,
   );
 };
+```
+
+### 7. Template String Interpolation
+
+```typescript
+const user = signal({ name: 'John', age: 30 });
+const greeting = template`Hello ${user.get().name}, you are ${user.get().age} years old`;
+
+// Updates automatically when user changes
+user.set({ name: 'Jane', age: 25 });
+```
+
+### 8. Component Lifecycle with mount
+
+```typescript
+const TimerComponent = () => {
+  const count = signal(0);
+
+  mount(() => {
+    const interval = setInterval(() => {
+      count.set(count.get() + 1);
+    }, 1000);
+
+    // Return cleanup function
+    return () => clearInterval(interval);
+  }, [count]);
+
+  return div(`Timer: ${count.get()}`);
+};
+```
+
+### 9. Router with Loaders and Error Boundaries
+
+```typescript
+const UserPage = () => {
+  return div('User Profile');
+};
+
+const userLoader = async (params: RouteParams) => {
+  const response = await fetch(`/api/users/${params.id}`);
+  if (!response.ok) throw new Error('User not found');
+  return response.json();
+};
+
+const userErrorBoundary = (error: Error) => {
+  return div(
+    { className: 'error' },
+    h1('Error'),
+    p(error.message),
+    button({ onclick: () => window.history.back() }, 'Go Back'),
+  );
+};
+
+const routes = [
+  {
+    path: '/users/:id',
+    component: UserPage,
+    loader: userLoader,
+    errorBoundary: userErrorBoundary,
+  },
+];
 ```
