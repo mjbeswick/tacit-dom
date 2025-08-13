@@ -317,6 +317,7 @@ Thorix provides comprehensive documentation covering all aspects of the library:
 ### Advanced Features
 
 - **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
+
 - **[i18n Guide](docs/I18N.md)**: Internationalization and localization support
 
 ### Development

@@ -24,6 +24,7 @@ import {
   h1,
   h2,
   header,
+  hr,
   img,
   input,
   li,
@@ -157,6 +158,12 @@ describe('DOM Element Creation', () => {
       expect(spanElement.tagName).toBe('SPAN');
       expect(pElement.textContent).toBe('Paragraph text');
       expect(spanElement.textContent).toBe('Span text');
+    });
+
+    it('should create hr element', () => {
+      const hrElement = hr();
+      expect(hrElement.tagName).toBe('HR');
+      expect(hrElement.children.length).toBe(0);
     });
 
     it('should create form elements', () => {

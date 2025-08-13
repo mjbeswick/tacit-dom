@@ -43,6 +43,7 @@ export {
   h5,
   h6,
   header,
+  hr,
   img,
   input,
   label,
@@ -71,7 +72,7 @@ export {
 } from './dom';
 
 // Router exports
-export { createRouter, router, link, history } from './router';
+export { createRouter, history, link, router } from './router';
 
 // i18n exports
 export {
@@ -112,6 +113,7 @@ export type {
   FormProps,
   HeaderProps,
   HeadingProps,
+  HrProps,
   ImageProps,
   InputProps,
   LabelProps,

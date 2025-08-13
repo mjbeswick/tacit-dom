@@ -867,6 +867,7 @@ export type DialogProps = CommonAttributes & DialogAttributes & EventHandlers;
 export type MenuProps = CommonAttributes & MenuAttributes & EventHandlers;
 export type MenuItemProps = CommonAttributes & EventHandlers;
 export type PreProps = CommonAttributes & EventHandlers;
+export type HrProps = CommonAttributes & EventHandlers;
 
 // Union type for all possible element props
 export type ElementProps =
@@ -903,7 +904,8 @@ export type ElementProps =
   | DialogProps
   | MenuProps
   | MenuItemProps
-  | PreProps;
+  | PreProps
+  | HrProps;
 
 /**
  * Type for element children.
@@ -1442,6 +1444,7 @@ export const dialog = createElementFactory('dialog');
 export const menu = createElementFactory('menu');
 export const menuitem = createElementFactory('menuitem');
 export const pre = createElementFactory('pre');
+export const hr = createElementFactory('hr');
 
 /**
  * Creates a generic element creator for any HTML tag.
