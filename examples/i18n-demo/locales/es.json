@@ -1,0 +1,39 @@
+{
+  "welcome": {
+    "title": "¡Bienvenido a Thorix!",
+    "subtitle": "Una biblioteca reactiva con soporte i18n"
+  },
+  "counter": {
+    "title": "Ejemplo de Contador",
+    "items": "Tienes {count} elementos",
+    "items_one": "Tienes 1 elemento",
+    "items_other": "Tienes {count} elementos"
+  },
+  "greeting": "¡Hola, {name}!",
+  "date": {
+    "today": "Hoy es {date}"
+  },
+  "number": {
+    "example": "El número es {number}"
+  },
+  "language": {
+    "en": "Inglés",
+    "es": "Español",
+    "fr": "Francés",
+    "de": "Alemán"
+  },
+  "user": {
+    "title": "Perfil de Usuario",
+    "description": "Gestiona la configuración de tu cuenta"
+  },
+  "context": {
+    "home": {
+      "title": "Página de Inicio",
+      "description": "Bienvenido a nuestra aplicación"
+    },
+    "about": {
+      "title": "Sobre Nosotros",
+      "description": "Conoce más sobre nuestra empresa"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "welcome": {
+    "title": "Welcome to Thorix!",
+    "subtitle": "A reactive library with i18n support"
+  },
+  "counter": {
+    "title": "Counter Example",
+    "items": "You have {count} items",
+    "items_one": "You have 1 item",
+    "items_other": "You have {count} items"
+  },
+  "greeting": "Hello, {name}!",
+  "date": {
+    "today": "Today is {date}"
+  },
+  "number": {
+    "example": "The number is {number}"
+  },
+  "language": {
+    "en": "English",
+    "es": "Spanish",
+    "fr": "French",
+    "de": "German"
+  },
+  "user": {
+    "title": "User Profile",
+    "description": "Manage your account settings"
+  },
+  "context": {
+    "home": {
+      "title": "Home Page",
+      "description": "Welcome to our application"
+    },
+    "about": {
+      "title": "About Us",
+      "description": "Learn more about our company"
+    }
+  }
+}
