@@ -26,7 +26,7 @@ import {
   history,
   ul,
   li,
-} from 'reactive-dom';
+} from 'thorix';
 
 const app = () => {
   const handleBack = () => {
