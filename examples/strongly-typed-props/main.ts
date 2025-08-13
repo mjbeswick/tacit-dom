@@ -2,7 +2,6 @@ import {
   a,
   audio,
   button,
-  canvas,
   computed,
   details,
   dialog,
@@ -21,7 +20,6 @@ import {
   p,
   pre,
   render,
-  section,
   select,
   signal,
   span,
@@ -124,364 +122,494 @@ const handleSubmit = (event: Event) => {
 // Create the main app component
 function createApp() {
   return div(
-    { className: 'container' },
-    h1('Strongly Typed Props Demo'),
+    { className: 'min-vh-100 d-flex flex-column' },
 
-    p(
-      'This example demonstrates the strongly typed props functionality in reactive-dom. All props are now strongly typed based on the HTML element type.',
-    ),
-
-    // Form section
-    section(
-      { className: 'container' },
-      h2('Form with Strongly Typed Props'),
-
-      form(
-        {
-          onSubmit: handleSubmit,
-          action: '#',
-          method: 'post',
-        },
-
-        // Name input
+    // Header section
+    div(
+      { className: 'bg-info text-white py-5 flex-shrink-0' },
+      div(
+        { className: 'container' },
         div(
-          { className: 'form-group' },
-          label({ for: 'name' }, 'Name:'),
-          input({
-            id: 'name',
-            type: 'text',
-            name: 'name',
-            placeholder: 'Enter your name',
-            required: true,
-            value: name,
-            onInput: handleNameChange,
-          }),
-        ),
-
-        // Email input
-        div(
-          { className: 'form-group' },
-          label({ for: 'email' }, 'Email:'),
-          input({
-            id: 'email',
-            type: 'email',
-            name: 'email',
-            placeholder: 'Enter your email',
-            required: true,
-            value: email,
-            onInput: handleEmailChange,
-          }),
-          span(
-            {
-              className: computed(() =>
-                isValidEmail.get() ? 'success' : 'error',
-              ),
-              style: 'margin-left: 10px;',
-            },
-            computed(() =>
-              isValidEmail.get() ? '✓ Valid email' : '✗ Invalid email',
+          { className: 'row justify-content-center' },
+          div(
+            { className: 'col-lg-8 text-center' },
+            h1({ className: 'display-4 mb-3' }, 'Strongly Typed Props Demo'),
+            p(
+              { className: 'lead mb-0' },
+              'This example demonstrates the strongly typed props functionality in reactive-dom. All props are now strongly typed based on the HTML element type.',
             ),
           ),
         ),
+      ),
+    ),
 
-        // Age input
-        div(
-          { className: 'form-group' },
-          label({ for: 'age' }, 'Age:'),
-          input({
-            id: 'age',
-            type: 'number',
-            name: 'age',
-            min: 18,
-            max: 120,
-            value: age,
-            onInput: handleAgeChange,
-          }),
-        ),
+    // Main content - flexible and growing
+    div(
+      { className: 'container flex-grow-1 py-4' },
 
-        // Country select
+      // Form section
+      div(
+        { className: 'row mb-5' },
         div(
-          { className: 'form-group' },
-          label({ for: 'country' }, 'Country:'),
-          select(
-            {
-              id: 'country',
-              name: 'country',
-              value: selectedCountry,
-              onChange: handleCountryChange,
-            },
-            ...countries.map((country) =>
-              option(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2(
+                { className: 'card-title h3 mb-4' },
+                'Form with Strongly Typed Props',
+              ),
+
+              form(
                 {
-                  value: country.code,
-                  selected: computed(
-                    () => selectedCountry.get() === country.code,
-                  ),
+                  onSubmit: handleSubmit,
+                  action: '#',
+                  method: 'post',
                 },
-                country.name,
+
+                // Name input
+                div(
+                  { className: 'mb-3' },
+                  label({ for: 'name', className: 'form-label' }, 'Name:'),
+                  input({
+                    id: 'name',
+                    type: 'text',
+                    name: 'name',
+                    placeholder: 'Enter your name',
+                    required: true,
+                    value: name,
+                    onInput: handleNameChange,
+                    className: 'form-control',
+                  }),
+                ),
+
+                // Email input
+                div(
+                  { className: 'mb-3' },
+                  label({ for: 'email', className: 'form-label' }, 'Email:'),
+                  input({
+                    id: 'email',
+                    type: 'email',
+                    name: 'email',
+                    placeholder: 'Enter your email',
+                    required: true,
+                    value: email,
+                    onInput: handleEmailChange,
+                    className: 'form-control',
+                  }),
+                  div(
+                    { className: 'mt-1' },
+                    span(
+                      {
+                        className: computed(() =>
+                          isValidEmail.get() ? 'text-success' : 'text-danger',
+                        ),
+                      },
+                      computed(() =>
+                        isValidEmail.get()
+                          ? '✓ Valid email'
+                          : '✗ Invalid email',
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Age input
+                div(
+                  { className: 'mb-3' },
+                  label({ for: 'age', className: 'form-label' }, 'Age:'),
+                  input({
+                    id: 'age',
+                    type: 'number',
+                    name: 'age',
+                    min: 18,
+                    max: 120,
+                    value: age,
+                    onInput: handleAgeChange,
+                    className: 'form-control',
+                  }),
+                ),
+
+                // Country select
+                div(
+                  { className: 'mb-3' },
+                  label(
+                    { for: 'country', className: 'form-label' },
+                    'Country:',
+                  ),
+                  select(
+                    {
+                      id: 'country',
+                      name: 'country',
+                      value: selectedCountry,
+                      onChange: handleCountryChange,
+                      className: 'form-control',
+                    },
+                    ...countries.map((country) =>
+                      option(
+                        {
+                          value: country.code,
+                          selected: computed(
+                            () => selectedCountry.get() === country.code,
+                          ),
+                        },
+                        country.name,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Active checkbox
+                div(
+                  { className: 'mb-3' },
+                  label(
+                    { for: 'active', className: 'form-check-label' },
+                    'Active:',
+                  ),
+                  input({
+                    id: 'active',
+                    type: 'checkbox',
+                    name: 'active',
+                    checked: isActive,
+                    onChange: toggleActive,
+                    className: 'form-check-input',
+                  }),
+                  span(' Check this box'),
+                ),
+
+                // Rating input
+                div(
+                  { className: 'mb-3' },
+                  label({ for: 'rating', className: 'form-label' }, 'Rating:'),
+                  input({
+                    id: 'rating',
+                    type: 'range',
+                    name: 'rating',
+                    min: 1,
+                    max: 10,
+                    value: rating,
+                    onInput: handleRatingChange,
+                    className: 'form-range',
+                  }),
+                  span(computed(() => ` ${rating.get()}/10`)),
+                ),
+
+                // Message textarea
+                div(
+                  { className: 'mb-3' },
+                  label(
+                    { for: 'message', className: 'form-label' },
+                    'Message:',
+                  ),
+                  textarea({
+                    id: 'message',
+                    name: 'message',
+                    rows: 4,
+                    cols: 50,
+                    placeholder: 'Enter your message',
+                    value: message,
+                    onInput: handleMessageChange,
+                    className: 'form-control',
+                  }),
+                ),
+
+                // Submit button
+                div(
+                  { className: 'mb-3' },
+                  button(
+                    {
+                      type: 'submit',
+                      disabled: computed(() => !formStatus.get().valid),
+                      className: 'btn btn-primary',
+                    },
+                    'Submit Form',
+                  ),
+                ),
+
+                // Status message
+                div(
+                  {
+                    className: computed(() =>
+                      formStatus.get().valid
+                        ? 'alert alert-success'
+                        : 'alert alert-danger',
+                    ),
+                  },
+                  computed(() => formStatus.get().message),
+                ),
               ),
             ),
           ),
         ),
-
-        // Active checkbox
-        div(
-          { className: 'form-group' },
-          label({ for: 'active' }, 'Active:'),
-          input({
-            id: 'active',
-            type: 'checkbox',
-            name: 'active',
-            checked: isActive,
-            onChange: toggleActive,
-          }),
-          span(' Check this box'),
-        ),
-
-        // Rating input
-        div(
-          { className: 'form-group' },
-          label({ for: 'rating' }, 'Rating:'),
-          input({
-            id: 'rating',
-            type: 'range',
-            name: 'rating',
-            min: 1,
-            max: 10,
-            value: rating,
-            onInput: handleRatingChange,
-          }),
-          span(computed(() => ` ${rating.get()}/10`)),
-        ),
-
-        // Message textarea
-        div(
-          { className: 'form-group' },
-          label({ for: 'message' }, 'Message:'),
-          textarea({
-            id: 'message',
-            name: 'message',
-            rows: 4,
-            cols: 50,
-            placeholder: 'Enter your message',
-            value: message,
-            onInput: handleMessageChange,
-          }),
-        ),
-
-        // Submit button
-        div(
-          { className: 'form-group' },
-          button(
-            {
-              type: 'submit',
-              disabled: computed(() => !formStatus.get().valid),
-            },
-            'Submit Form',
-          ),
-        ),
-
-        // Status message
-        div(
-          {
-            className: computed(() =>
-              formStatus.get().valid ? 'success' : 'error',
-            ),
-          },
-          computed(() => formStatus.get().message),
-        ),
       ),
-    ),
 
-    // Media elements section
-    section(
-      { className: 'container' },
-      h2('Media Elements with Strongly Typed Props'),
-
+      // Media elements section
       div(
-        { className: 'form-group' },
-        h3('Image Element'),
-        img({
-          src: 'https://via.placeholder.com/300x200',
-          alt: 'Placeholder image',
-          width: 300,
-          height: 200,
-          loading: 'lazy',
-        }),
-      ),
+        { className: 'row mb-5' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2(
+                { className: 'card-title h3 mb-4' },
+                'Media Elements with Strongly Typed Props',
+              ),
 
-      div(
-        { className: 'form-group' },
-        h3('Video Element'),
-        video(
-          {
-            src: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-            controls: true,
-            width: 400,
-            height: 225,
-            preload: 'metadata',
-          },
-          'Your browser does not support the video tag.',
-        ),
-      ),
-
-      div(
-        { className: 'form-group' },
-        h3('Audio Element'),
-        audio(
-          {
-            src: 'https://sample-videos.com/zip/10/mp3/SampleAudio_0.4mb.mp3',
-            controls: true,
-            preload: 'metadata',
-          },
-          'Your browser does not support the audio tag.',
-        ),
-      ),
-
-      div(
-        { className: 'form-group' },
-        h3('Canvas Element'),
-        canvas({
-          width: 200,
-          height: 100,
-          style: 'border: 1px solid #ccc;',
-        }),
-      ),
-    ),
-
-    // Table section
-    section(
-      { className: 'container' },
-      h2('Table with Strongly Typed Props'),
-
-      table(
-        {
-          border: 1,
-          cellpadding: 5,
-          cellspacing: 0,
-          style: 'border-collapse: collapse; width: 100%;',
-        },
-        tr(th('Property'), th('Type'), th('Description')),
-        tr(
-          td('InputProps'),
-          td('CommonAttributes & InputAttributes & EventHandlers'),
-          td('Strongly typed props for input elements'),
-        ),
-        tr(
-          td('ButtonProps'),
-          td('CommonAttributes & FormAttributes & EventHandlers'),
-          td('Strongly typed props for button elements'),
-        ),
-        tr(
-          td('AnchorProps'),
-          td('CommonAttributes & AnchorAttributes & EventHandlers'),
-          td('Strongly typed props for anchor elements'),
-        ),
-        tr(
-          td('ImageProps'),
-          td('CommonAttributes & ImageAttributes & EventHandlers'),
-          td('Strongly typed props for image elements'),
-        ),
-      ),
-    ),
-
-    // Navigation section
-    section(
-      { className: 'container' },
-      h2('Navigation with Strongly Typed Props'),
-
-      nav(
-        ul(
-          li(
-            a(
-              {
-                href: '#',
-                target: '_blank',
-                rel: 'noopener noreferrer',
-              },
-              'Home',
-            ),
-          ),
-          li(
-            a(
-              {
-                href: '#about',
-                download: 'about.html',
-              },
-              'About',
-            ),
-          ),
-          li(
-            a(
-              {
-                href: '#contact',
-                hreflang: 'en',
-              },
-              'Contact',
+              div(
+                { className: 'row g-3' },
+                div(
+                  { className: 'col-md-4' },
+                  div(
+                    { className: 'card shadow-sm' },
+                    div(
+                      { className: 'card-body' },
+                      h3('Image Element'),
+                      img({
+                        src: 'https://via.placeholder.com/300x200',
+                        alt: 'Placeholder image',
+                        width: 300,
+                        height: 200,
+                        loading: 'lazy',
+                        className: 'img-fluid',
+                      }),
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-4' },
+                  div(
+                    { className: 'card shadow-sm' },
+                    div(
+                      { className: 'card-body' },
+                      h3('Video Element'),
+                      video(
+                        {
+                          src: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+                          controls: true,
+                          width: 400,
+                          height: 225,
+                          preload: 'metadata',
+                          className: 'img-fluid',
+                        },
+                        'Your browser does not support the video tag.',
+                      ),
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-4' },
+                  div(
+                    { className: 'card shadow-sm' },
+                    div(
+                      { className: 'card-body' },
+                      h3('Audio Element'),
+                      audio(
+                        {
+                          src: 'https://sample-videos.com/zip/10/mp3/SampleAudio_0.4mb.mp3',
+                          controls: true,
+                          preload: 'metadata',
+                          className: 'img-fluid',
+                        },
+                        'Your browser does not support the audio tag.',
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ),
       ),
-    ),
 
-    // Interactive elements
-    section(
-      { className: 'container' },
-      h2('Interactive Elements'),
-
+      // Table section
       div(
-        { className: 'form-group' },
-        details(
-          {
-            open: isActive,
-          },
-          summary('Click to expand details'),
-          p(
-            'This is a details element with strongly typed props. The open attribute is reactive.',
+        { className: 'row mb-5' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2(
+                { className: 'card-title h3 mb-4' },
+                'Table with Strongly Typed Props',
+              ),
+
+              table(
+                {
+                  border: 1,
+                  cellpadding: 5,
+                  cellspacing: 0,
+                  style: 'border-collapse: collapse; width: 100%;',
+                  className: 'table table-bordered table-striped',
+                },
+                tr(th('Property'), th('Type'), th('Description')),
+                tr(
+                  td('InputProps'),
+                  td('CommonAttributes & InputAttributes & EventHandlers'),
+                  td('Strongly typed props for input elements'),
+                ),
+                tr(
+                  td('ButtonProps'),
+                  td('CommonAttributes & FormAttributes & EventHandlers'),
+                  td('Strongly typed props for button elements'),
+                ),
+                tr(
+                  td('AnchorProps'),
+                  td('CommonAttributes & AnchorAttributes & EventHandlers'),
+                  td('Strongly typed props for anchor elements'),
+                ),
+                tr(
+                  td('ImageProps'),
+                  td('CommonAttributes & ImageAttributes & EventHandlers'),
+                  td('Strongly typed props for image elements'),
+                ),
+              ),
+            ),
           ),
         ),
       ),
 
+      // Navigation section
       div(
-        { className: 'form-group' },
-        dialog(
-          {
-            open: false,
-          },
-          h3('Dialog Title'),
-          p('This is a dialog element with strongly typed props.'),
-          button(
-            {
-              onClick: () => console.log('Dialog button clicked'),
-            },
-            'Close',
+        { className: 'row mb-5' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2(
+                { className: 'card-title h3 mb-4' },
+                'Navigation with Strongly Typed Props',
+              ),
+
+              nav(
+                ul(
+                  li(
+                    a(
+                      {
+                        href: '#',
+                        target: '_blank',
+                        rel: 'noopener noreferrer',
+                        className: 'nav-link',
+                      },
+                      'Home',
+                    ),
+                  ),
+                  li(
+                    a(
+                      {
+                        href: '#about',
+                        download: 'about.html',
+                        className: 'nav-link',
+                      },
+                      'About',
+                    ),
+                  ),
+                  li(
+                    a(
+                      {
+                        href: '#contact',
+                        hreflang: 'en',
+                        className: 'nav-link',
+                      },
+                      'Contact',
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
 
+      // Interactive elements
       div(
-        { className: 'form-group' },
-        menu(
-          {
-            type: 'context',
-          },
-          li('Context menu item 1'),
-          li('Context menu item 2'),
-          li('Context menu item 3'),
+        { className: 'row mb-5' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2({ className: 'card-title h3 mb-4' }, 'Interactive Elements'),
+
+              div(
+                { className: 'row g-3' },
+                div(
+                  { className: 'col-md-4' },
+                  details(
+                    {
+                      open: isActive,
+                      className: 'mb-3',
+                    },
+                    summary('Click to expand details', { className: 'h5' }),
+                    p(
+                      'This is a details element with strongly typed props. The open attribute is reactive.',
+                      { className: 'card-text' },
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-4' },
+                  dialog(
+                    {
+                      open: false,
+                      className: 'mb-3',
+                    },
+                    h3('Dialog Title', { className: 'h5' }),
+                    p('This is a dialog element with strongly typed props.', {
+                      className: 'card-text',
+                    }),
+                    button(
+                      {
+                        onClick: () => console.log('Dialog button clicked'),
+                        className: 'btn btn-secondary',
+                      },
+                      'Close',
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-4' },
+                  menu(
+                    {
+                      type: 'context',
+                      className: 'mb-3',
+                    },
+                    li('Context menu item 1', { className: 'nav-link' }),
+                    li('Context menu item 2', { className: 'nav-link' }),
+                    li('Context menu item 3', { className: 'nav-link' }),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
-    ),
 
-    // Code example
-    section(
-      { className: 'container' },
-      h2('Code Example'),
+      // Code example
+      div(
+        { className: 'row mb-5' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2({ className: 'card-title h3 mb-4' }, 'Code Example'),
 
-      pre(
-        {
-          style: 'background: #f4f4f4; padding: 10px; border-radius: 3px;',
-        },
-        `
+              pre(
+                {
+                  style:
+                    'background: #f4f4f4; padding: 10px; border-radius: 3px;',
+                  className: 'card-text',
+                },
+                `
 // Strongly typed input props
 const inputElement = input({
   type: 'email',
@@ -505,6 +633,10 @@ const linkElement = a({
   rel: 'noopener noreferrer'
 }, 'External Link');
       `,
+              ),
+            ),
+          ),
+        ),
       ),
     ),
   );

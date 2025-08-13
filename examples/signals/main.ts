@@ -4,9 +4,11 @@ import {
   div,
   effect,
   h1,
+  h2,
   p,
   render,
   signal,
+  span,
 } from '../../src/index';
 
 const random = () => Math.random().toString(36).slice(2, 6).toUpperCase();
@@ -59,26 +61,187 @@ const app = () => {
   };
 
   return div(
-    h1('Thorix Signals Example'),
+    { className: 'min-vh-100 d-flex flex-column' },
+
+    // Header section
     div(
-      button({ onclick: handleUpdate }, 'Update signals'),
-      button(
-        { onclick: handleReRender },
-        'Re-render (notice preserved signals maintain state)',
+      { className: 'bg-primary text-white py-5 flex-shrink-0' },
+      div(
+        { className: 'container' },
+        div(
+          { className: 'row justify-content-center' },
+          div(
+            { className: 'col-lg-8 text-center' },
+            h1({ className: 'display-4 mb-3' }, 'Thorix Signals Example'),
+            p(
+              { className: 'lead mb-0' },
+              'Explore reactive signals, computed values, and effects',
+            ),
+          ),
+        ),
       ),
     ),
+
+    // Main content - flexible and growing
     div(
-      p(`signalA: ${signalA.get()}`),
-      p(`signalB: ${signalB.get()}`),
-      p(`signalC (computed): ${computedA.get()}`),
-      p(`signalD (preserved): ${signalD.get()}`),
-      p('regularSignal (recreated each render): ', regularSignal),
-      p('Note: signals with keys maintain their values between renders!'),
-      // Demonstrate toString functionality
-      p(`Direct signal usage: ${signalA}`),
-      p(`Direct computed usage: ${computedA}`),
-      p(
-        `String concatenation: Count is ${signalA.get()}, doubled is ${computedA}`,
+      { className: 'container flex-grow-1 py-4' },
+
+      // Control buttons section
+      div(
+        { className: 'row mb-4' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body text-center' },
+              h2({ className: 'card-title h4 mb-4' }, 'Signal Controls'),
+              div(
+                { className: 'd-flex gap-3 justify-content-center flex-wrap' },
+                button(
+                  {
+                    onclick: handleUpdate,
+                    className: 'btn btn-primary btn-lg',
+                  },
+                  'Update signals',
+                ),
+                button(
+                  {
+                    onclick: handleReRender,
+                    className: 'btn btn-outline-primary btn-lg',
+                  },
+                  'Re-render (notice preserved signals maintain state)',
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+
+      // Signal values display section
+      div(
+        { className: 'row' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2({ className: 'card-title h4 mb-4' }, 'Signal Values'),
+              div(
+                { className: 'row g-3' },
+                div(
+                  { className: 'col-md-6' },
+                  div(
+                    { className: 'p-3 bg-light rounded' },
+                    p(
+                      { className: 'mb-2' },
+                      span({ className: 'fw-bold text-primary' }, 'signalA: '),
+                      span({ className: 'font-monospace' }, signalA.get()),
+                    ),
+                    p(
+                      { className: 'mb-2' },
+                      span({ className: 'fw-bold text-primary' }, 'signalB: '),
+                      span({ className: 'font-monospace' }, signalB.get()),
+                    ),
+                    p(
+                      { className: 'mb-0' },
+                      span(
+                        { className: 'fw-bold text-success' },
+                        'signalC (computed): ',
+                      ),
+                      span({ className: 'font-monospace' }, computedA.get()),
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-6' },
+                  div(
+                    { className: 'p-3 bg-light rounded' },
+                    p(
+                      { className: 'mb-2' },
+                      span(
+                        { className: 'fw-bold text-warning' },
+                        'signalD (preserved): ',
+                      ),
+                      span({ className: 'font-monospace' }, signalD.get()),
+                    ),
+                    p(
+                      { className: 'mb-2' },
+                      span(
+                        { className: 'fw-bold text-info' },
+                        'regularSignal: ',
+                      ),
+                      span({ className: 'font-monospace' }, regularSignal),
+                    ),
+                    p(
+                      { className: 'mb-0' },
+                      span({ className: 'fw-bold text-secondary' }, 'Note: '),
+                      'Signals with keys maintain their values between renders!',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+
+      // Advanced usage section
+      div(
+        { className: 'row mt-4' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2(
+                { className: 'card-title h4 mb-4' },
+                'Advanced Usage Examples',
+              ),
+              div(
+                { className: 'row g-3' },
+                div(
+                  { className: 'col-md-4' },
+                  div(
+                    { className: 'p-3 bg-light rounded' },
+                    p(
+                      { className: 'mb-2' },
+                      span({ className: 'fw-bold' }, 'Direct signal usage: '),
+                      span({ className: 'font-monospace' }, signalA),
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-4' },
+                  div(
+                    { className: 'p-3 bg-light rounded' },
+                    p(
+                      { className: 'mb-2' },
+                      span({ className: 'fw-bold' }, 'Direct computed usage: '),
+                      span({ className: 'font-monospace' }, computedA),
+                    ),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-4' },
+                  div(
+                    { className: 'p-3 bg-light rounded' },
+                    p(
+                      { className: 'mb-2' },
+                      span({ className: 'fw-bold' }, 'String concatenation: '),
+                      span(
+                        { className: 'font-monospace' },
+                        `Count is ${signalA.get()}, doubled is ${computedA}`,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     ),
   );

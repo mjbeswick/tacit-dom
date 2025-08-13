@@ -1379,10 +1379,11 @@ function createElementFactory(tagName: string): ElementCreator {
         } else if (
           typeof child === 'object' &&
           child !== null &&
-          typeof child.tagName === 'string'
+          'tagName' in child &&
+          typeof (child as any).tagName === 'string'
         ) {
           // Handle HTML elements in JSDOM environment where instanceof might fail
-          element.appendChild(child);
+          element.appendChild(child as HTMLElement);
         }
       });
 

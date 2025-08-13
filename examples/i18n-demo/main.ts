@@ -6,6 +6,7 @@ import {
   formatNumber,
   h1,
   h2,
+  h3,
   n,
   p,
   render,
@@ -74,86 +75,238 @@ function App() {
   const exampleNumber = 1234.56;
 
   return div(
-    { className: 'app' },
+    { className: 'min-vh-100 d-flex flex-column' },
 
     // Header with language switcher
     div(
-      { className: 'header' },
-      h1(t('welcome.title', 'Welcome to Thorix!')),
-      p(t('welcome.subtitle', 'A reactive library with i18n support')),
-
-      // Language switcher
+      { className: 'bg-primary text-white py-5 flex-shrink-0' },
       div(
-        { className: 'language-switcher' },
-        ...availableLocales.map((lang) =>
-          button(
-            {
-              onclick: () => setLocale(lang),
-              className: locale.get() === lang ? 'active' : '',
-            },
-            t(`language.${lang}`, lang),
+        { className: 'container' },
+        div(
+          { className: 'row align-items-center' },
+          div(
+            { className: 'col-lg-8 col-md-7 mb-3 mb-md-0' },
+            h1(
+              { className: 'display-4 mb-2' },
+              t('welcome.title', 'Welcome to Thorix!'),
+            ),
+            p(
+              { className: 'lead mb-0' },
+              t('welcome.subtitle', 'A reactive library with i18n support'),
+            ),
+          ),
+          div(
+            { className: 'col-lg-4 col-md-5' },
+            // Language switcher
+            div(
+              {
+                className:
+                  'd-flex flex-wrap gap-2 justify-content-md-end justify-content-center',
+              },
+              ...availableLocales.map((lang) =>
+                button(
+                  {
+                    onclick: () => setLocale(lang),
+                    className: `btn ${locale.get() === lang ? 'btn-light' : 'btn-outline-light'} flex-fill flex-md-grow-0`,
+                  },
+                  t(`language.${lang}`, lang),
+                ),
+              ),
+            ),
           ),
         ),
       ),
     ),
 
-    // Main content
+    // Main content - flexible and growing
     div(
-      { className: 'content' },
+      { className: 'container flex-grow-1 py-4' },
 
       // Counter section
       div(
-        { className: 'section' },
-        h1(t('counter.title', 'Counter Example')),
-        p(n('counter.items', count, 'You have {count} items', { count })),
-        p(t('greeting', 'Hello, {name}!', { name: userName })),
-      ),
-
-      // Date and number formatting
-      div(
-        { className: 'section' },
-        h1('Date & Number Formatting'),
-        p(
-          t('date.today', 'Today is {date}', {
-            date: formatDate(today).get(),
-          }),
-        ),
-        p(
-          t('number.example', 'The number is {number}', {
-            number: formatNumber(exampleNumber).get(),
-          }),
-        ),
-      ),
-
-      // Namespace example
-      div(
-        { className: 'section' },
-        h1(userNamespace.t('title', 'User Profile')),
-        p(userNamespace.t('description', 'Manage your account settings')),
-      ),
-
-      // Context examples
-      div(
-        { className: 'section' },
-        h1('Context Examples'),
+        { className: 'row g-4 mb-4' },
         div(
-          { className: 'context-section' },
-          h2(homeContext.t('title', 'Home Page')),
-          p(homeContext.t('description', 'Welcome to our application')),
+          { className: 'col-xl-6 col-lg-12' },
+          div(
+            { className: 'card shadow-sm h-100' },
+            div(
+              { className: 'card-body d-flex flex-column' },
+              h2(
+                { className: 'card-title h4 mb-3' },
+                t('counter.title', 'Counter Example'),
+              ),
+              div(
+                { className: 'flex-grow-1' },
+                p(
+                  { className: 'card-text' },
+                  n('counter.items', count, 'You have {count} items', {
+                    count,
+                  }),
+                ),
+                p(
+                  { className: 'card-text' },
+                  t('greeting', 'Hello, {name}!', { name: userName }),
+                ),
+              ),
+            ),
+          ),
         ),
+
+        // Date and number formatting
         div(
-          { className: 'context-section' },
-          h2(aboutContext.t('title', 'About Us')),
-          p(aboutContext.t('description', 'Learn more about our company')),
+          { className: 'col-xl-6 col-lg-12' },
+          div(
+            { className: 'card shadow-sm h-100' },
+            div(
+              { className: 'card-body d-flex flex-column' },
+              h2(
+                { className: 'card-title h4 mb-3' },
+                'Date & Number Formatting',
+              ),
+              div(
+                { className: 'flex-grow-1' },
+                p(
+                  { className: 'card-text' },
+                  t('date.today', 'Today is {date}', {
+                    date: formatDate(today).get(),
+                  }),
+                ),
+                p(
+                  { className: 'card-text' },
+                  t('number.example', 'The number is {number}', {
+                    number: formatNumber(exampleNumber).get(),
+                  }),
+                ),
+              ),
+            ),
+          ),
         ),
       ),
 
-      // Current locale display
+      // Namespace and Context examples in a flexible row
       div(
-        { className: 'section' },
-        h1('Current Locale'),
-        p(span('Current locale: '), span(locale)),
-        p(span('Available locales: '), span(availableLocales.join(', '))),
+        { className: 'row g-4 mb-4' },
+        // Namespace example
+        div(
+          { className: 'col-lg-6' },
+          div(
+            { className: 'card shadow-sm h-100' },
+            div(
+              { className: 'card-body d-flex flex-column' },
+              h2(
+                { className: 'card-title h4 mb-3' },
+                userNamespace.t('title', 'User Profile'),
+              ),
+              div(
+                { className: 'flex-grow-1' },
+                p(
+                  { className: 'card-text' },
+                  userNamespace.t(
+                    'description',
+                    'Manage your account settings',
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Context examples
+        div(
+          { className: 'col-lg-6' },
+          div(
+            { className: 'card shadow-sm h-100' },
+            div(
+              { className: 'card-body d-flex flex-column' },
+              h2({ className: 'card-title h4 mb-3' }, 'Context Examples'),
+              div(
+                { className: 'flex-grow-1' },
+                div(
+                  { className: 'row g-3' },
+                  div(
+                    { className: 'col-12' },
+                    div(
+                      {
+                        className:
+                          'border-start border-success border-4 ps-3 py-2',
+                      },
+                      h3(
+                        { className: 'h5 text-success mb-2' },
+                        homeContext.t('title', 'Home Page'),
+                      ),
+                      p(
+                        { className: 'text-muted mb-0' },
+                        homeContext.t(
+                          'description',
+                          'Welcome to our application',
+                        ),
+                      ),
+                    ),
+                  ),
+                  div(
+                    { className: 'col-12' },
+                    div(
+                      {
+                        className:
+                          'border-start border-info border-4 ps-3 py-2',
+                      },
+                      h3(
+                        { className: 'h5 text-info mb-2' },
+                        aboutContext.t('title', 'About Us'),
+                      ),
+                      p(
+                        { className: 'text-muted mb-0' },
+                        aboutContext.t(
+                          'description',
+                          'Learn more about our company',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+
+      // Current locale display - full width
+      div(
+        { className: 'row' },
+        div(
+          { className: 'col-12' },
+          div(
+            { className: 'card shadow-sm' },
+            div(
+              { className: 'card-body' },
+              h2({ className: 'card-title h4 mb-3' }, 'Current Locale'),
+              div(
+                { className: 'row g-3' },
+                div(
+                  { className: 'col-md-6' },
+                  p(
+                    { className: 'card-text d-flex align-items-center gap-2' },
+                    span('Current locale: '),
+                    span({ className: 'badge bg-primary fs-6' }, locale),
+                  ),
+                ),
+                div(
+                  { className: 'col-md-6' },
+                  p(
+                    { className: 'card-text d-flex align-items-center gap-2' },
+                    span('Available locales: '),
+                    div(
+                      { className: 'd-flex flex-wrap gap-1' },
+                      ...availableLocales.map((lang) =>
+                        span({ className: 'badge bg-secondary' }, lang),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     ),
   );
