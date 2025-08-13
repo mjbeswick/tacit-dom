@@ -37,6 +37,7 @@ If you want something stable for production, this is not it (yet).
 - [Features](#-features)
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
+- [Documentation](#-documentation)
 - [API Reference](#-api-reference)
 - [Examples](#-examples)
 - [Development](#-development)
@@ -297,7 +298,33 @@ render(Counter(), document.getElementById('app'));
 
 For development setup, building, testing, and project structure, see [DEVELOPMENT.md](DEVELOPMENT.md).
 
-## 📚 API Reference
+## 📚 Documentation
+
+Thorix provides comprehensive documentation covering all aspects of the library:
+
+### Core Concepts
+
+- **[Signals Guide](docs/SIGNALS.md)**: Learn about reactive signals, the foundation of Thorix
+- **[Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and common patterns
+- **[Signal Internals](docs/SIGNAL_INTERNALS.md)**: Technical implementation details
+
+### DOM and Components
+
+- **[DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
+- **[Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
+- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management
+
+### Advanced Features
+
+- **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
+- **[i18n Guide](docs/I18N.md)**: Internationalization and localization support
+
+### Development
+
+- **[Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
+- **[API Reference](docs/API.md)**: Complete API documentation
+
+## 🛠️ API Reference
 
 For detailed API documentation, see [API.md](docs/API.md).
 
@@ -305,9 +332,14 @@ For detailed API documentation, see [API.md](docs/API.md).
 
 - **[API Reference](docs/API.md)**: Complete API documentation
 - **[Signals Guide](docs/SIGNALS.md)**: Comprehensive guide to reactive signals
+- **[Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and patterns for using signals
 - **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class name utility
 - **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
 - **[Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
+- **[i18n Guide](docs/I18N.md)**: Internationalization and localization support
+- **[DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
+- **[Signal Internals](docs/SIGNAL_INTERNALS.md)**: Technical details about signal implementation
+- **[Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
 
 ### Core Functions
 
