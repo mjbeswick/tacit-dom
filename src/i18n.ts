@@ -134,7 +134,52 @@ class I18n {
       const countKey = count === 1 ? 'one' : 'other';
       const pluralKey = `${key}.${countKey}`;
 
-      return this.t(pluralKey, defaultMessage, { count, ...params }).get();
+      // First try to get the specific plural form from translations
+      const locale = this.currentLocale.get();
+      const fallback = this.fallbackLocale.get();
+
+      let translation = this.getNestedTranslation(
+        this.translations[locale],
+        pluralKey,
+      );
+
+      if (!translation && fallback && locale !== fallback) {
+        translation = this.getNestedTranslation(
+          this.translations[fallback],
+          pluralKey,
+        );
+      }
+
+      if (translation) {
+        // Use the translation if it exists
+        if (typeof translation === 'function') {
+          return translation({ count, ...params });
+        }
+        if (params && typeof translation === 'string') {
+          return this.interpolate(translation, { count, ...params });
+        }
+        return translation;
+      }
+
+      // If no translation exists, apply basic pluralization to default message
+      if (defaultMessage) {
+        let message = defaultMessage;
+
+        // Basic English pluralization: if count is 1, remove 's' from words ending with 's'
+        if (count === 1) {
+          message = message.replace(/\b(\w+)s\b/g, '$1');
+        }
+
+        // Interpolate parameters
+        if (params) {
+          message = this.interpolate(message, { count, ...params });
+        }
+
+        return message;
+      }
+
+      // Fallback to just the key with count
+      return `${key}: ${count}`;
     });
   }
 

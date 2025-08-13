@@ -1184,7 +1184,12 @@ function createElementFactory(tagName: string): ElementCreator {
                       key === 'disabled' ||
                       key === 'checked' ||
                       key === 'readonly' ||
-                      key === 'required'
+                      key === 'required' ||
+                      key === 'controls' ||
+                      key === 'autoplay' ||
+                      key === 'loop' ||
+                      key === 'muted' ||
+                      key === 'open'
                     ) {
                       // Handle boolean attributes
                       const newValue = Boolean(attrValue);
@@ -1223,7 +1228,12 @@ function createElementFactory(tagName: string): ElementCreator {
                   key === 'disabled' ||
                   key === 'checked' ||
                   key === 'readonly' ||
-                  key === 'required'
+                  key === 'required' ||
+                  key === 'controls' ||
+                  key === 'autoplay' ||
+                  key === 'loop' ||
+                  key === 'muted' ||
+                  key === 'open'
                 ) {
                   const domKey = getDomAttributeName(key);
                   if (initialValue) {
@@ -1231,6 +1241,25 @@ function createElementFactory(tagName: string): ElementCreator {
                   } else {
                     element.removeAttribute(domKey);
                   }
+                } else if (
+                  key === 'tabIndex' ||
+                  key === 'maxLength' ||
+                  key === 'minLength' ||
+                  key === 'size' ||
+                  key === 'width' ||
+                  key === 'height' ||
+                  key === 'accessKey' ||
+                  key === 'contentEditable'
+                ) {
+                  // Handle properties that need to be set directly
+                  if (key === 'accessKey' || key === 'contentEditable') {
+                    (element as any)[key] = String(value);
+                  } else {
+                    (element as any)[key] = Number(value);
+                  }
+                } else if (key === 'autoComplete') {
+                  // Handle autocomplete specifically (camelCase to kebab-case)
+                  element.setAttribute('autocomplete', String(initialValue));
                 } else {
                   const domKey = getDomAttributeName(key);
                   element.setAttribute(domKey, String(initialValue));
@@ -1250,7 +1279,12 @@ function createElementFactory(tagName: string): ElementCreator {
                 key === 'disabled' ||
                 key === 'checked' ||
                 key === 'readonly' ||
-                key === 'required'
+                key === 'required' ||
+                key === 'controls' ||
+                key === 'autoplay' ||
+                key === 'loop' ||
+                key === 'muted' ||
+                key === 'open'
               ) {
                 // Handle boolean attributes
                 const domKey = getDomAttributeName(key);
@@ -1259,6 +1293,24 @@ function createElementFactory(tagName: string): ElementCreator {
                 } else {
                   element.removeAttribute(domKey);
                 }
+              } else if (
+                key === 'tabIndex' ||
+                key === 'maxLength' ||
+                key === 'minLength' ||
+                key === 'size' ||
+                key === 'width' ||
+                key === 'height' ||
+                key === 'accessKey'
+              ) {
+                // Handle numeric properties that need to be set directly
+                if (key === 'accessKey') {
+                  (element as any)[key] = String(value);
+                } else {
+                  (element as any)[key] = Number(value);
+                }
+              } else if (key === 'autoComplete') {
+                // Handle autocomplete specifically (camelCase to kebab-case)
+                element.setAttribute('autocomplete', String(value));
               } else {
                 const attrName = getDomAttributeName(key);
                 element.setAttribute(attrName, String(value));
@@ -1323,6 +1375,13 @@ function createElementFactory(tagName: string): ElementCreator {
             element.appendChild(document.createTextNode(stringValue));
           }
         } else if (child instanceof HTMLElement) {
+          element.appendChild(child);
+        } else if (
+          typeof child === 'object' &&
+          child !== null &&
+          typeof child.tagName === 'string'
+        ) {
+          // Handle HTML elements in JSDOM environment where instanceof might fail
           element.appendChild(child);
         }
       });
