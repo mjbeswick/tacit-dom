@@ -24,7 +24,10 @@
     "pre-commit": "npm run format:fix && npm run type-check && npm test",
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
-    "publish:major": "npm version major && npm publish"
+    "publish:major": "npm version major && npm publish",
+    "release:patch": "npm version patch && npm publish && git push origin main && git tag v$(npm run version --silent) && git push origin v$(npm run version --silent)",
+    "release:minor": "npm version minor && npm publish && git push origin main && git tag v$(npm run version --silent) && git push origin v$(npm run version --silent)",
+    "release:major": "npm version major && npm publish && git push origin main && git tag v$(npm run version --silent) && git push origin v$(npm run version --silent)"
   },
   "lint-staged": {
     "*.{js,ts}": [
