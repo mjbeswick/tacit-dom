@@ -78,6 +78,11 @@ export class Router {
 
     // Set as global router
     globalRouter = this;
+    
+    // Also set on global object for testing purposes
+    if (typeof global !== 'undefined') {
+      (global as any).globalRouter = this;
+    }
 
     // Initialize router
     this.initialize();
@@ -104,12 +109,24 @@ export class Router {
    * Get the current path from the URL
    */
   private getPathFromUrl(): string {
-    if (typeof window === 'undefined') return '/';
+    if (typeof window === 'undefined') return this.defaultRoute;
 
     const path = window.location.pathname;
-    return path.startsWith(this.basePath)
-      ? path.slice(this.basePath.length) || '/'
-      : path;
+    
+    // If the path starts with the base path, extract the relative path
+    if (this.basePath && path.startsWith(this.basePath)) {
+      const relativePath = path.slice(this.basePath.length);
+      return relativePath || this.defaultRoute;
+    }
+    
+    // If we have a base path but the current path doesn't start with it,
+    // or if there's no path, use the default route
+    if (this.basePath || !path || path === '/') {
+      return this.defaultRoute;
+    }
+    
+    // Otherwise return the current path
+    return path;
   }
 
   /**
@@ -485,6 +502,11 @@ export function router(props: {
 
   // Ensure the router is set as global
   globalRouter = routerInstance;
+  
+  // Also set on global object for testing purposes
+  if (typeof global !== 'undefined') {
+    (global as any).globalRouter = routerInstance;
+  }
 
   // Create a container element
   const container = document.createElement('div');
