@@ -55,6 +55,7 @@ If you want something stable for production, this is not it (yet).
 - **📦 Zero Dependencies**: Lightweight with no external dependencies
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
+- **🌍 i18n Support**: Built-in internationalization with reactive translations
 
 ## 🚀 Why Thorix?
 
