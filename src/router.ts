@@ -8,8 +8,8 @@
  */
 
 import { a, div } from './dom';
-import { signal } from './signals';
 import type { Signal } from './signals';
+import { signal } from './signals';
 
 // Types for the router
 export type RouteParams = Record<string, string>;
@@ -78,7 +78,7 @@ export class Router {
 
     // Set as global router
     globalRouter = this;
-    
+
     // Also set on global object for testing purposes
     if (typeof global !== 'undefined') {
       (global as any).globalRouter = this;
@@ -112,19 +112,19 @@ export class Router {
     if (typeof window === 'undefined') return this.defaultRoute;
 
     const path = window.location.pathname;
-    
+
     // If the path starts with the base path, extract the relative path
     if (this.basePath && path.startsWith(this.basePath)) {
       const relativePath = path.slice(this.basePath.length);
       return relativePath || this.defaultRoute;
     }
-    
+
     // If we have a base path but the current path doesn't start with it,
     // or if there's no path, use the default route
     if (this.basePath || !path || path === '/') {
       return this.defaultRoute;
     }
-    
+
     // Otherwise return the current path
     return path;
   }
@@ -502,7 +502,7 @@ export function router(props: {
 
   // Ensure the router is set as global
   globalRouter = routerInstance;
-  
+
   // Also set on global object for testing purposes
   if (typeof global !== 'undefined') {
     (global as any).globalRouter = routerInstance;
