@@ -97,13 +97,13 @@ React is great and all... but honestly, it's kind of like using a chainsaw to sl
 - **✍️ Less Code**: More concise and easier to write without verbose JSX syntax (less typing, more doing)
 - **🚫 No XML Recreation**: JSX is just trying to recreate XML in TypeScript, which has no advantages aside from looking like HTML, but is less efficient (because who said JavaScript needed XML?)
 
-### The Bandwagon Effect 🎠
+### The React Inertia 🎠
 
-Time to address the elephant in the room: **the React bandwagon effect**.
+Time to address the elephant in the room: **defaulting to React by habit**.
 
-React is everywhere. It's in job postings, tutorials, bootcamps, and every developer's LinkedIn profile. But here's the thing - just because everyone's using it doesn't mean it's always the right tool for the job.
+React is ubiquitous—in job postings, tutorials, bootcamps, and portfolios. That ubiquity can make it the default, but the default isn't always the right tool for the job.
 
-Sometimes you need a sledgehammer (React), and sometimes you just need a regular hammer (Thorix). 🛠️
+Sometimes a sledgehammer (React) is perfect; sometimes a regular hammer (Thorix) is exactly right. 🛠️
 
 **Thorix is for developers who:**
 
