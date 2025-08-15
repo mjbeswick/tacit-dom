@@ -1,0 +1,18 @@
+{
+  "name": "thorix-i18n-inline-demo",
+  "version": "1.0.0",
+  "description": "Demo of Thorix inline i18n implementation",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^7.1.1"
+  },
+  "dependencies": {
+    "thorix": "file:../.."
+  }
+}

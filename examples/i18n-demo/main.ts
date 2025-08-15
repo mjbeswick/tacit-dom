@@ -24,7 +24,7 @@ async function loadTranslations(): Promise<Record<string, any>> {
 
   for (const locale of locales) {
     try {
-      const response = await fetch(`locales/${locale}.json`);
+      const response = await fetch(`../locales/${locale}.json`);
       if (response.ok) {
         translations[locale] = await response.json();
       } else {

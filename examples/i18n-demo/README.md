@@ -121,7 +121,7 @@ homeContext.t('title', 'Home Page');
 
 ```typescript
 formatDate(new Date()); // Locale-aware date formatting
-formatNumber(1234.56);  // Locale-aware number formatting
+formatNumber(1234.56); // Locale-aware number formatting
 ```
 
 ## Adding New Languages

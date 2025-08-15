@@ -64,6 +64,16 @@ npm install
 npm run dev
 ```
 
+### Inline i18n (`/i18n-inline-demo`)
+
+An example demonstrating the new inline i18n implementation with AST-based translation extraction.
+
+```bash
+cd i18n-inline-demo
+npm install
+npm run dev
+```
+
 ## Running Examples
 
 Each example is self-contained with its own `package.json`, `vite.config.ts`, and `tsconfig.json`. To run any example:
@@ -83,6 +93,7 @@ Each example runs on a different port to avoid conflicts:
 - Strongly Typed Props: `http://localhost:5176`
 - Signals: `http://localhost:5177`
 - ClassNames: `http://localhost:5178`
+- Inline i18n: `http://localhost:3001`
 
 ## Building Examples
 

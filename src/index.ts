@@ -98,6 +98,24 @@ export {
   useNamespace,
 } from './i18n-helpers';
 
+// Inline i18n exports
+export {
+  createInlineI18n,
+  getGlobalInlineI18n,
+  setGlobalInlineI18n,
+  type InlineI18n,
+  type TranslationTokens,
+} from './i18n-inline';
+
+export {
+  formatDate as formatDateInline,
+  formatNumber as formatNumberInline,
+  n as nInline,
+  t as tInline,
+  useLocale as useLocaleInline,
+  useNamespace as useNamespaceInline,
+} from './i18n-inline-helpers';
+
 // Type exports
 export type {
   AnchorProps,
