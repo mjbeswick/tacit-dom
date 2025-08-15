@@ -62,6 +62,8 @@ If you want something stable for production, this is not it (yet).
 
 React has transformed web development, making it straightforward to build complex, interactive UIs with reusable components. Its approach to rendering and UI composition has become the industry standard. However, **state management in React has long been a source of frustration**. Whether it's prop drilling, context, Redux, hooks, or ongoing debates about the "best" way to handle state, managing state in React often feels unnecessarily complicated. Thorix is designed to change that—offering simple, reactive, and intuitive state management, so you can keep your UI in sync without the hassle of hooks or boilerplate.
 
+I believe React has reached its peak. Meaningful progress now requires a different foundation—not more layers on the same model. Recent releases skew toward additive features and ergonomics while core pain points remain: state complexity, re-render churn, and mental overhead. Thorix explores a simpler, signal-first approach that addresses those fundamentals directly.
+
 ### The React Reality Check 🤔
 
 Look, React is great and all... but let's be honest: it's kind of like using a chainsaw to slice a loaf of bread. Sure, it gets the job done, but do you really need all that machinery—virtual DOM, reconciliation, and a sprawling state system—just to update a simple counter?
