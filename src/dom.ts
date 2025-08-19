@@ -1291,8 +1291,6 @@ function createElementFactory(tagName: string): ElementCreator {
                   key === 'muted'
                 ) {
                   (element as any)[key] = Boolean(value);
-                } else if (key === 'draggable') {
-                  (element as any)[key] = String(value);
                 } else {
                   (element as any)[key] = Number(value);
                 }
