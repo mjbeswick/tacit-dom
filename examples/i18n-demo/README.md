@@ -1,6 +1,6 @@
-# Thorix i18n Demo
+# Tacit-DOM i18n Demo
 
-This example demonstrates the internationalization (i18n) capabilities of Thorix, showing how to create multilingual applications with reactive translations.
+This example demonstrates the internationalization (i18n) capabilities of Tacit-DOM, showing how to create multilingual applications with reactive translations.
 
 ## Features Demonstrated
 
@@ -90,7 +90,7 @@ The demo includes translations for:
 t('welcome.title');
 
 // With default message
-t('welcome.title', 'Welcome to Thorix!');
+t('welcome.title', 'Welcome to Tacit-DOM!');
 
 // With parameters
 t('greeting', 'Hello, {name}!', { name: 'World' });
@@ -132,9 +132,9 @@ To add a new language:
 2. Create a new JSON file in the `locales/` directory
 3. Run `npm run extract` to update all locale files
 
-## Integration with Thorix
+## Integration with Tacit-DOM
 
-The i18n system is built on top of Thorix's reactive signals:
+The i18n system is built on top of Tacit-DOM's reactive signals:
 
 - **Reactive Locale**: Changing the locale automatically updates all translated text
 - **Computed Values**: Translations are computed values that update when dependencies change
@@ -147,7 +147,7 @@ The i18n system is built on top of Thorix's reactive signals:
 
 1. **"Module not found" errors**
    - Make sure you've run `npm install` in the demo directory
-   - Check that the Thorix library is properly built
+   - Check that the Tacit-DOM library is properly built
 
 2. **Translations not loading**
    - Verify the `locales/` directory exists with JSON files

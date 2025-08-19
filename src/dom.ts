@@ -58,7 +58,7 @@ function classNames(
   return classes.join(' ');
 }
 
-// Creates a reactive node from a string that may include Thorix reactive markers
+// Creates a reactive node from a string that may include Tacit-DOM reactive markers
 function createReactiveInterpolatedNode(text: string): HTMLElement {
   const container = document.createElement('span');
   const parts: (string | Signal<any> | Computed<any>)[] = [];

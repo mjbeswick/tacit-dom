@@ -1,7 +1,7 @@
 {
-  "name": "thorix-i18n-demo",
+  "name": "tacit-dom-i18n-demo",
   "version": "1.0.0",
-  "description": "Thorix i18n (Internationalization) Demo",
+  "description": "Tacit-DOM i18n (Internationalization) Demo",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,20 +11,20 @@
     "extract": "cd ../../ && npm run i18n:extract"
   },
   "dependencies": {
-    "thorix": "file:../../"
+    "tacit-dom": "file:../../"
   },
   "devDependencies": {
     "typescript": "^5.0.0",
     "vite": "^7.1.1"
   },
   "keywords": [
-    "thorix",
+    "tacit-dom",
     "i18n",
     "internationalization",
     "reactive",
     "signals",
     "demo"
   ],
-  "author": "Thorix Team",
+  "author": "Tacit-DOM Team",
   "license": "MIT"
 }

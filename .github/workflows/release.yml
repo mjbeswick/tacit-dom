@@ -54,13 +54,13 @@ jobs:
             ## Installation
 
             ```bash
-            npm install thorix
+            npm install tacit-dom
             ```
 
             ## Usage
 
             ```typescript
-            import { signal, computed, div, render } from 'thorix';
+            import { signal, computed, div, render } from 'tacit-dom';
 
             const count = signal(0);
             const double = computed(() => count.get() * 2);

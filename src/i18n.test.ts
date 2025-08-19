@@ -7,7 +7,7 @@ describe('i18n', () => {
   beforeEach(() => {
     const translations = {
       en: {
-        welcome: 'Welcome to Thorix!',
+        welcome: 'Welcome to Tacit-DOM!',
         hello: 'Hello, {name}!',
         items: 'You have {count} items',
         'items.one': 'You have 1 item',
@@ -16,7 +16,7 @@ describe('i18n', () => {
         'number.format': 'The number is {number}',
       },
       es: {
-        welcome: '¡Bienvenido a Thorix!',
+        welcome: '¡Bienvenido a Tacit-DOM!',
         hello: '¡Hola, {name}!',
         items: 'Tienes {count} elementos',
         'items.one': 'Tienes 1 elemento',
@@ -63,7 +63,7 @@ describe('i18n', () => {
   describe('t function', () => {
     it('should translate basic keys', () => {
       const translation = t('welcome');
-      expect(translation.get()).toBe('Welcome to Thorix!');
+      expect(translation.get()).toBe('Welcome to Tacit-DOM!');
     });
 
     it('should use default message when translation is missing', () => {
@@ -78,10 +78,10 @@ describe('i18n', () => {
 
     it('should update when locale changes', () => {
       const translation = t('welcome');
-      expect(translation.get()).toBe('Welcome to Thorix!');
+      expect(translation.get()).toBe('Welcome to Tacit-DOM!');
 
       i18n.setLocale('es');
-      expect(translation.get()).toBe('¡Bienvenido a Thorix!');
+      expect(translation.get()).toBe('¡Bienvenido a Tacit-DOM!');
     });
 
     it('should fallback to fallback locale when translation is missing', () => {
@@ -173,12 +173,12 @@ describe('i18n', () => {
       const welcome = t('welcome');
       const hello = t('hello', 'Hello, {name}!', { name: 'World' });
 
-      expect(welcome.get()).toBe('Welcome to Thorix!');
+      expect(welcome.get()).toBe('Welcome to Tacit-DOM!');
       expect(hello.get()).toBe('Hello, World!');
 
       i18n.setLocale('es');
 
-      expect(welcome.get()).toBe('¡Bienvenido a Thorix!');
+      expect(welcome.get()).toBe('¡Bienvenido a Tacit-DOM!');
       expect(hello.get()).toBe('¡Hola, World!');
     });
   });

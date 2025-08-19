@@ -2,14 +2,14 @@
 
 ## Overview
 
-The Thorix library provides a reactive signal system that allows you to create reactive state and automatically update the DOM when that state changes.
+The Tacit-DOM library provides a reactive signal system that allows you to create reactive state and automatically update the DOM when that state changes.
 
 ## Basic Signals
 
 ### Creating Signals
 
 ```typescript
-import { signal } from 'thorix';
+import { signal } from 'tacit-dom';
 
 // Create a signal with an initial value
 const count = signal(0);
@@ -108,7 +108,7 @@ console.log(count.pending); // false
 Computed signals automatically update when their dependencies change.
 
 ```typescript
-import { computed } from 'thorix';
+import { computed } from 'tacit-dom';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
@@ -128,7 +128,7 @@ console.log(fullName.get()); // "Jane Doe"
 Effects run side effects when their dependencies change.
 
 ```typescript
-import { effect } from 'thorix';
+import { effect } from 'tacit-dom';
 
 const count = signal(0);
 
@@ -144,7 +144,7 @@ count.set(5); // Logs: "Count is now: 5"
 The `mount` function provides a convenient way to set up resources when a component first mounts and automatically clean them up when the component unmounts.
 
 ```typescript
-import { mount } from 'thorix';
+import { mount } from 'tacit-dom';
 
 function TimerComponent() {
   const count = signal(0);
@@ -304,7 +304,7 @@ const app = () => {
 Use the `batch` function to group multiple signal updates together.
 
 ```typescript
-import { batch } from 'thorix';
+import { batch } from 'tacit-dom';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
@@ -321,7 +321,7 @@ batch(() => {
 Enable debug mode to see effect execution logs.
 
 ```typescript
-import { setDebugMode } from 'thorix';
+import { setDebugMode } from 'tacit-dom';
 
 setDebugMode(true);
 ```
@@ -338,7 +338,7 @@ import {
   computed,
   effect,
   render,
-} from 'thorix';
+} from 'tacit-dom';
 
 const app = () => {
   const count = signal(0, 'count');

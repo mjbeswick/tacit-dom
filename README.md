@@ -1,6 +1,8 @@
 <div align="center">
 
-![Thorix Banner](docs/images/thorix_banner.svg)
+# 🎯 Tacit-DOM
+
+> **Implicit. Reactive. Powerful.**
 
 > A React-like library with reactive signals and computed values for building dynamic web applications—without the need for JSX.
 
@@ -16,10 +18,10 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 
 </div>
 
-[![NPM Version](https://img.shields.io/npm/v/thorix.svg)](https://www.npmjs.com/package/thorix)
-[![License](https://img.shields.io/npm/l/thorix.svg)](https://github.com/mjbeswick/thorix/blob/main/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/tacit-dom.svg)](https://www.npmjs.com/package/tacit-dom)
+[![License](https://img.shields.io/npm/l/tacit-dom.svg)](https://github.com/mjbeswick/tacit-dom/blob/main/LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/mjbeswick/thorix/test-examples.yml?branch=main)](https://github.com/mjbeswick/thorix/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/mjbeswick/tacit-dom/test-examples.yml?branch=main)](https://github.com/mjbeswick/tacit-dom/actions)
 
 </div>
 
@@ -58,11 +60,11 @@ If you want something stable for production, this is not it (yet).
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
 - **🌍 i18n Support**: Built-in internationalization with reactive translations
 
-## 🚀 Why Thorix?
+## 🚀 Why Tacit-DOM?
 
-React has transformed web development, making it straightforward to build complex, interactive UIs with reusable components. Its approach to rendering and UI composition has become the industry standard. However, **state management in React has long been a source of frustration**. Whether it's prop drilling, context, Redux, hooks, or ongoing debates about the "best" way to handle state, managing state in React often feels unnecessarily complicated. Thorix is designed to change that—offering simple, reactive, and intuitive state management, so you can keep your UI in sync without the hassle of hooks or boilerplate.
+React has transformed web development, making it straightforward to build complex, interactive UIs with reusable components. Its approach to rendering and UI composition has become the industry standard. However, **state management in React has long been a source of frustration**. Whether it's prop drilling, context, Redux, hooks, or ongoing debates about the "best" way to handle state, managing state in React often feels unnecessarily complicated. Tacit-DOM is designed to change that—offering simple, reactive, and intuitive state management, so you can keep your UI in sync without the hassle of hooks or boilerplate.
 
-React appears to have reached its peak. Meaningful progress likely requires a different foundation—not more layers on the same model. Recent releases skew toward additive features and ergonomic tweaks, while core pain points remain: state complexity, re-render churn, and mental overhead. Thorix explores a simpler, signal-first approach that addresses those fundamentals directly.
+React appears to have reached its peak. Meaningful progress likely requires a different foundation—not more layers on the same model. Recent releases skew toward additive features and ergonomic tweaks, while core pain points remain: state complexity, re-render churn, and mental overhead. Tacit-DOM explores a simpler, signal-first approach that addresses those fundamentals directly.
 
 ### The React Reality Check 🤔
 
@@ -103,9 +105,9 @@ Time to address the elephant in the room: **defaulting to React by habit**.
 
 React is ubiquitous—in job postings, tutorials, bootcamps, and portfolios. That ubiquity can make it the default, but the default isn't always the right tool for the job.
 
-Sometimes a sledgehammer (React) is perfect; sometimes a regular hammer (Thorix) is exactly right. 🛠️
+Sometimes a sledgehammer (React) is perfect; sometimes a regular hammer (Tacit-DOM) is exactly right. 🛠️
 
-**Thorix is for developers who:**
+**Tacit-DOM is for developers who:**
 
 - Want to build reactive UIs without the React complexity
 - Prefer direct DOM manipulation over virtual DOM abstraction
@@ -113,7 +115,7 @@ Sometimes a sledgehammer (React) is perfect; sometimes a regular hammer (Thorix)
 - Don't want to learn another framework's quirks and gotchas
 - Believe that sometimes less is more
 
-Remember: **The best tool is the one that gets the job done with the least amount of complexity.** Sometimes that's React, and sometimes it's Thorix. 🤷‍♂️
+Remember: **The best tool is the one that gets the job done with the least amount of complexity.** Sometimes that's React, and sometimes it's Tacit-DOM. 🤷‍♂️
 
 ### The Hook Horror Show 🎭
 
@@ -144,10 +146,10 @@ useEffect(() => {
 }, [dependency1, dependency2, dependency3, dependency4]); // Wait, what was I doing again?
 ```
 
-**vs Thorix signals:**
+**vs Tacit-DOM signals:**
 
 ```typescript
-// Thorix way - just update the signal
+// Tacit-DOM way - just update the signal
 const timer = signal(0);
 
 setInterval(() => {
@@ -173,7 +175,7 @@ With React hooks, you need to remember:
 - ✅ Make sure you're not causing infinite re-renders
 - ✅ Remember that useEffect cleanup runs before the next effect
 
-**With Thorix signals:**
+**With Tacit-DOM signals:**
 
 - ✅ Just use the signal
 - ✅ That's it
@@ -192,10 +194,10 @@ const [user, setUser] = useState({ name: 'John' });
 // The answer: YES, because React re-renders the entire component!
 ```
 
-**vs Thorix:**
+**vs Tacit-DOM:**
 
 ```typescript
-// Thorix - only what depends on the signal updates
+// Tacit-DOM - only what depends on the signal updates
 const count = signal(0);
 const user = signal({ name: 'John' });
 
@@ -229,10 +231,10 @@ const MyProvider = ({ children }) => {
 // Or Redux, or Zustand, or Recoil, or...
 ```
 
-**vs Thorix:**
+**vs Tacit-DOM:**
 
 ```typescript
-// Thorix - just create a signal anywhere
+// Tacit-DOM - just create a signal anywhere
 const count = signal(0);
 const user = signal({ name: 'John' });
 
@@ -245,7 +247,7 @@ const user = signal({ name: 'John' });
 ## 📦 Installation
 
 ```bash
-npm install thorix
+npm install tacit-dom
 ```
 
 ## 🚀 Quick Start
@@ -256,12 +258,12 @@ _No virtual DOM, no reconciliation, no provider hell - just pure, simple reactiv
 
 ## 🧩 Components
 
-Thorix provides a simple and intuitive component system using the `component` function. Components automatically re-render when their dependencies change, and they support TypeScript props for type safety.
+Tacit-DOM provides a simple and intuitive component system using the `component` function. Components automatically re-render when their dependencies change, and they support TypeScript props for type safety.
 
 ### Basic Component
 
 ```typescript
-import { component, div, h1, p, button, signal, render } from 'thorix';
+import { component, div, h1, p, button, signal, render } from 'tacit-dom';
 
 const Counter = component(() => {
   const count = signal(0);
@@ -337,7 +339,7 @@ import {
   p,
   button,
   render,
-} from 'thorix';
+} from 'tacit-dom';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
@@ -399,11 +401,11 @@ For development setup, building, testing, and project structure, see [DEVELOPMEN
 
 ## 📚 Documentation
 
-Thorix provides comprehensive documentation covering all aspects of the library:
+Tacit-DOM provides comprehensive documentation covering all aspects of the library:
 
 ### Core Concepts
 
-- **[Signals Guide](docs/SIGNALS.md)**: Learn about reactive signals, the foundation of Thorix
+- **[Signals Guide](docs/SIGNALS.md)**: Learn about reactive signals, the foundation of Tacit-DOM
 - **[Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and common patterns
 - **[Signal Internals](docs/SIGNAL_INTERNALS.md)**: Technical implementation details
 
@@ -415,13 +417,13 @@ Thorix provides comprehensive documentation covering all aspects of the library:
 
 #### Component Naming Convention
 
-Thorix uses a clean, intuitive naming convention:
+Tacit-DOM uses a clean, intuitive naming convention:
 
 - **`component<P>`** - Function to create reactive components (alias for `createReactiveComponent`)
 - **`Component<P>`** - Type for reactive components with props
 
 ```typescript
-import { component, Component } from 'thorix';
+import { component, Component } from 'tacit-dom';
 
 // Component without props
 const SimpleCounter = component(() => {
@@ -499,7 +501,7 @@ render(Counter(), document.getElementById('app'));
 All HTML elements are available as factory functions:
 
 ```typescript
-import { div, h1, p, button, input, span } from 'thorix';
+import { div, h1, p, button, input, span } from 'tacit-dom';
 
 const element = div(
   { className: 'container' },
@@ -511,7 +513,7 @@ const element = div(
 
 ## 🎯 Examples
 
-The `examples/` directory contains comprehensive examples demonstrating Thorix features:
+The `examples/` directory contains comprehensive examples demonstrating Tacit-DOM features:
 
 ### Available Examples
 
@@ -525,7 +527,7 @@ The `examples/` directory contains comprehensive examples demonstrating Thorix f
 
 ### Example Features
 
-Each example demonstrates different aspects of Thorix:
+Each example demonstrates different aspects of Tacit-DOM:
 
 - **Reactive Signals**: Global state management without providers or context
 - **Computed Values**: Automatic dependency tracking and derived state

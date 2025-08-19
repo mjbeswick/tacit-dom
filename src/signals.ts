@@ -1,5 +1,5 @@
 /**
- * @fileoverview Thorix Signals - A lightweight, reactive state management system
+ * @fileoverview Tacit-DOM Signals - A lightweight, reactive state management system
  *
  * This module provides a complete reactive programming model with:
  * - Signals: Mutable reactive values that automatically track dependencies
@@ -19,7 +19,7 @@
  *
  * @example
  * ```typescript
- * import { signal, computed, effect, batch } from 'thorix';
+ * import { signal, computed, effect, batch } from 'tacit-dom';
  *
  * // Create reactive state
  * const count = signal(0);
@@ -54,7 +54,7 @@ type Subscriber = () => void | Promise<void>;
 
 /**
  * A reactive signal that holds a value and automatically notifies subscribers when it changes.
- * Signals are the foundation of Thorix's reactivity system.
+ * Signals are the foundation of Tacit-DOM's reactivity system.
  *
  * @template T - The type of value stored in the signal
  *
@@ -333,13 +333,13 @@ const DEFAULT_MAX_RUNS = 100;
  * @example
  * ```typescript
  * const count = signal(0);
- * const id = count.toString(); // Returns "__THORIX_RX__:1__"
+ * const id = count.toString(); // Returns "__TACIT_DOM_RX__:1__"
  *
  * // In DOM templates, this ID can be used to bind the reactive value
  * const element = div(`Count: ${count}`); // Automatically reactive
  * ```
  */
-const REACTIVE_MARKER_PREFIX = '__THORIX_RX__:';
+const REACTIVE_MARKER_PREFIX = '__TACIT_DOM_RX__:';
 
 /**
  * Suffix used for reactive instance IDs in template string interpolation.
@@ -348,7 +348,7 @@ const REACTIVE_MARKER_PREFIX = '__THORIX_RX__:';
  * @example
  * ```typescript
  * const count = signal(0);
- * const id = count.toString(); // Returns "__THORIX_RX__:1__"
+ * const id = count.toString(); // Returns "__TACIT_DOM_RX__:1__"
  *
  * // In DOM templates, this ID can be used to bind the reactive value
  * const element = div(`Count: ${count}`); // Automatically reactive
@@ -375,8 +375,8 @@ let nextReactiveId = 1;
  * const id = count.toString(); // Internally calls ensureReactiveId
  *
  * // The ID is stable and unique
- * console.log(id); // "__THORIX_RX__:1__"
- * console.log(count.toString()); // Same ID: "__THORIX_RX__:1__"
+ * console.log(id); // "__TACIT_DOM_RX__:1__"
+ * console.log(count.toString()); // Same ID: "__TACIT_DOM_RX__:1__"
  * ```
  */
 function ensureReactiveId(instance: object, register: () => void): string {
@@ -399,7 +399,7 @@ function ensureReactiveId(instance: object, register: () => void): string {
  * @example
  * ```typescript
  * const count = signal(0);
- * const id = count.toString(); // Returns something like "__THORIX_RX__:1__"
+ * const id = count.toString(); // Returns something like "__TACIT_DOM_RX__:1__"
  *
  * const retrieved = getReactiveById(id);
  * console.log(retrieved === count); // true
@@ -462,7 +462,7 @@ function setDebugMode(enabled: boolean) {
 
 /**
  * Runs a reactive effect that automatically re-executes when its dependencies change.
- * Effects are the primary way to create side effects in Thorix applications.
+ * Effects are the primary way to create side effects in Tacit-DOM applications.
  *
  * @param fn - Function to execute that can access reactive values
  * @param options - Optional configuration for the effect
@@ -530,7 +530,7 @@ function setDebugMode(enabled: boolean) {
  * });
  *
  * // Update message and DOM updates automatically
- * message.set('Hello Thorix!');
+ * message.set('Hello Tacit-DOM!');
  * ```
  *
  * @example
@@ -726,7 +726,7 @@ class ReactiveEffect implements EffectContext {
 
 /**
  * Creates a reactive signal with an initial value.
- * Signals are the foundation of Thorix's reactivity system and automatically track dependencies
+ * Signals are the foundation of Tacit-DOM's reactivity system and automatically track dependencies
  * when accessed within effects or computed values.
  *
  * @template T - The type of value to store in the signal
@@ -840,7 +840,7 @@ class ReactiveEffect implements EffectContext {
  * isVisible.set(!isVisible.get());
  *
  * // Modify array
- * tags.set([...tags.get(), 'thorix']);
+ * tags.set([...tags.get(), 'tacit-dom']);
  * ```
  */
 function signal<T>(initialValue: T): Signal<T> {
@@ -1030,7 +1030,7 @@ function createSignal<T>(initialValue: T): Signal<T> {
  * ```typescript
  * // Computed values for derived state
  * const todos = signal([
- *   { id: 1, text: 'Learn Thorix', completed: false },
+ *   { id: 1, text: 'Learn Tacit-DOM', completed: false },
  *   { id: 2, text: 'Build app', completed: true },
  *   { id: 3, text: 'Deploy', completed: false }
  * ]);

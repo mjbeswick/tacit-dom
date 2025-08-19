@@ -1,6 +1,6 @@
 # Signals Example
 
-This example demonstrates the Thorix signal system, including the new **preserved signals** feature.
+This example demonstrates the Tacit-DOM signal system, including the new **preserved signals** feature.
 
 ## What This Example Shows
 

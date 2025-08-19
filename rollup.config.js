@@ -8,7 +8,7 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/thorix.esm.js',
+      file: 'dist/tacit-dom.esm.js',
       format: 'es',
       sourcemap: false,
     },
@@ -28,9 +28,9 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/thorix.umd.js',
+      file: 'dist/tacit-dom.umd.js',
       format: 'umd',
-      name: 'Thorix',
+      name: 'TacitDom',
       sourcemap: false,
     },
     plugins: [
@@ -47,7 +47,7 @@ export default [
   {
     input: 'src/index.ts',
     output: {
-      file: 'dist/thorix.cjs.js',
+      file: 'dist/tacit-dom.cjs.js',
       format: 'cjs',
       sourcemap: false,
     },

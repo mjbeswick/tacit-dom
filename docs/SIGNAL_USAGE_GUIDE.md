@@ -1,6 +1,6 @@
-# Thorix Signal Usage Guide
+# Tacit-DOM Signal Usage Guide
 
-This guide explains how to properly use signals in Thorix to create reactive user interfaces.
+This guide explains how to properly use signals in Tacit-DOM to create reactive user interfaces.
 
 ## The Problem
 
@@ -17,10 +17,10 @@ span(`Count: ${countSignal.get()}`);
 
 ## ✅ The Solution: Use `reactiveText`
 
-Thorix provides a `reactiveText` function specifically for this purpose:
+Tacit-DOM provides a `reactiveText` function specifically for this purpose:
 
 ```typescript
-import { reactiveText, signal, div } from 'thorix';
+import { reactiveText, signal, div } from 'tacit-dom';
 
 const count = signal(0);
 
@@ -129,7 +129,7 @@ function UserInfo() {
 
 ```typescript
 function TodoList() {
-  const todos = signal(['Learn Thorix', 'Build app', 'Deploy']);
+  const todos = signal(['Learn Tacit-DOM', 'Build app', 'Deploy']);
 
   return div(
     reactiveText('You have {} todos', todos),
@@ -183,4 +183,4 @@ reactiveText('Hello {}, you are {} years old', nameSignal, ageSignal);
 - ✅ **Also good**: Direct signal children and computed values
 - 🎯 **Best practice**: Use `reactiveText` for most text interpolation needs
 
-The `reactiveText` function is the recommended way to create reactive text content in Thorix. It's simple, efficient, and designed specifically for this purpose.
+The `reactiveText` function is the recommended way to create reactive text content in Tacit-DOM. It's simple, efficient, and designed specifically for this purpose.

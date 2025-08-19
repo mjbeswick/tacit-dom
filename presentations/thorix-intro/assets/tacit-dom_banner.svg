@@ -60,7 +60,7 @@
     <path d="M0 30 Q10 20 20 30 T40 30 T60 30 T80 30" stroke="url(#logoGradient)" stroke-width="3" fill="none" opacity="0.9">
       <animate attributeName="d" values="M0 30 Q10 20 20 30 T40 30 T60 30 T80 30;M0 30 Q10 40 20 30 T40 30 T60 30 T80 30;M0 30 Q10 20 20 30 T40 30 T60 30 T80 30" dur="2s" repeatCount="indefinite"/>
     </path>
-
+    
     <!-- Signal nodes -->
     <circle cx="0" cy="30" r="3" fill="#64ffda">
       <animate attributeName="r" values="2;4;2" dur="1.5s" repeatCount="indefinite"/>
@@ -77,12 +77,12 @@
     <circle cx="80" cy="30" r="3" fill="#64ffda">
       <animate attributeName="r" values="2;4;2" dur="2.2s" repeatCount="indefinite"/>
     </circle>
-
+    
     <!-- Reactive flow arrows -->
     <path d="M85 25 L95 30 L85 35" stroke="#64ffda" stroke-width="2" fill="none" opacity="0.8">
       <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/>
     </path>
-
+    
     <!-- Data flow lines -->
     <line x1="0" y1="45" x2="80" y2="45" stroke="#1de9b6" stroke-width="1" opacity="0.6">
       <animate attributeName="stroke-dasharray" values="0,80;80,0" dur="3s" repeatCount="indefinite"/>

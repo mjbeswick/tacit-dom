@@ -1,6 +1,6 @@
-# Thorix Inline i18n Demo
+# Tacit-DOM Inline i18n Demo
 
-This demo showcases the inline i18n implementation in Thorix, using static JSON imports so translations are bundled with the app (no runtime fetching required).
+This demo showcases the inline i18n implementation in Tacit-DOM, using static JSON imports so translations are bundled with the app (no runtime fetching required).
 
 ## Features
 
@@ -16,10 +16,10 @@ This demo showcases the inline i18n implementation in Thorix, using static JSON 
 ### Basic Translation
 
 ```typescript
-import { t } from 'thorix';
+import { t } from 'tacit-dom';
 
 // Simple translation
-t('welcome.title', 'Welcome to Thorix!');
+t('welcome.title', 'Welcome to Tacit-DOM!');
 
 // Translation with tokens
 t('greeting', 'Hello, {name}!', { name: userName });
@@ -28,7 +28,7 @@ t('greeting', 'Hello, {name}!', { name: userName });
 ### Pluralization
 
 ```typescript
-import { n } from 'thorix';
+import { n } from 'tacit-dom';
 
 n('counter.items', count, 'You have {count} items', { count });
 ```
@@ -36,7 +36,7 @@ n('counter.items', count, 'You have {count} items', { count });
 ### Namespaces
 
 ```typescript
-import { useNamespace } from 'thorix';
+import { useNamespace } from 'tacit-dom';
 
 const userNamespace = useNamespace('user');
 userNamespace.t('title', 'User Profile');

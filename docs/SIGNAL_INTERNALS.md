@@ -1,6 +1,6 @@
-# Signal Internals: Deep Dive into Thorix's Reactive System
+# Signal Internals: Deep Dive into Tacit-DOM's Reactive System
 
-This document provides a comprehensive technical explanation of how Thorix's signal system works internally. It covers the implementation details, data structures, algorithms, and design decisions that power the reactive programming model.
+This document provides a comprehensive technical explanation of how Tacit-DOM's signal system works internally. It covers the implementation details, data structures, algorithms, and design decisions that power the reactive programming model.
 
 ## Table of Contents
 
@@ -535,7 +535,7 @@ batch(() => {
 
 ### Component Context Management
 
-Thorix preserves signals between component re-renders using a component instance system:
+Tacit-DOM preserves signals between component re-renders using a component instance system:
 
 ```typescript
 // Set component context before rendering
@@ -589,10 +589,10 @@ function signal<T>(initialValue: T, key?: string): Signal<T> {
 
 ### Reactive Marker System
 
-Thorix supports reactive template strings through a marker system:
+Tacit-DOM supports reactive template strings through a marker system:
 
 ```typescript
-const REACTIVE_MARKER_PREFIX = '__THORIX_RX__:';
+const REACTIVE_MARKER_PREFIX = '__TACIT_DOM_RX__:';
 const REACTIVE_MARKER_SUFFIX = '__';
 
 function ensureReactiveId(instance: object, register: () => void): string {
@@ -626,7 +626,7 @@ toString: () => {
 
 ```typescript
 const count = signal(0);
-const message = `Count: ${count}`; // "Count: __THORIX_RX__:1__"
+const message = `Count: ${count}`; // "Count: __TACIT_DOM_RX__:1__"
 
 // DOM utilities can parse this and bind reactively
 // When count changes, the DOM automatically updates
@@ -723,7 +723,7 @@ unsubscribe();
 
 ## Conclusion
 
-Thorix's signal system provides a robust, performant reactive programming model through careful attention to:
+Tacit-DOM's signal system provides a robust, performant reactive programming model through careful attention to:
 
 - **Efficient Data Structures**: Sets and WeakMaps for optimal performance
 - **Smart Dependency Tracking**: Automatic dependency collection and cleanup

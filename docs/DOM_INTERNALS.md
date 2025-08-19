@@ -2,7 +2,7 @@
 
 ## Overview
 
-The DOM module in Thorix provides a comprehensive system for creating HTML elements with reactive properties, handling event listeners, and managing reactive subscriptions. This document explains the internal workings of how DOM elements are created, how reactivity is implemented, and how the system prevents common issues like infinite loops.
+The DOM module in Tacit-DOM provides a comprehensive system for creating HTML elements with reactive properties, handling event listeners, and managing reactive subscriptions. This document explains the internal workings of how DOM elements are created, how reactivity is implemented, and how the system prevents common issues like infinite loops.
 
 ## Architecture Overview
 
@@ -251,7 +251,7 @@ if (isReactive(child)) {
 
 #### String Children with Reactive Markers
 
-Strings containing Thorix reactive markers are processed specially:
+Strings containing Tacit-DOM reactive markers are processed specially:
 
 ```typescript
 if (typeof child === 'string' && child.includes(REACTIVE_MARKER_PREFIX)) {
@@ -379,7 +379,7 @@ The `deepEqual` function performs deep equality checks for objects and arrays.
 
 ### 5. Template String Support
 
-Thorix provides a `template` function for creating reactive template strings:
+Tacit-DOM provides a `template` function for creating reactive template strings:
 
 ```typescript
 export function template(
@@ -615,7 +615,7 @@ The system detects and prevents infinite update loops with configurable limits.
 
 ## Integration with Signals
 
-The DOM system integrates tightly with Thorix's signal system:
+The DOM system integrates tightly with Tacit-DOM's signal system:
 
 1. **Automatic Subscription**: When a signal is used as a prop or child, the DOM automatically subscribes to changes
 2. **Signal Preservation**: Component instances preserve signal state across renders
@@ -624,7 +624,7 @@ The DOM system integrates tightly with Thorix's signal system:
 
 ## Conclusion
 
-The DOM module in Thorix provides a robust, performant system for creating reactive HTML elements. Its architecture ensures:
+The DOM module in Tacit-DOM provides a robust, performant system for creating reactive HTML elements. Its architecture ensures:
 
 - **Reliability**: Built-in safeguards against infinite loops and memory leaks
 - **Performance**: Efficient updates with change detection and batching

@@ -73,7 +73,7 @@ function App() {
             { className: 'col-lg-8 col-md-7 mb-3 mb-md-0' },
             h1(
               { className: 'display-4 mb-2' },
-              tInline('welcome.title', 'Welcome to Thorix!'),
+              tInline('welcome.title', 'Welcome to Tacit-DOM!'),
             ),
             p(
               { className: 'lead mb-0' },

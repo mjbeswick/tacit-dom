@@ -9,7 +9,7 @@ The `classNames` prop provides a flexible way to conditionally join CSS class na
 Instead of calling a function, you pass the class names directly to the `classNames` prop:
 
 ```typescript
-import { div, button } from 'thorix';
+import { div, button } from 'tacit-dom';
 
 // Simple string concatenation
 div({ classNames: ['foo', 'bar', 'baz'] }); // 'foo bar baz'
@@ -125,7 +125,7 @@ div({
 ### Dynamic Classes with Signals
 
 ```typescript
-import { signal, div } from 'thorix';
+import { signal, div } from 'tacit-dom';
 
 const isVisible = signal(true);
 const theme = signal('dark');
@@ -360,12 +360,12 @@ const Button = ({ variant, size, disabled, children }) => {
 };
 ```
 
-## Integration with Thorix
+## Integration with Tacit-DOM
 
-The `classNames` prop integrates seamlessly with Thorix's reactive system:
+The `classNames` prop integrates seamlessly with Tacit-DOM's reactive system:
 
 ```typescript
-import { signal, computed, div, button } from 'thorix';
+import { signal, computed, div, button } from 'tacit-dom';
 
 const app = () => {
   const isActive = signal(false);
@@ -391,7 +391,7 @@ const app = () => {
 
 ## CSS Modules Integration
 
-Thorix supports CSS Modules, and the `classNames` prop works perfectly with scoped class names:
+Tacit-DOM supports CSS Modules, and the `classNames` prop works perfectly with scoped class names:
 
 ### Basic CSS Modules Usage
 

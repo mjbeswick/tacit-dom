@@ -5,7 +5,7 @@ class: lead
 paginate: true
 ---
 
-### Thorix
+### Tacit-DOM
 
 React-like reactive UI without JSX, providers, or virtual DOM.
 
@@ -25,9 +25,9 @@ React is amazing, but its state model often adds complexity:
 
 ---
 
-### How Thorix Solves This
+### How Tacit-DOM Solves This
 
-Thorix eliminates these pain points:
+Tacit-DOM eliminates these pain points:
 
 - **Direct DOM Updates**: Signals drive updates without virtual DOM overhead
 - **Smart Dependencies**: Computed values track dependencies automatically
@@ -40,7 +40,7 @@ Thorix eliminates these pain points:
 ### Core Idea: Signals
 
 ```ts
-import { signal } from 'thorix';
+import { signal } from 'tacit-dom';
 
 const count = signal(0);
 count.get(); // 0
@@ -55,7 +55,7 @@ count.update((v) => v + 1);
 ### Derived State: Computed
 
 ```ts
-import { signal, computed } from 'thorix';
+import { signal, computed } from 'tacit-dom';
 
 const a = signal(2);
 const b = signal(3);
@@ -69,7 +69,7 @@ const sum = computed(() => a.get() + b.get());
 ### Side Effects: effect and batch
 
 ```ts
-import { signal, effect, batch } from 'thorix';
+import { signal, effect, batch } from 'tacit-dom';
 
 const n = signal(0);
 
@@ -88,7 +88,7 @@ batch(() => {
 ### Typed DOM creators (no JSX)
 
 ```ts
-import { div, p, button, render, signal, computed } from 'thorix';
+import { div, p, button, render, signal, computed } from 'tacit-dom';
 
 const App = () => {
   const count = signal(0, 'count');
@@ -126,7 +126,7 @@ cleanup(root); // Cleans subscriptions from elements inside root
 ### Dynamic attributes and classes
 
 ```ts
-import { div, button, signal, computed } from 'thorix';
+import { div, button, signal, computed } from 'tacit-dom';
 
 const isActive = signal(true);
 const size = signal<'sm' | 'lg'>('lg');
@@ -151,7 +151,7 @@ const Button = () =>
 ### Lists: createReactiveList
 
 ```ts
-import { createReactiveList, ul, li, button, signal } from 'thorix';
+import { createReactiveList, ul, li, button, signal } from 'tacit-dom';
 
 const items = signal(['Apple', 'Banana']);
 
@@ -169,7 +169,7 @@ const List = () =>
 ### Forms and inputs
 
 ```ts
-import { div, input, p, signal } from 'thorix';
+import { div, input, p, signal } from 'tacit-dom';
 
 const name = signal('');
 
@@ -191,7 +191,7 @@ const Form = () =>
 ### Preserving state between renders
 
 ```ts
-import { div, button, signal, render } from 'thorix';
+import { div, button, signal, render } from 'tacit-dom';
 
 const Counter = () => {
   // Keyed signal is preserved across re-renders of this component
@@ -209,7 +209,7 @@ const Counter = () => {
 ### Router with loaders and navigation
 
 ```ts
-import { createRouter, div, h1, p, nav, main, render } from 'thorix';
+import { createRouter, div, h1, p, nav, main, render } from 'tacit-dom';
 
 const Home = () => div(h1('Home'));
 const User = (data: { id: string; name: string }) =>
@@ -234,10 +234,10 @@ const router = createRouter({
 
 ### The `component` Function
 
-Thorix provides a `component` function that creates reactive components that automatically re-render when their dependencies change.
+Tacit-DOM provides a `component` function that creates reactive components that automatically re-render when their dependencies change.
 
 ```ts
-import { component, div, button, p, signal, computed } from 'thorix';
+import { component, div, button, p, signal, computed } from 'tacit-dom';
 
 const SimpleCounter = component(() => {
   const count = signal(0);
@@ -304,7 +304,7 @@ const App = component(() =>
 ### Async Signal Updates with Pending State
 
 ```ts
-import { component, div, button, p, span, signal, effect } from 'thorix';
+import { component, div, button, p, span, signal, effect } from 'tacit-dom';
 
 const UserProfile = component(() => {
   const user = signal<{ name: string; email: string } | null>(null);
@@ -376,7 +376,7 @@ const UserProfile = component(() => {
 ### Advanced Component Patterns
 
 ```ts
-import { component, div, button, p, signal, computed, effect } from 'thorix';
+import { component, div, button, p, signal, computed, effect } from 'tacit-dom';
 
 // Custom hook pattern for reusable logic
 const useCounter = (initialValue = 0) => {
@@ -432,7 +432,7 @@ const AdvancedCounter = component(() => {
 ```ts
 const TodoList = component(() => {
   const todos = signal([
-    { id: 1, text: 'Learn Thorix', completed: false },
+    { id: 1, text: 'Learn Tacit-DOM', completed: false },
     { id: 2, text: 'Build app', completed: false },
   ]);
 
@@ -497,12 +497,12 @@ render(App, document.getElementById('app')!);
 ### Try it
 
 - Explore `examples/` in this repo
-- Import from `thorix` and build components in pure TypeScript
+- Import from `tacit-dom` and build components in pure TypeScript
 - Render with `render(Component, container)`
 
 ---
 
-### 🎉 You're Ready to Thorix!
+### 🎉 You're Ready to Tacit-DOM!
 
 **Remember:**
 

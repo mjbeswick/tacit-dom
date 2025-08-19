@@ -1,4 +1,4 @@
-# Thorix API Reference
+# Tacit-DOM API Reference
 
 ## Core Concepts
 
@@ -7,7 +7,7 @@
 Signals are reactive values that automatically update when their dependencies change.
 
 ```typescript
-import { signal } from 'thorix';
+import { signal } from 'tacit-dom';
 
 const count = signal(0);
 console.log(count.get()); // 0
@@ -20,7 +20,7 @@ console.log(count.get()); // 5
 Computed values are derived from signals and automatically update when their dependencies change.
 
 ```typescript
-import { signal, computed } from 'thorix';
+import { signal, computed } from 'tacit-dom';
 
 const a = signal(1);
 const b = signal(2);
@@ -48,7 +48,7 @@ Creates a reactive component that automatically re-renders when its dependencies
 **Example:**
 
 ```typescript
-import { component, div, h1, p, button, signal, render } from 'thorix';
+import { component, div, h1, p, button, signal, render } from 'tacit-dom';
 
 // Component without props
 const Counter = component(() => {
@@ -109,7 +109,7 @@ type Component<P = void> = ((props?: P) => HTMLElement) & {
 **Usage:**
 
 ```typescript
-import type { Component } from 'thorix';
+import type { Component } from 'tacit-dom';
 
 // Component without props
 const SimpleComponent: Component = component(() => {
@@ -429,7 +429,7 @@ Conditionally joins CSS class names together. This is the preferred function nam
 **Example:**
 
 ```typescript
-import { classes } from 'thorix';
+import { classes } from 'tacit-dom';
 
 classes('foo', 'bar'); // 'foo bar'
 classes({ active: true, disabled: false }); // 'active'
@@ -455,7 +455,7 @@ All HTML elements are available as factory functions that return DOM elements.
 ### Basic Elements
 
 ```typescript
-import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'thorix';
+import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'tacit-dom';
 
 const element = div(
   { className: 'container' },
@@ -469,7 +469,15 @@ const element = div(
 ### Form Elements
 
 ```typescript
-import { form, input, textarea, select, option, label, button } from 'thorix';
+import {
+  form,
+  input,
+  textarea,
+  select,
+  option,
+  label,
+  button,
+} from 'tacit-dom';
 
 const formElement = form(
   { onsubmit: (e) => e.preventDefault() },
@@ -487,7 +495,7 @@ const formElement = form(
 ### List Elements
 
 ```typescript
-import { ul, ol, li } from 'thorix';
+import { ul, ol, li } from 'tacit-dom';
 
 const list = ul(li('Item 1'), li('Item 2'), li('Item 3'));
 ```
@@ -495,7 +503,7 @@ const list = ul(li('Item 1'), li('Item 2'), li('Item 3'));
 ### Table Elements
 
 ```typescript
-import { table, tr, td, th } from 'thorix';
+import { table, tr, td, th } from 'tacit-dom';
 
 const tableElement = table(
   tr(th('Header 1'), th('Header 2')),
@@ -506,7 +514,7 @@ const tableElement = table(
 ### Media Elements
 
 ```typescript
-import { img, video, audio, canvas } from 'thorix';
+import { img, video, audio, canvas } from 'tacit-dom';
 
 const mediaElements = div(
   img({ src: 'image.jpg', alt: 'Image' }),
@@ -519,7 +527,7 @@ const mediaElements = div(
 ### Semantic Elements
 
 ```typescript
-import { nav, header, footer, main, section, article, aside } from 'thorix';
+import { nav, header, footer, main, section, article, aside } from 'tacit-dom';
 
 const semanticLayout = div(
   header('Header'),
@@ -540,7 +548,7 @@ import {
   menuitem,
   pre,
   template,
-} from 'thorix';
+} from 'tacit-dom';
 
 const additionalElements = div(
   details(summary('Click to expand'), p('Hidden content')),
@@ -826,7 +834,7 @@ const reactiveElement = div(
 ## TypeScript Types
 
 ```typescript
-import { type Signal, type Computed, type ClassValue } from 'thorix';
+import { type Signal, type Computed, type ClassValue } from 'tacit-dom';
 
 // Signal types
 const count: Signal<number> = signal(0);
@@ -852,7 +860,7 @@ import type {
   InputProps,
   FormProps,
   // ... and many more
-} from 'thorix';
+} from 'tacit-dom';
 
 // These types include common attributes, event handlers, and element-specific attributes
 const button: ButtonProps = {

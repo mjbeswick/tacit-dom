@@ -1,7 +1,7 @@
 {
   "name": "strongly-typed-props-example",
   "version": "1.0.0",
-  "description": "Example demonstrating strongly typed props in thorix",
+  "description": "Example demonstrating strongly typed props in tacit-dom",
   "main": "main.ts",
   "scripts": {
     "dev": "vite",
@@ -13,6 +13,6 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
-    "thorix": "file:../../dist"
+    "tacit-dom": "file:../../dist"
   }
 }

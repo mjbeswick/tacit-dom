@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Run all Thorix examples
-echo "Starting all Thorix examples..."
+# Run all Tacit-DOM examples
+echo "Starting all Tacit-DOM examples..."
 
 # Function to run an example
 run_example() {

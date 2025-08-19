@@ -5,20 +5,20 @@ export default defineConfig({
   server: {
     port: 3001,
     open: true,
-    cors: true
+    cors: true,
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
     rollupOptions: {
       input: {
-        main: './index.html'
-      }
-    }
+        main: './index.html',
+      },
+    },
   },
   resolve: {
     alias: {
-      thorix: '../../src/index.ts'
-    }
-  }
+      'tacit-dom': '../../src/index.ts',
+    },
+  },
 });

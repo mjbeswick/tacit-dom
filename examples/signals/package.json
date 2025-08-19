@@ -1,7 +1,7 @@
 {
-  "name": "thorix-signals-example",
+  "name": "tacit-dom-signals-example",
   "version": "1.0.0",
-  "description": "Example demonstrating Thorix reactive signals",
+  "description": "Example demonstrating Tacit-DOM reactive signals",
   "type": "module",
   "scripts": {
     "dev": "vite",
