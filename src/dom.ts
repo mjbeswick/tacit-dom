@@ -906,10 +906,11 @@ function createElementFactory(tagName: string): ElementCreator {
     ...children: ElementChildren
   ): HTMLElement => {
     try {
-      // Handle case where first argument is a string (should be treated as children)
+      // Handle case where first argument should be treated as children
       if (
         typeof props === 'string' ||
         typeof props === 'number' ||
+        typeof props === 'boolean' ||
         props instanceof HTMLElement ||
         isReactive(props)
       ) {
@@ -933,7 +934,13 @@ function createElementFactory(tagName: string): ElementCreator {
           // Handle children prop specially
           if (Array.isArray(value)) {
             children = [...children, ...value];
-          } else {
+          } else if (
+            typeof value === 'string' ||
+            typeof value === 'number' ||
+            typeof value === 'boolean' ||
+            value instanceof HTMLElement ||
+            isReactive(value)
+          ) {
             children.push(value);
           }
         } else if (key.startsWith('on') && typeof value === 'function') {
