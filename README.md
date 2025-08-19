@@ -254,6 +254,79 @@ Ready to build reactive apps without the React complexity? Dive in! 🏊‍♂�
 
 _No virtual DOM, no reconciliation, no provider hell - just pure, simple reactivity!_
 
+## 🧩 Components
+
+Thorix provides a simple and intuitive component system using the `component` function. Components automatically re-render when their dependencies change, and they support TypeScript props for type safety.
+
+### Basic Component
+
+```typescript
+import { component, div, h1, p, button, signal, render } from 'thorix';
+
+const Counter = component(() => {
+  const count = signal(0);
+
+  return div(
+    { className: 'counter' },
+    h1('Counter'),
+    p(`Count: ${count.get()}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+});
+
+render(Counter, document.getElementById('app'));
+```
+
+### Component with Props
+
+```typescript
+const Greeting = component<{ name: string; greeting?: string }>((props) => {
+  return div(
+    { className: 'greeting' },
+    h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`),
+  );
+});
+
+// Usage
+render(
+  Greeting({ name: 'Alice', greeting: 'Welcome' }),
+  document.getElementById('greeting'),
+);
+```
+
+### Component with Local State
+
+```typescript
+const UserProfile = component(() => {
+  const user = signal({ name: 'John', email: 'john@example.com' });
+  const isEditing = signal(false);
+
+  const toggleEdit = () => isEditing.set(!isEditing.get());
+
+  return div(
+    { className: 'profile' },
+    h1('User Profile'),
+    isEditing.get()
+      ? div(
+          input({
+            value: user.get().name,
+            oninput: (e) => user.set({ ...user.get(), name: e.target.value }),
+          }),
+          input({
+            value: user.get().email,
+            oninput: (e) => user.set({ ...user.get(), email: e.target.value }),
+          }),
+          button({ onclick: toggleEdit }, 'Save'),
+        )
+      : div(
+          p(`Name: ${user.get().name}`),
+          p(`Email: ${user.get().email}`),
+          button({ onclick: toggleEdit }, 'Edit'),
+        ),
+  );
+});
+```
+
 ```typescript
 import {
   signal,
@@ -270,7 +343,7 @@ import {
 const count = signal(0);
 const user = signal({ name: 'John', email: 'john@example.com' });
 
-// Create a reactive component
+// Create a reactive component without props
 const Counter = component(() => {
   // Create a local computed value
   const doubleCount = computed(() => count.get() * 2);
@@ -284,10 +357,20 @@ const Counter = component(() => {
     p('User: ', user.get().name),
     button(
       {
-        onClick: () => count.set(count.get() + 1),
+        onclick: () => count.set(count.get() + 1),
       },
       'Increment',
     ),
+  );
+});
+
+// Create a component with typed props
+const Greeting = component<{ name: string; greeting?: string }>((props) => {
+  return div(
+    { className: 'greeting' },
+    h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`),
+    p('User: ', user.get().name),
+    p('Email: ', user.get().email),
   );
 });
 
@@ -301,8 +384,13 @@ const UserProfile = component(() => {
   );
 });
 
-// Render to DOM
+// Render components to DOM
 render(Counter, document.getElementById('app'));
+render(
+  Greeting({ name: 'Alice', greeting: 'Welcome' }),
+  document.getElementById('greeting'),
+);
+render(UserProfile, document.getElementById('profile'));
 ```
 
 ## 🛠️ Development

@@ -15,7 +15,7 @@ import {
   tInline,
   useLocaleInline,
   useNamespaceInline,
-} from 'thorix';
+} from '../../src/index';
 
 // Static JSON imports so translations are bundled
 import de from '../i18n-demo/locales/de.json';

@@ -33,6 +33,97 @@ console.log(sum.get()); // 7
 
 ## API Reference
 
+### `component<P = void>(componentFn: (props?: P) => HTMLElement): Component<P>`
+
+Creates a reactive component that automatically re-renders when its dependencies change. This is an alias for `createReactiveComponent`.
+
+**Parameters:**
+
+- `componentFn: (props?: P) => HTMLElement` - The component function that returns a DOM element
+
+**Returns:**
+
+- `Component<P>` - A reactive component function that can be used with render
+
+**Example:**
+
+```typescript
+import { component, div, h1, p, button, signal, render } from 'thorix';
+
+// Component without props
+const Counter = component(() => {
+  const count = signal(0);
+
+  return div(
+    { className: 'counter' },
+    h1('Counter'),
+    p(`Count: ${count.get()}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+});
+
+// Component with typed props
+const Greeting = component<{ name: string; greeting?: string }>((props) => {
+  return div(
+    { className: 'greeting' },
+    h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`),
+  );
+});
+
+// Usage
+render(Counter, document.getElementById('app'));
+render(
+  Greeting({ name: 'Alice', greeting: 'Welcome' }),
+  document.getElementById('greeting'),
+);
+```
+
+### `createReactiveComponent<P = void>(componentFn: (props?: P) => HTMLElement): Component<P>`
+
+The underlying function that creates reactive components. `component` is the preferred alias.
+
+**Parameters:**
+
+- `componentFn: (props?: P) => HTMLElement` - The component function that returns a DOM element
+
+**Returns:**
+
+- `Component<P>` - A reactive component function with additional internal methods
+
+**Internal Methods:**
+
+- `_setContainer(container: HTMLElement): void` - Sets the container for automatic re-rendering
+
+### `Component<P = void>`
+
+Type for reactive components with optional props.
+
+**Type Definition:**
+
+```typescript
+type Component<P = void> = ((props?: P) => HTMLElement) & {
+  _setContainer: (container: HTMLElement) => void;
+};
+```
+
+**Usage:**
+
+```typescript
+import type { Component } from 'thorix';
+
+// Component without props
+const SimpleComponent: Component = component(() => {
+  return div('Hello World');
+});
+
+// Component with typed props
+const UserComponent: Component<{ name: string; age: number }> = component(
+  (props) => {
+    return div(`Name: ${props?.name}, Age: ${props?.age}`);
+  },
+);
+```
+
 ### `signal<T>(initialValue: T, key?: string): Signal<T>`
 
 Creates a reactive signal with an initial value. When used inside components, signals can optionally preserve their state between renders by providing a unique key.

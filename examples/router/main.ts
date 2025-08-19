@@ -26,7 +26,7 @@ import {
   history,
   ul,
   li,
-} from 'thorix';
+} from '../../src/index';
 
 const app = () => {
   const handleBack = () => {

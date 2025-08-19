@@ -1,4 +1,13 @@
-import { signal, computed, div, button, span, h1, p, render } from 'thorix';
+import {
+  button,
+  computed,
+  div,
+  h1,
+  p,
+  render,
+  signal,
+  span,
+} from '../../src/index';
 
 // Create the debug app
 export const createDebugApp = () => {

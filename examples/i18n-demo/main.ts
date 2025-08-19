@@ -15,7 +15,7 @@ import {
   t,
   useLocale,
   useNamespace,
-} from 'thorix';
+} from '../../src/index';
 
 // Load translations from JSON files
 async function loadTranslations(): Promise<Record<string, any>> {
