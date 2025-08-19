@@ -294,6 +294,12 @@ function getDomAttributeName(propName: string): string {
   const specialCases: Record<string, string> = {
     className: 'class',
     htmlFor: 'for',
+    autoFocus: 'autofocus',
+    formAction: 'formaction',
+    formEnctype: 'formenctype',
+    formMethod: 'formmethod',
+    formNoValidate: 'formnovalidate',
+    formTarget: 'formtarget',
   };
 
   return specialCases[propName] || camelToKebab(propName);
@@ -931,9 +937,9 @@ function createElementFactory(tagName: string): ElementCreator {
       // Handle props
       Object.entries(props).forEach(([key, value]) => {
         if (key === 'children') {
-          // Handle children prop specially
+          // Handle children prop specially - prepend to maintain expected order
           if (Array.isArray(value)) {
-            children = [...children, ...value];
+            children = [...value, ...children];
           } else if (
             typeof value === 'string' ||
             typeof value === 'number' ||
@@ -941,7 +947,7 @@ function createElementFactory(tagName: string): ElementCreator {
             value instanceof HTMLElement ||
             isReactive(value)
           ) {
-            children.push(value);
+            children.unshift(value);
           }
         } else if (key.startsWith('on') && typeof value === 'function') {
           // Handle event listeners
@@ -1121,11 +1127,9 @@ function createElementFactory(tagName: string): ElementCreator {
                       key === 'checked' ||
                       key === 'readonly' ||
                       key === 'required' ||
-                      key === 'controls' ||
-                      key === 'autoplay' ||
-                      key === 'loop' ||
-                      key === 'muted' ||
-                      key === 'open'
+                      key === 'open' ||
+                      key === 'autoFocus' ||
+                      key === 'formNoValidate'
                     ) {
                       // Handle boolean attributes
                       const newValue = Boolean(attrValue);
@@ -1165,11 +1169,9 @@ function createElementFactory(tagName: string): ElementCreator {
                   key === 'checked' ||
                   key === 'readonly' ||
                   key === 'required' ||
-                  key === 'controls' ||
-                  key === 'autoplay' ||
-                  key === 'loop' ||
-                  key === 'muted' ||
-                  key === 'open'
+                  key === 'open' ||
+                  key === 'autoFocus' ||
+                  key === 'formNoValidate'
                 ) {
                   const domKey = getDomAttributeName(key);
                   if (initialValue) {
@@ -1185,10 +1187,32 @@ function createElementFactory(tagName: string): ElementCreator {
                   key === 'width' ||
                   key === 'height' ||
                   key === 'accessKey' ||
-                  key === 'contentEditable'
+                  key === 'contentEditable' ||
+                  key === 'loading' ||
+                  key === 'decoding' ||
+                  key === 'crossOrigin' ||
+                  key === 'useMap' ||
+                  key === 'draggable' ||
+                  key === 'spellcheck' ||
+                  key === 'isMap' ||
+                  key === 'controls' ||
+                  key === 'autoplay' ||
+                  key === 'loop' ||
+                  key === 'muted'
                 ) {
                   // Handle properties that need to be set directly
-                  if (key === 'accessKey' || key === 'contentEditable') {
+                  if (
+                    key === 'accessKey' ||
+                    key === 'contentEditable' ||
+                    key === 'loading' ||
+                    key === 'decoding' ||
+                    key === 'crossOrigin' ||
+                    key === 'useMap'
+                  ) {
+                    (element as any)[key] = String(value);
+                  } else if (key === 'spellcheck' || key === 'isMap' || key === 'controls' || key === 'autoplay' || key === 'loop' || key === 'muted') {
+                    (element as any)[key] = Boolean(value);
+                  } else if (key === 'draggable') {
                     (element as any)[key] = String(value);
                   } else {
                     (element as any)[key] = Number(value);
@@ -1216,11 +1240,9 @@ function createElementFactory(tagName: string): ElementCreator {
                 key === 'checked' ||
                 key === 'readonly' ||
                 key === 'required' ||
-                key === 'controls' ||
-                key === 'autoplay' ||
-                key === 'loop' ||
-                key === 'muted' ||
-                key === 'open'
+                key === 'open' ||
+                key === 'autoFocus' ||
+                key === 'formNoValidate'
               ) {
                 // Handle boolean attributes
                 const domKey = getDomAttributeName(key);
@@ -1236,10 +1258,40 @@ function createElementFactory(tagName: string): ElementCreator {
                 key === 'size' ||
                 key === 'width' ||
                 key === 'height' ||
-                key === 'accessKey'
+                key === 'accessKey' ||
+                key === 'contentEditable' ||
+                key === 'loading' ||
+                key === 'decoding' ||
+                key === 'crossOrigin' ||
+                key === 'useMap' ||
+                key === 'draggable' ||
+                key === 'spellcheck' ||
+                key === 'isMap' ||
+                key === 'controls' ||
+                key === 'autoplay' ||
+                key === 'loop' ||
+                key === 'muted'
               ) {
-                // Handle numeric properties that need to be set directly
-                if (key === 'accessKey') {
+                // Handle properties that need to be set directly
+                if (
+                  key === 'accessKey' ||
+                  key === 'contentEditable' ||
+                  key === 'loading' ||
+                  key === 'decoding' ||
+                  key === 'crossOrigin' ||
+                  key === 'useMap'
+                ) {
+                  (element as any)[key] = String(value);
+                } else if (
+                  key === 'spellcheck' ||
+                  key === 'isMap' ||
+                  key === 'controls' ||
+                  key === 'autoplay' ||
+                  key === 'loop' ||
+                  key === 'muted'
+                ) {
+                  (element as any)[key] = Boolean(value);
+                } else if (key === 'draggable') {
                   (element as any)[key] = String(value);
                 } else {
                   (element as any)[key] = Number(value);
@@ -1247,6 +1299,9 @@ function createElementFactory(tagName: string): ElementCreator {
               } else if (key === 'autoComplete') {
                 // Handle autocomplete specifically (camelCase to kebab-case)
                 element.setAttribute('autocomplete', String(value));
+              } else if (key === 'draggable') {
+                // Handle draggable as string property
+                (element as any)[key] = String(value);
               } else {
                 const attrName = getDomAttributeName(key);
                 element.setAttribute(attrName, String(value));

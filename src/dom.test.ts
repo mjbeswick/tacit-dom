@@ -422,7 +422,7 @@ describe('DOM Element Creation', () => {
       }) as HTMLVideoElement;
 
       expect(videoElement.src).toBe('http://localhost/video.mp4');
-      expect(videoElement.poster).toBe('poster.jpg');
+      expect(videoElement.poster).toBe('http://localhost/poster.jpg');
       expect(videoElement.preload).toBe('metadata');
       expect(videoElement.autoplay).toBe(true);
       expect(videoElement.loop).toBe(true);
