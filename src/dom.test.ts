@@ -1034,9 +1034,9 @@ describe('DOM Element Creation', () => {
     it('should handle boolean children', () => {
       const element = div(true, false, 'Text');
 
-      expect(element.textContent).toBe('truefalseText');
+      expect(element.textContent).toBe('trueText');
       expect(element.children.length).toBe(0);
-      expect(element.childNodes.length).toBe(3);
+      expect(element.childNodes.length).toBe(2);
     });
 
     it('should handle numeric children', () => {

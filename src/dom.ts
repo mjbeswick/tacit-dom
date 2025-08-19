@@ -1251,8 +1251,8 @@ function createElementFactory(tagName: string): ElementCreator {
 
       // Handle children
       children.forEach((child) => {
-        if (child === null || child === undefined) {
-          // Skip null/undefined children
+        if (child === null || child === undefined || child === false) {
+          // Skip null/undefined/false children
           return;
         } else if (isReactive(child)) {
           // Handle reactive children
