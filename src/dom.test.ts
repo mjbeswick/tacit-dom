@@ -289,7 +289,7 @@ describe('DOM Element Creation', () => {
       expect(element.accessKey).toBe('t');
       expect(element.contentEditable).toBe('true');
       expect(element.spellcheck).toBe(true);
-      expect(element.draggable).toBe('true');
+      expect(element.draggable).toBe(true);
     });
 
     it('should handle boolean attributes correctly', () => {

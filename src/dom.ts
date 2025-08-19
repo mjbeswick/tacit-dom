@@ -1207,13 +1207,19 @@ function createElementFactory(tagName: string): ElementCreator {
                     key === 'loading' ||
                     key === 'decoding' ||
                     key === 'crossOrigin' ||
-                    key === 'useMap'
+                    key === 'useMap' ||
+                    key === 'draggable'
                   ) {
                     (element as any)[key] = String(value);
-                  } else if (key === 'spellcheck' || key === 'isMap' || key === 'controls' || key === 'autoplay' || key === 'loop' || key === 'muted') {
+                  } else if (
+                    key === 'spellcheck' ||
+                    key === 'isMap' ||
+                    key === 'controls' ||
+                    key === 'autoplay' ||
+                    key === 'loop' ||
+                    key === 'muted'
+                  ) {
                     (element as any)[key] = Boolean(value);
-                  } else if (key === 'draggable') {
-                    (element as any)[key] = String(value);
                   } else {
                     (element as any)[key] = Number(value);
                   }
@@ -1279,7 +1285,8 @@ function createElementFactory(tagName: string): ElementCreator {
                   key === 'loading' ||
                   key === 'decoding' ||
                   key === 'crossOrigin' ||
-                  key === 'useMap'
+                  key === 'useMap' ||
+                  key === 'draggable'
                 ) {
                   (element as any)[key] = String(value);
                 } else if (
@@ -1297,9 +1304,6 @@ function createElementFactory(tagName: string): ElementCreator {
               } else if (key === 'autoComplete') {
                 // Handle autocomplete specifically (camelCase to kebab-case)
                 element.setAttribute('autocomplete', String(value));
-              } else if (key === 'draggable') {
-                // Handle draggable as string property
-                (element as any)[key] = String(value);
               } else {
                 const attrName = getDomAttributeName(key);
                 element.setAttribute(attrName, String(value));
