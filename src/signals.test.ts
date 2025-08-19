@@ -28,7 +28,7 @@ describe('Signals', () => {
       expect(s.get()).toBe(100);
     });
 
-    test('signal methods work correctly', () => {
+    test('signal methods work correctly', async () => {
       const s = signal(0);
 
       // get
@@ -39,7 +39,7 @@ describe('Signals', () => {
       expect(s.get()).toBe(10);
 
       // update
-      s.update((prev) => prev + 5);
+      await s.update((prev) => prev + 5);
       expect(s.get()).toBe(15);
 
       // subscribe
@@ -78,6 +78,112 @@ describe('Signals', () => {
 
       s.set(100); // Different value
       expect(updateCount).toBe(1);
+    });
+
+    test('signal update supports async callbacks', async () => {
+      const s = signal(0);
+
+      // Test sync callback
+      await s.update((prev) => prev + 5);
+      expect(s.get()).toBe(5);
+
+      // Test async callback
+      await s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return prev * 2;
+      });
+      expect(s.get()).toBe(10);
+
+      // Test async callback with Promise.resolve
+      await s.update(async (prev) => {
+        return Promise.resolve(prev + 3);
+      });
+      expect(s.get()).toBe(13);
+    });
+
+    test('signal pending property tracks update state', async () => {
+      const s = signal(0);
+
+      // Initially not pending
+      expect(s.pending).toBe(false);
+
+      // Start async update
+      const updatePromise = s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        return prev + 1;
+      });
+
+      // Should be pending during update
+      expect(s.pending).toBe(true);
+
+      // Wait for update to complete
+      await updatePromise;
+
+      // Should not be pending after update
+      expect(s.pending).toBe(false);
+      expect(s.get()).toBe(1);
+    });
+
+    test('signal pending property handles multiple concurrent updates', async () => {
+      const s = signal(0);
+
+      expect(s.pending).toBe(false);
+
+      // Start multiple concurrent updates
+      const update1 = s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return prev + 1;
+      });
+
+      const update2 = s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        return prev + 2;
+      });
+
+      // Should be pending during updates
+      expect(s.pending).toBe(true);
+
+      // Wait for both updates to complete
+      await Promise.all([update1, update2]);
+
+      // Should not be pending after all updates
+      expect(s.pending).toBe(false);
+      // Last update wins (race condition, but pending should work correctly)
+      expect(s.get()).toBeGreaterThan(0);
+    });
+
+    test('signal pending property is reactive and triggers effects', async () => {
+      const s = signal(0);
+      let effectRuns = 0;
+      let lastPendingState = false;
+
+      // Create an effect that tracks the pending state
+      effect(() => {
+        effectRuns++;
+        lastPendingState = s.pending;
+      });
+
+      // Initial state
+      expect(effectRuns).toBe(1);
+      expect(lastPendingState).toBe(false);
+
+      // Start async update
+      const updatePromise = s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        return prev + 1;
+      });
+
+      // Effect should have run again due to pending state change
+      expect(effectRuns).toBe(2);
+      expect(lastPendingState).toBe(true);
+
+      // Wait for update to complete
+      await updatePromise;
+
+      // Effect should have run again due to pending state change
+      expect(effectRuns).toBe(3);
+      expect(lastPendingState).toBe(false);
+      expect(s.get()).toBe(1);
     });
   });
 

@@ -28,7 +28,7 @@ count.set(5);
 console.log(count.get()); // 5
 
 // Update based on previous value
-count.update((prev) => prev + 1);
+await count.update((prev) => prev + 1);
 console.log(count.get()); // 6
 ```
 
@@ -43,6 +43,65 @@ const unsubscribe = count.subscribe(() => {
 // Later, unsubscribe
 unsubscribe();
 ```
+
+## Async Updates
+
+The `update` method supports both synchronous and asynchronous update functions. When using an async function, `update` returns a Promise that resolves when the update is complete.
+
+```typescript
+// Synchronous update
+await count.update((prev) => prev + 1);
+
+// Asynchronous update with API call
+await count.update(async (prev) => {
+  const response = await fetch('/api/increment', {
+    method: 'POST',
+    body: JSON.stringify({ value: prev }),
+  });
+  const data = await response.json();
+  return data.newValue;
+});
+
+// Asynchronous update with delay
+await count.update(async (prev) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return prev * 2;
+});
+```
+
+**Note**: Always use `await` when calling `update`, even for synchronous operations, as the method now returns a Promise.
+
+### Pending State
+
+Signals have a `pending` property that indicates whether any updates are currently in progress. This property is **reactive**, meaning it automatically triggers effects and component re-renders when the pending state changes. This is particularly useful for UI state management:
+
+```typescript
+const count = signal(0);
+
+// Check pending state
+console.log(count.pending); // false
+
+// Start async update
+const updatePromise = count.update(async (prev) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  return prev + 1;
+});
+
+console.log(count.pending); // true
+
+// Wait for update to complete
+await updatePromise;
+console.log(count.pending); // false
+```
+
+**Common use cases:**
+
+- Show loading spinners during updates
+- Disable buttons while operations are in progress
+- Display progress indicators
+- Prevent multiple simultaneous updates
+
+**Important**: The `pending` property is reactive, so any effects or components that read it will automatically re-run when the pending state changes. This means you can use it directly in your UI components without manually managing state updates.
 
 ## Computed Signals
 

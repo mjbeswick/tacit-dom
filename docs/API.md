@@ -83,13 +83,62 @@ Sets a new value for the signal and notifies all subscribers.
 
 - `value: T` - The new value
 
-#### `update(fn: (prev: T) => T): void`
+#### `update(fn: (prev: T) => T | Promise<T>): Promise<void>`
 
-Updates the signal value based on the previous value.
+Updates the signal value based on the previous value. Supports both synchronous and asynchronous update functions.
 
 **Parameters:**
 
-- `fn: (prev: T) => T` - Function that receives the previous value and returns the new value
+- `fn: (prev: T) => T | Promise<T>` - Function that receives the previous value and returns the new value or a Promise resolving to the new value
+
+**Returns:**
+
+- `Promise<void>` - Promise that resolves when the update is complete
+
+**Example:**
+
+```typescript
+// Synchronous update
+await count.update((prev) => prev + 1);
+
+// Asynchronous update
+await count.update(async (prev) => {
+  const result = await fetch('/api/increment', {
+    method: 'POST',
+    body: JSON.stringify({ value: prev }),
+  });
+  const data = await result.json();
+  return data.newValue;
+});
+```
+
+#### `pending: boolean`
+
+A read-only reactive property that indicates whether the signal has any pending updates. This property automatically triggers effects and component re-renders when the pending state changes, making it perfect for UI state management to show loading indicators or disable inputs during updates.
+
+**Example:**
+
+```typescript
+const count = signal(0);
+
+// Check if updates are in progress
+if (count.pending) {
+  console.log('Signal is being updated...');
+}
+
+// Use in UI components
+button(
+  {
+    disabled: count.pending,
+    onclick: () =>
+      count.update(async (prev) => {
+        await someAsyncOperation();
+        return prev + 1;
+      }),
+  },
+  count.pending ? 'Updating...' : 'Increment',
+);
+```
 
 #### `subscribe(callback: () => void): () => void`
 
@@ -112,7 +161,7 @@ const unsubscribe = count.subscribe(() => {
 });
 
 count.set(5); // Logs: "Count changed to: 5"
-count.update((prev) => prev + 1); // Logs: "Count changed to: 6"
+await count.update((prev) => prev + 1); // Logs: "Count changed to: 6"
 unsubscribe(); // Stop listening for changes
 ```
 
