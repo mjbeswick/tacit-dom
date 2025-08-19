@@ -255,14 +255,23 @@ Ready to build reactive apps without the React complexity? Dive in! 🏊‍♂�
 _No virtual DOM, no reconciliation, no provider hell - just pure, simple reactivity!_
 
 ```typescript
-import { signal, computed, div, h1, p, button, render } from 'thorix';
+import {
+  signal,
+  computed,
+  component,
+  div,
+  h1,
+  p,
+  button,
+  render,
+} from 'thorix';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
 const user = signal({ name: 'John', email: 'john@example.com' });
 
-// Create a component
-const Counter = () => {
+// Create a reactive component
+const Counter = component(() => {
   // Create a local computed value
   const doubleCount = computed(() => count.get() * 2);
 
@@ -280,20 +289,20 @@ const Counter = () => {
       'Increment',
     ),
   );
-};
+});
 
 // Another component can access the same global state
-const UserProfile = () => {
+const UserProfile = component(() => {
   return div(
     { className: 'profile' },
     h1('User Profile'),
     p('Name: ', user.get().name),
     p('Email: ', user.get().email),
   );
-};
+});
 
 // Render to DOM
-render(Counter(), document.getElementById('app'));
+render(Counter, document.getElementById('app'));
 ```
 
 ## 🛠️ Development
@@ -315,6 +324,31 @@ Thorix provides comprehensive documentation covering all aspects of the library:
 - **[DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
 - **[Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
 - **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management
+
+#### Component Naming Convention
+
+Thorix uses a clean, intuitive naming convention:
+
+- **`component<P>`** - Function to create reactive components (alias for `createReactiveComponent`)
+- **`Component<P>`** - Type for reactive components with props
+
+```typescript
+import { component, Component } from 'thorix';
+
+// Component without props
+const SimpleCounter = component(() => {
+  return div('Hello World');
+});
+
+// Component with typed props
+const Greeting: Component<{ name: string }> = component((props) => {
+  return div(`Hello, ${props?.name || 'World'}!`);
+});
+
+// Usage
+SimpleCounter();
+Greeting({ name: 'Alice' });
+```
 
 ### Advanced Features
 
@@ -399,6 +433,7 @@ The `examples/` directory contains comprehensive examples demonstrating Thorix f
 - **🔒 Strongly Typed Props** (`/strongly-typed-props`): Demonstrates TypeScript type safety for all HTML element props
 - **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
 - **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
+- **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
 
 ### Example Features
 

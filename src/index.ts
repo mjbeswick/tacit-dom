@@ -137,6 +137,7 @@ export type {
   OptionProps,
   ParagraphProps,
   PreProps,
+  Component,
   SectionProps,
   SelectProps,
   SpanProps,
@@ -146,5 +147,7 @@ export type {
   TableRowProps,
   TextareaProps,
   VideoProps,
-  ReactiveComponent,
 } from './dom';
+
+// Convenience aliases
+export { createReactiveComponent as component } from './dom';

@@ -1,4 +1,4 @@
-import { button, createReactiveComponent, div, render } from '../../src/index';
+import { button, component, div, render } from '../../src/index';
 import {
   computedC,
   signalA,
@@ -8,7 +8,28 @@ import {
   updateBAsync,
 } from './store';
 
-const app = createReactiveComponent(() => {
+// Example of a component with props
+const SignalDisplay = component<{
+  title: string;
+  value: number;
+  className: string;
+  onUpdate: () => void;
+}>((props) => {
+  return div(
+    { className: `mb-3 p-3 ${props?.className || ''} rounded` },
+    div({ className: 'fw-bold' }, props?.title || 'Signal'),
+    div({ className: 'fs-5' }, props?.value || 0),
+    button(
+      {
+        onclick: props?.onUpdate || (() => {}),
+        className: 'btn btn-sm btn-outline-secondary mt-2',
+      },
+      'Update',
+    ),
+  );
+});
+
+const app = component(() => {
   console.log(`app renders: ${signalA.get()} ${signalB.get()}`);
 
   const handleUpdateA = () => {
@@ -35,24 +56,23 @@ const app = createReactiveComponent(() => {
       { className: 'card p-4 shadow-sm' },
       div(
         { className: 'card-header text-center mb-3' },
-        div({ className: 'h4 mb-0' }, 'Signal Demo'),
+        div({ className: 'h4 mb-0' }, 'Signal Demo with Props'),
       ),
       div(
         { className: 'card-body' },
-        div(
-          { className: 'mb-3 p-3 bg-info bg-opacity-10 rounded' },
-          div({ className: 'fw-bold text-info' }, 'Signal A:'),
-          div({ className: 'fs-5' }, signalA.get()),
-        ),
-        div(
-          { className: 'mb-4 p-3 bg-success bg-opacity-10 rounded' },
-          div({ className: 'fw-bold text-success' }, 'Signal B:'),
-          div({ className: 'fs-5' }, signalB.get()),
-          div(
-            { className: 'fs-6 text-muted' },
-            signalB.pending ? '⏳ Updating...' : '✅ Ready',
-          ),
-        ),
+        // Using the new component with props
+        SignalDisplay({
+          title: 'Signal A',
+          value: signalA.get(),
+          className: 'bg-info bg-opacity-10',
+          onUpdate: handleUpdateA,
+        }),
+        SignalDisplay({
+          title: 'Signal B',
+          value: signalB.get(),
+          className: 'bg-success bg-opacity-10',
+          onUpdate: handleUpdateB,
+        }),
         div(
           { className: 'mb-4 p-3 bg-warning bg-opacity-10 rounded' },
           div({ className: 'fw-bold text-warning' }, 'Computed C:'),

@@ -1223,4 +1223,50 @@ describe('createReactiveComponent', () => {
       cleanup();
     });
   });
+
+  test('should create a reactive component with props', () => {
+    const { signal } = require('./signals');
+
+    let renderCount = 0;
+    const testSignal = signal(0);
+
+    type TestProps = {
+      title: string;
+      value: number;
+      onUpdate: () => void;
+    };
+
+    const TestComponent = createReactiveComponent<TestProps>((props) => {
+      renderCount++;
+      const value = testSignal.get();
+      return div(
+        { className: 'test-component' },
+        div({ className: 'title' }, props?.title || 'Default'),
+        div({ className: 'value' }, `Value: ${value}`),
+        button({ onclick: props?.onUpdate || (() => {}) }, 'Update'),
+      );
+    });
+
+    // Create a container
+    const container = document.createElement('div');
+
+    // Initial render with props
+    render(TestComponent, container, {
+      title: 'Test Title',
+      value: 0,
+      onUpdate: () => testSignal.set(42),
+    });
+    expect(renderCount).toBe(1);
+    expect(container.querySelector('.title')?.textContent).toBe('Test Title');
+    expect(container.querySelector('.value')?.textContent).toBe('Value: 0');
+
+    // Update signal - should trigger re-render
+    testSignal.set(42);
+
+    // Wait for next tick to allow effect to run
+    return new Promise((resolve) => setTimeout(resolve, 50)).then(() => {
+      expect(renderCount).toBe(3);
+      expect(container.querySelector('.value')?.textContent).toBe('Value: 42');
+    });
+  });
 });

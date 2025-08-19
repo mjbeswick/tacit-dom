@@ -1432,18 +1432,27 @@ function cleanupElement(element: HTMLElement): void {
  * subscriptions, and appends the new component. It's useful for
  * mounting components to the DOM.
  *
- * @param component - The HTML element to render
+ * @param component - The component function or HTML element to render
  * @param container - The container element to render into
+ * @param props - Optional props to pass to the component
  *
  * @example
  * ```typescript
+ * // Render without props
  * const app = div({ className: 'app' }, 'Hello World');
  * render(app, document.getElementById('root'));
+ *
+ * // Render with props
+ * const Greeting = createReactiveComponent<{ name: string }>((props) => {
+ *   return div(`Hello, ${props?.name || 'World'}!`);
+ * });
+ * render(Greeting, document.getElementById('root'), { name: 'Alice' });
  * ```
  */
-export function render(
-  component: (() => HTMLElement) | ReactiveComponent,
+export function render<P = void>(
+  component: (() => HTMLElement) | Component<P>,
   container: HTMLElement,
+  props?: P,
 ): void {
   // Clean up any existing reactive subscriptions
   const existingElements = container.querySelectorAll('*');
@@ -1464,7 +1473,7 @@ export function render(
       component._setContainer(container);
     }
 
-    const element = component();
+    const element = component(props);
     container.appendChild(element);
   } catch (error) {
     console.error('Error rendering component:', error);
@@ -1560,7 +1569,7 @@ export function createReactiveList<T>(
   return container;
 }
 
-export type ReactiveComponent = (() => HTMLElement) & {
+export type Component<P = void> = ((props?: P) => HTMLElement) & {
   _setContainer?: (container: HTMLElement) => void;
 };
 
@@ -1575,6 +1584,7 @@ export type ReactiveComponent = (() => HTMLElement) & {
  *
  * @example
  * ```typescript
+ * // Component without props
  * const Counter = createReactiveComponent(() => {
  *   const count = signal(0);
  *   return div(
@@ -1582,19 +1592,25 @@ export type ReactiveComponent = (() => HTMLElement) & {
  *   );
  * });
  *
+ * // Component with props
+ * const Greeting = createReactiveComponent<{ name: string }>((props) => {
+ *   return div(`Hello, ${props?.name || 'World'}!`);
+ * });
+ *
  * render(Counter, document.getElementById('app'));
+ * render(Greeting({ name: 'Alice' }), document.getElementById('greeting'));
  * ```
  */
-export function createReactiveComponent(
-  component: () => HTMLElement,
-): ReactiveComponent {
+export function createReactiveComponent<P = void>(
+  component: (props?: P) => HTMLElement,
+): Component<P> {
   let currentElement: HTMLElement | null = null;
   let isRendering = false;
   let container: HTMLElement | null = null;
   let effectCleanup: (() => void) | null = null;
   let hasInitialized = false;
 
-  const reactiveComponent = () => {
+  const reactiveComponent = (props?: P) => {
     if (isRendering) {
       // Prevent infinite loops during rendering
       return currentElement!;
@@ -1602,7 +1618,7 @@ export function createReactiveComponent(
 
     isRendering = true;
     try {
-      const element = component();
+      const element = component(props);
       currentElement = element;
 
       // Set up the effect after the first render to track dependencies
