@@ -1,26 +1,17 @@
 import {
   batch,
-  cleanupPreservedSignals,
-  clearComponentInstance,
   computed,
   effect,
   getReactiveById,
-  mount,
   REACTIVE_MARKER_PREFIX,
   REACTIVE_MARKER_SUFFIX,
-  setComponentInstance,
   setDebugMode,
   signal,
 } from './signals';
 
 describe('Signals', () => {
   beforeEach(() => {
-    clearComponentInstance();
     setDebugMode(false);
-  });
-
-  afterEach(() => {
-    clearComponentInstance();
   });
 
   describe('signal()', () => {
@@ -29,89 +20,12 @@ describe('Signals', () => {
       expect(s.get()).toBe(42);
     });
 
-    test('creates signal with key when in component context', () => {
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      const s = signal(42, 'test');
-      expect(s.get()).toBe(42);
-
-      clearComponentInstance();
-    });
-
-    test('preserves signal state between renders with same key', () => {
-      const componentInstance = {};
-
-      // First render
-      setComponentInstance(componentInstance);
-      const s1 = signal(42, 'test');
-      s1.set(100);
-      clearComponentInstance();
-
-      // Second render
-      setComponentInstance(componentInstance);
-      const s2 = signal(0, 'test');
-      expect(s2.get()).toBe(100); // Should preserve previous value
-
-      clearComponentInstance();
-    });
-
-    test('creates separate signals for different keys', () => {
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      const s1 = signal(10, 'key1');
-      const s2 = signal(20, 'key2');
-
-      expect(s1.get()).toBe(10);
-      expect(s2.get()).toBe(20);
-
-      s1.set(30);
-      s2.set(40);
-
-      expect(s1.get()).toBe(30);
-      expect(s2.get()).toBe(40);
-
-      clearComponentInstance();
-    });
-
-    test('creates regular signal when no component context', () => {
+    test('creates signal with initial value', () => {
       const s = signal(42);
       expect(s.get()).toBe(42);
 
       s.set(100);
       expect(s.get()).toBe(100);
-    });
-
-    test('creates regular signal when no key provided in component context', () => {
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      const s = signal(42);
-      expect(s.get()).toBe(42);
-
-      s.set(100);
-      expect(s.get()).toBe(100);
-
-      clearComponentInstance();
-    });
-
-    test('different component instances have separate preserved signals', () => {
-      const componentInstance1 = {};
-      const componentInstance2 = {};
-
-      // First component
-      setComponentInstance(componentInstance1);
-      const s1 = signal(10, 'test');
-      s1.set(50);
-      clearComponentInstance();
-
-      // Second component
-      setComponentInstance(componentInstance2);
-      const s2 = signal(20, 'test');
-      expect(s2.get()).toBe(20); // Should get initial value, not preserved
-
-      clearComponentInstance();
     });
 
     test('signal methods work correctly', () => {
@@ -472,129 +386,6 @@ describe('Signals', () => {
     });
   });
 
-  describe('mount()', () => {
-    test('runs mount function once when dependencies are first accessed', () => {
-      let mountCount = 0;
-      const s = signal(0);
-
-      mount(() => {
-        mountCount++;
-      }, [s]);
-
-      // mount runs immediately because effect runs immediately
-      expect(mountCount).toBe(1);
-
-      // Access dependency again - should not mount again
-      s.get();
-      expect(mountCount).toBe(1);
-    });
-
-    test('mount function can return cleanup function', () => {
-      let cleanupRun = false;
-      const s = signal(0);
-
-      // Set component instance before calling mount
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      mount(() => {
-        return () => {
-          cleanupRun = true;
-        };
-      }, [s]);
-
-      // Cleanup should be stored on component instance
-      // Simulate component unmount
-      cleanupPreservedSignals(componentInstance);
-      expect(cleanupRun).toBe(true);
-
-      clearComponentInstance();
-    });
-
-    test('mount tracks dependencies correctly', () => {
-      let mountCount = 0;
-      const a = signal(1);
-      const b = signal(2);
-
-      mount(() => {
-        mountCount++;
-      }, [a, b]);
-
-      // mount runs immediately because effect runs immediately
-      expect(mountCount).toBe(1);
-
-      // Access dependencies - should not mount again
-      a.get();
-      b.get();
-      expect(mountCount).toBe(1);
-    });
-  });
-
-  describe('Component Instance Management', () => {
-    test('setComponentInstance sets current component', () => {
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      // Test that signals with keys are preserved
-      const s = signal(42, 'test');
-      expect(s.get()).toBe(42);
-
-      clearComponentInstance();
-    });
-
-    test('clearComponentInstance clears current component', () => {
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      const s1 = signal(42, 'test');
-      clearComponentInstance();
-
-      const s2 = signal(100, 'test'); // Should create new signal
-      expect(s2.get()).toBe(100);
-    });
-
-    test('cleanupPreservedSignals cleans up component signals', () => {
-      const componentInstance = {};
-      setComponentInstance(componentInstance);
-
-      const s = signal(42, 'test');
-      clearComponentInstance();
-
-      // Simulate component unmount
-      cleanupPreservedSignals(componentInstance);
-
-      // Should not be able to access preserved signals after cleanup
-      setComponentInstance(componentInstance);
-      const s2 = signal(100, 'test'); // Should create new signal
-      expect(s2.get()).toBe(100);
-
-      clearComponentInstance();
-    });
-
-    test('cleanupPreservedSignals handles cleanup functions', () => {
-      const componentInstance = {};
-      let cleanupRun = false;
-
-      setComponentInstance(componentInstance);
-
-      mount(() => {
-        return () => {
-          cleanupRun = true;
-        };
-      }, []);
-
-      // Access dependency to trigger mount
-      const s = signal(0);
-      s.get();
-
-      clearComponentInstance();
-
-      // Simulate component unmount
-      cleanupPreservedSignals(componentInstance);
-      expect(cleanupRun).toBe(true);
-    });
-  });
-
   describe('Debug Mode', () => {
     test('setDebugMode enables debug mode', () => {
       setDebugMode(true);
@@ -703,16 +494,6 @@ describe('Signals', () => {
           // No updates
         });
       }).not.toThrow();
-    });
-
-    test('mount with no dependencies', () => {
-      let mountCount = 0;
-
-      mount(() => {
-        mountCount++;
-      }, []);
-
-      expect(mountCount).toBe(1); // Should mount immediately
     });
   });
 });

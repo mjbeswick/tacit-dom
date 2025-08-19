@@ -15,6 +15,7 @@ import {
   button,
   cleanup,
   createElement,
+  createReactiveComponent,
   createReactiveList,
   details,
   dialog,
@@ -1125,6 +1126,101 @@ describe('DOM Element Creation', () => {
         cleanup(element);
         cleanup(element);
       }).not.toThrow();
+    });
+  });
+});
+
+describe('createReactiveComponent', () => {
+  test('should create a reactive component that re-renders when signals change', () => {
+    const { signal } = require('./signals');
+
+    let renderCount = 0;
+    const testSignal = signal(0);
+
+    const TestComponent = createReactiveComponent(() => {
+      renderCount++;
+      const value = testSignal.get();
+      return div({ className: 'test-component' }, `Value: ${value}`);
+    });
+
+    // Create a container
+    const container = document.createElement('div');
+
+    // Initial render
+    render(TestComponent, container);
+    expect(renderCount).toBe(1);
+    expect(container.querySelector('.test-component')?.textContent).toBe(
+      'Value: 0',
+    );
+
+    // Update signal - should trigger re-render
+    testSignal.set(42);
+
+    // Wait for next tick to allow effect to run
+    return new Promise((resolve) => setTimeout(resolve, 50)).then(() => {
+      expect(renderCount).toBe(3);
+      expect(container.querySelector('.test-component')?.textContent).toBe(
+        'Value: 42',
+      );
+    });
+  });
+
+  test('should prevent infinite loops during rendering', () => {
+    const { signal } = require('./signals');
+
+    let renderCount = 0;
+    const testSignal = signal(0);
+
+    const TestComponent = createReactiveComponent(() => {
+      renderCount++;
+      const value = testSignal.get();
+
+      // This would cause infinite loops without protection
+      if (value < 5) {
+        testSignal.set(value + 1);
+      }
+
+      return div({ className: 'test-component' }, `Value: ${value}`);
+    });
+
+    const container = document.createElement('div');
+    render(TestComponent, container);
+
+    // Wait for effects to settle
+    return new Promise((resolve) => setTimeout(resolve, 10)).then(() => {
+      // Should not have infinite renders
+      expect(renderCount).toBeLessThan(10);
+      expect(testSignal.get()).toBe(5);
+    });
+  });
+
+  test('should track signal dependencies in effect', () => {
+    const { signal, effect } = require('./signals');
+
+    const testSignal = signal(0);
+    let effectRunCount = 0;
+    let lastValue = 0;
+
+    // Create a simple effect to test dependency tracking
+    const cleanup = effect(() => {
+      effectRunCount++;
+      lastValue = testSignal.get();
+    });
+
+    // Initial run
+    expect(effectRunCount).toBe(1);
+    expect(lastValue).toBe(0);
+
+    // Update signal - should trigger effect
+    testSignal.set(42);
+
+    // Wait for effect to run
+    return new Promise((resolve) => setTimeout(resolve, 0)).then(() => {
+      expect(effectRunCount).toBe(2);
+      expect(lastValue).toBe(42);
+
+      // Cleanup
+      cleanup();
     });
   });
 });

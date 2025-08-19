@@ -10,12 +10,11 @@
  */
 
 import {
-  clearComponentInstance,
   Computed,
+  effect,
   getReactiveById,
   REACTIVE_MARKER_PREFIX,
   REACTIVE_MARKER_SUFFIX,
-  setComponentInstance,
   Signal,
 } from './signals';
 
@@ -113,70 +112,7 @@ function createReactiveInterpolatedNode(text: string): HTMLElement {
   return container;
 }
 
-/**
- * Parses a template string to extract static parts and signal references.
- * Supports both direct signal references and computed expressions.
- */
-function parseTemplateString(
-  template: string,
-): (string | Signal<any> | Computed<any>)[] {
-  const parts: (string | Signal<any> | Computed<any>)[] = [];
-  let currentIndex = 0;
-
-  while (currentIndex < template.length) {
-    const startIndex = template.indexOf('${', currentIndex);
-
-    if (startIndex === -1) {
-      // No more template expressions, add remaining text
-      if (currentIndex < template.length) {
-        parts.push(template.slice(currentIndex));
-      }
-      break;
-    }
-
-    // Add text before the template expression
-    if (startIndex > currentIndex) {
-      parts.push(template.slice(currentIndex, startIndex));
-    }
-
-    // Find the closing brace
-    let braceCount = 1;
-    let endIndex = startIndex + 2;
-
-    while (endIndex < template.length && braceCount > 0) {
-      if (template[endIndex] === '{') braceCount++;
-      if (template[endIndex] === '}') braceCount--;
-      endIndex++;
-    }
-
-    if (braceCount === 0) {
-      // Extract the expression
-      const expression = template.slice(startIndex + 2, endIndex - 1).trim();
-
-      // Try to evaluate the expression to find signal references
-      try {
-        // This is a simplified approach - in a real implementation,
-        // you might want to use a more sophisticated expression parser
-        // For now, we'll assume the expression is a simple signal reference
-        // and let the user pass the actual signal object
-
-        // Add a placeholder that will be replaced by the actual signal
-        // when the user passes it as a separate child
-        parts.push(`[SIGNAL_PLACEHOLDER:${expression}]`);
-      } catch (error) {
-        // If evaluation fails, treat as static text
-        parts.push(`\${${expression}}`);
-      }
-    } else {
-      // Unmatched braces, treat as static text
-      parts.push(template.slice(startIndex, endIndex));
-    }
-
-    currentIndex = endIndex;
-  }
-
-  return parts;
-}
+// Removed unused parseTemplateString function
 
 /**
  * Creates a reactive template string that can interpolate signals.
@@ -210,7 +146,7 @@ export function template(
   updateText();
 
   // Subscribe to all reactive values
-  values.forEach((value, index) => {
+  values.forEach((value) => {
     if (isReactive(value)) {
       const unsubscribe = value.subscribe(updateText);
       // Store subscription for cleanup
@@ -969,15 +905,6 @@ function createElementFactory(tagName: string): ElementCreator {
     props?: ElementProps | ElementChildren[0],
     ...children: ElementChildren
   ): HTMLElement => {
-    // Create a unique component instance for this element to enable signal preservation
-    const elementComponentInstance = {
-      tagName,
-      id: Math.random().toString(36).substr(2, 9),
-    };
-
-    // Set the component instance for signal preservation
-    setComponentInstance(elementComponentInstance);
-
     try {
       // Handle case where first argument is a string (should be treated as children)
       if (
@@ -1395,9 +1322,12 @@ function createElementFactory(tagName: string): ElementCreator {
       }
 
       return element;
-    } finally {
-      // Clear the component instance after element creation
-      clearComponentInstance();
+    } catch (error) {
+      console.error('Error creating element:', error);
+      // Return a fallback element
+      const fallbackElement = document.createElement(tagName);
+      fallbackElement.textContent = 'Error creating element';
+      return fallbackElement;
     }
   };
 }
@@ -1512,12 +1442,11 @@ function cleanupElement(element: HTMLElement): void {
  * ```
  */
 export function render(
-  component: () => HTMLElement,
+  component: (() => HTMLElement) | ReactiveComponent,
   container: HTMLElement,
 ): void {
   // Clean up any existing reactive subscriptions
   const existingElements = container.querySelectorAll('*');
-
   existingElements.forEach((el) => {
     if (el instanceof HTMLElement) {
       cleanupElement(el);
@@ -1526,18 +1455,19 @@ export function render(
 
   container.innerHTML = '';
 
-  // Create a unique component instance for signal preservation
-  const componentInstance = {};
-
-  // Set the component instance for signal preservation
-  setComponentInstance(componentInstance);
-
   try {
+    // Set container reference for reactive components
+    if (
+      '_setContainer' in component &&
+      typeof component._setContainer === 'function'
+    ) {
+      component._setContainer(container);
+    }
+
     const element = component();
     container.appendChild(element);
-  } finally {
-    // Clear the component instance after rendering
-    clearComponentInstance();
+  } catch (error) {
+    console.error('Error rendering component:', error);
   }
 }
 
@@ -1628,4 +1558,106 @@ export function createReactiveList<T>(
   reactiveListNodes.set(container, subscriptions);
 
   return container;
+}
+
+export type ReactiveComponent = (() => HTMLElement) & {
+  _setContainer?: (container: HTMLElement) => void;
+};
+
+/**
+ * Creates a reactive component that automatically re-renders when its dependencies change.
+ *
+ * This function wraps a component function and sets up automatic re-rendering
+ * when any signals or computed values used within the component change.
+ *
+ * @param component - The component function to make reactive
+ * @returns A reactive component function that can be used with render
+ *
+ * @example
+ * ```typescript
+ * const Counter = createReactiveComponent(() => {
+ *   const count = signal(0);
+ *   return div(
+ *     button({ onclick: () => count.set(count.get() + 1) }, `Count: ${count.get()}`)
+ *   );
+ * });
+ *
+ * render(Counter, document.getElementById('app'));
+ * ```
+ */
+export function createReactiveComponent(
+  component: () => HTMLElement,
+): ReactiveComponent {
+  let currentElement: HTMLElement | null = null;
+  let isRendering = false;
+  let container: HTMLElement | null = null;
+  let effectCleanup: (() => void) | null = null;
+  let hasInitialized = false;
+
+  const reactiveComponent = () => {
+    if (isRendering) {
+      // Prevent infinite loops during rendering
+      return currentElement!;
+    }
+
+    isRendering = true;
+    try {
+      const element = component();
+      currentElement = element;
+
+      // Set up the effect after the first render to track dependencies
+      if (!hasInitialized && container) {
+        hasInitialized = true;
+        // Use setTimeout to ensure the effect runs after the render cycle is complete
+        setTimeout(() => {
+          setupEffect();
+        }, 0);
+      }
+
+      return element;
+    } finally {
+      isRendering = false;
+    }
+  };
+
+  // Set up effect to track dependencies and trigger re-renders
+  // This effect will run whenever any signals used in the component change
+  const setupEffect = () => {
+    if (effectCleanup) {
+      effectCleanup();
+    }
+
+    effectCleanup = effect(() => {
+      // Only proceed if we have a container and we're not currently rendering
+      if (container && !isRendering) {
+        // Execute the component to establish signal tracking
+        // This ensures the effect tracks all signal dependencies
+        component();
+
+        // Schedule a re-render when dependencies change
+        requestAnimationFrame(() => {
+          if (container && !isRendering) {
+            // Clear container and render new content
+            container.innerHTML = '';
+            const newElement = reactiveComponent();
+            container.appendChild(newElement);
+          }
+        });
+      }
+    });
+  };
+
+  // Override the toString to mark this as a reactive component
+  const originalToString = reactiveComponent.toString;
+  reactiveComponent.toString = (): string => {
+    return `[ReactiveComponent: ${originalToString.call(reactiveComponent)}]`;
+  };
+
+  // Store the container reference for re-rendering
+  reactiveComponent._setContainer = (cont: HTMLElement) => {
+    container = cont;
+    // Don't set up effect here - wait for first render
+  };
+
+  return reactiveComponent;
 }

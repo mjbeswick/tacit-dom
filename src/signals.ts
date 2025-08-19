@@ -39,10 +39,6 @@ const registeredEffects = new Set<Subscriber>();
 let debugMode = false;
 const DEFAULT_MAX_RUNS = 100;
 
-// Signal preservation for components
-const preservedSignals = new WeakMap<object, Map<string, Signal<any>>>();
-let currentComponentInstance: object | null = null;
-
 // Reactive instance registry for template-string interpolation
 // We expose a stable marker in toString() so template literals can be reactive.
 const REACTIVE_MARKER_PREFIX = '__THORIX_RX__:';
@@ -71,47 +67,6 @@ function getReactiveById(id: string): Signal<any> | Computed<any> | undefined {
  */
 function setDebugMode(enabled: boolean) {
   debugMode = enabled;
-}
-
-/**
- * Sets the current component instance for signal preservation.
- * This should be called by the rendering system before rendering a component.
- *
- * @param componentInstance - The component instance
- */
-function setComponentInstance(componentInstance: object): void {
-  currentComponentInstance = componentInstance;
-}
-
-/**
- * Clears the current component instance.
- * This should be called by the rendering system after rendering a component.
- */
-function clearComponentInstance(): void {
-  currentComponentInstance = null;
-}
-
-/**
- * Cleans up preserved signals for a component instance.
- * This should be called when a component is unmounted.
- *
- * @param componentInstance - The component instance to clean up
- */
-function cleanupPreservedSignals(componentInstance: object): void {
-  // Clean up any registered cleanup functions
-  const componentInstanceAny = componentInstance as any;
-  if (componentInstanceAny.__cleanupFunctions) {
-    componentInstanceAny.__cleanupFunctions.forEach((cleanupFn: () => void) => {
-      try {
-        cleanupFn();
-      } catch (error) {
-        console.error('Cleanup function failed:', error);
-      }
-    });
-    delete componentInstanceAny.__cleanupFunctions;
-  }
-
-  preservedSignals.delete(componentInstance);
 }
 
 /**
@@ -181,27 +136,7 @@ class ReactiveEffect implements EffectContext {
   }
 }
 
-function signal<T>(initialValue: T, key?: string): Signal<T> {
-  // If we're in a component context and a key is provided, preserve the signal
-  if (currentComponentInstance && key) {
-    // Get or create preserved signals map for this component
-    let signalsMap = preservedSignals.get(currentComponentInstance);
-    if (!signalsMap) {
-      signalsMap = new Map();
-      preservedSignals.set(currentComponentInstance, signalsMap);
-    }
-
-    // Get or create the signal
-    let existingSignal = signalsMap.get(key);
-    if (!existingSignal) {
-      existingSignal = createSignal(initialValue);
-      signalsMap.set(key, existingSignal);
-    }
-
-    return existingSignal;
-  }
-
-  // Otherwise, create a regular signal
+function signal<T>(initialValue: T): Signal<T> {
   return createSignal(initialValue);
 }
 
@@ -456,75 +391,14 @@ function flushUpdates(): void {
   }
 }
 
-/**
- * Mounts a component effect that runs once when dependencies are first accessed,
- * and automatically cleans up when the component unmounts.
- *
- * This is useful for setting up timers, event listeners, WebSocket connections,
- * or any other resources that need to be cleaned up.
- *
- * @param mountFn - Function to run on mount, can return a cleanup function
- * @param dependencies - Array of signals or computed values to track
- *
- * @example
- * ```typescript
- * function TimerComponent() {
- *   const count = signal(0);
- *
- *   mount(() => {
- *     const interval = setInterval(() => {
- *       count.set(count.get() + 1);
- *     }, 1000);
- *
- *     return () => clearInterval(interval);
- *   }, [count]);
- *
- *   return div(`Count: ${count.get()}`);
- * }
- * ```
- */
-function mount(
-  mountFn: () => void | (() => void),
-  dependencies: (Signal<any> | Computed<any>)[],
-): void {
-  let isMounted = false;
-  let cleanupFn: (() => void) | undefined;
-
-  effect(() => {
-    // Track all dependencies to ensure the effect runs when they change
-    dependencies.forEach((dep) => dep.get());
-
-    if (!isMounted) {
-      isMounted = true;
-      const result = mountFn();
-      if (typeof result === 'function') {
-        cleanupFn = result;
-      }
-    }
-  });
-
-  // Store cleanup function on the current component instance for later cleanup
-  if (currentComponentInstance && cleanupFn) {
-    const componentInstance = currentComponentInstance as any;
-    if (!componentInstance.__cleanupFunctions) {
-      componentInstance.__cleanupFunctions = [];
-    }
-    componentInstance.__cleanupFunctions.push(cleanupFn);
-  }
-}
-
 export {
+  REACTIVE_MARKER_PREFIX,
+  REACTIVE_MARKER_SUFFIX,
   batch,
-  cleanupPreservedSignals,
-  clearComponentInstance,
   computed,
   effect,
   // Template-string interpolation helpers
   getReactiveById,
-  mount,
-  REACTIVE_MARKER_PREFIX,
-  REACTIVE_MARKER_SUFFIX,
-  setComponentInstance,
   setDebugMode,
   signal,
 };

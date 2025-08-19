@@ -9,15 +9,7 @@
  */
 
 // Core reactivity exports
-export {
-  batch,
-  cleanupPreservedSignals,
-  clearComponentInstance,
-  computed,
-  effect,
-  setComponentInstance,
-  signal,
-} from './signals';
+export { batch, computed, effect, signal } from './signals';
 export type { Computed, Signal } from './signals';
 
 // DOM exports
@@ -30,6 +22,7 @@ export {
   canvas,
   cleanup,
   createElement,
+  createReactiveComponent,
   createReactiveList,
   details,
   dialog,
@@ -153,4 +146,5 @@ export type {
   TableRowProps,
   TextareaProps,
   VideoProps,
+  ReactiveComponent,
 } from './dom';
