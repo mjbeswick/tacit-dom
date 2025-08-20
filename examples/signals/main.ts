@@ -47,7 +47,7 @@ const Button = component<{
   return button(
     {
       onclick: props?.onclick,
-      className: props?.className,
+      className: `btn ${props?.className || ''}`,
       disabled: props?.loading,
     },
     props?.loading ? 'Loading...' : props?.children || 'Button',
@@ -192,23 +192,30 @@ const ButtonGroup = component(() => {
   };
 
   return div(
-    { className: 'd-flex justify-content-center gap-3 flex-wrap' },
-    Button({
-      onclick: handleUpdateSignalA,
-      className: 'btn-success btn-lg px-4',
-      children: 'Update Signal A',
-    }),
-    Button({
-      onclick: handleUpdateSignalB,
-      className: 'btn-info btn-lg px-4',
-      children: 'Update Signal B',
-    }),
-    Button({
-      onclick: handleUpdateSignalBAsync,
-      className: 'btn-warning btn-lg px-4',
-      loading: signalB.pending, // Show loading state while async update is pending
-      children: 'Update Signal B (Async)',
-    }),
+    { className: 'mt-4' },
+    div(
+      { className: 'text-center mb-3' },
+      div({ className: 'h5 text-muted' }, 'Primary Signal Controls'),
+    ),
+    div(
+      { className: 'd-flex justify-content-center gap-3 flex-wrap' },
+      Button({
+        onclick: handleUpdateSignalA,
+        className: 'btn-primary btn-lg px-4 py-2',
+        children: 'Update Signal A',
+      }),
+      Button({
+        onclick: handleUpdateSignalB,
+        className: 'btn-info btn-lg px-4 py-2',
+        children: 'Update Signal B',
+      }),
+      Button({
+        onclick: handleUpdateSignalBAsync,
+        className: 'btn-warning btn-lg px-4 py-2',
+        loading: signalB.pending, // Show loading state while async update is pending
+        children: 'Update Signal B (Async)',
+      }),
+    ),
   );
 });
 
@@ -301,31 +308,9 @@ const app = component(() => {
         // Display computed value
         // This component directly subscribes to computedC and updates automatically
         ComputedDisplay(),
-        // Action buttons
-        // This component manages the loading state and update logic
-        // Button controls section
-        div(
-          { className: 'd-flex gap-2 justify-content-center flex-wrap' },
-          // Update Signal A button
-          Button({
-            onclick: updateA,
-            className: 'btn-primary',
-            children: 'Update Signal A',
-          }),
-          // Update Signal B button (asynchronous with loading state)
-          Button({
-            onclick: updateBAsync,
-            className: 'btn-danger',
-            loading: signalB.pending,
-            children: 'Update Signal B (Async)',
-          }),
-          // Increment local counter button
-          Button({
-            onclick: incrementLocal,
-            className: 'btn-warning',
-            children: 'Increment Local Counter',
-          }),
-        ),
+
+        // Action buttons section with better organization
+        ButtonGroup(),
       ),
     ),
   );
