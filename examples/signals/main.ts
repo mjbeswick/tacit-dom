@@ -56,12 +56,9 @@ const CounterDisplay = component<{
   className?: string;
 }>((props) => {
   return div(
-    { className: `mb-4 p-4 ${props?.className || ''} rounded shadow-sm` },
-    div(
-      { className: 'h6 mb-2 text-muted fw-semibold' },
-      props?.title || 'Counter',
-    ),
-    div({ className: 'h3 mb-0 fw-bold' }, props?.value || 0),
+    { className: `mb-3 p-3 ${props?.className || ''} rounded` },
+    div({ className: 'h6 mb-1 text-muted' }, props?.title || 'Counter'),
+    div({ className: 'h2 mb-0' }, props?.value || 0),
   );
 });
 
@@ -70,35 +67,35 @@ const ComputedDisplay = component(() => {
   const status = computedC.get();
 
   return div(
-    { className: 'mb-4 p-4 bg-gradient rounded shadow-sm border' },
+    { className: 'mb-3 p-3 bg-light rounded border' },
     div(
-      { className: 'd-flex justify-content-between align-items-center mb-3' },
-      div({ className: 'h5 mb-0 text-primary' }, 'Combined Counter Display'),
-      div({ className: 'badge bg-primary fs-6' }, status.total + ' Total'),
+      { className: 'd-flex justify-content-between align-items-center mb-2' },
+      div({ className: 'h5 mb-0' }, 'Combined Display'),
+      div({ className: 'badge bg-primary' }, status.total + ' Total'),
     ),
     div(
-      { className: 'row g-3' },
+      { className: 'row g-2' },
       div(
         { className: 'col-md-6' },
         div(
-          { className: 'text-center p-3 bg-light rounded' },
+          { className: 'text-center p-2 bg-white rounded' },
           div({ className: 'h4 text-success mb-1' }, status.percentageA + '%'),
-          div({ className: 'text-muted' }, 'Counter A Percentage'),
+          div({ className: 'small text-muted' }, 'Counter A'),
         ),
       ),
       div(
         { className: 'col-md-6' },
         div(
-          { className: 'text-center p-3 bg-light rounded' },
+          { className: 'text-center p-2 bg-white rounded' },
           div({ className: 'h4 text-danger mb-1' }, status.percentageB + '%'),
-          div({ className: 'text-muted' }, 'Counter B Percentage'),
+          div({ className: 'small text-muted' }, 'Counter B'),
         ),
       ),
     ),
     div(
-      { className: 'mt-3 p-3 bg-info bg-opacity-10 rounded text-center' },
-      div({ className: 'h6 text-info mb-1' }, status.summary),
-      div({ className: 'fs-4 fw-bold text-dark' }, status.score),
+      { className: 'mt-2 p-2 bg-info bg-opacity-10 rounded text-center' },
+      div({ className: 'h6 mb-1' }, status.summary),
+      div({ className: 'fs-5' }, status.score),
     ),
   );
 });
