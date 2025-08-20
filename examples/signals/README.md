@@ -1,127 +1,108 @@
 # Signals Example
 
-This example demonstrates the Tacit-DOM signal system, including the **store pattern** for global state management and **preserved signals** feature.
+This example demonstrates Tacit-DOM's reactive signal system with a clean, generic interface that showcases the core concepts of reactive programming.
 
-## What This Example Shows
+## What You'll Learn
 
-1. **Store Pattern**: Centralized state management with persistent signals
-2. **Basic Signals**: Global signals that persist across renders
-3. **Computed Signals**: Derived state that updates automatically
-4. **Effects**: Side effects that run when dependencies change
-5. **Preserved Signals**: Component-local state that persists between renders
-6. **Regular Signals**: Component-local state that gets recreated on each render
+- **Signals**: Mutable reactive values that automatically notify subscribers of changes
+- **Computed Values**: Derived values that automatically recalculate when dependencies change
+- **Effects**: Side effects that automatically re-run when their dependencies change
+- **Component Reactivity**: How components automatically re-render when signals change
+- **Async Signal Updates**: Handling asynchronous operations with loading states
+
+## How It Works
+
+The example creates three main signals:
+
+1. **Signal A**: A basic counter that demonstrates synchronous updates
+2. **Signal B**: A counter that supports both synchronous and asynchronous updates
+3. **Local Counter**: A component-scoped signal that shows local state management
+
+### Reactive Relationships
+
+- **ComputedC**: Automatically calculates statistics based on Signal A and Signal B
+- **Effects**: Log changes and demonstrate the reactive update cycle
+- **Components**: Automatically re-render when their subscribed signals change
 
 ## Key Features Demonstrated
 
-### Store Pattern
+### Signal Updates
 
-The example uses a **store pattern** where all signals are defined in a central `store.ts` file:
+- Click buttons to increment signal values
+- Watch the UI update in real-time
+- See how computed values automatically recalculate
 
-```typescript
-// store.ts - Centralized state management
-export const counterSignal = signal(0);
-export const asyncCounterSignal = signal(0);
-export const timestampSignal = signal(Date.now());
+### Async Operations
 
-export const incrementCounter = () =>
-  counterSignal.set(counterSignal.get() + 1);
-export const incrementAsyncCounter = () =>
-  asyncCounterSignal.set(asyncCounterSignal.get() + 1);
-export const updateTimestamp = () => timestampSignal.set(Date.now());
+- Signal B supports asynchronous updates with a 1-second delay
+- Loading states are automatically managed
+- Buttons are disabled during async operations
+
+### Component Reactivity
+
+- All components automatically subscribe to signals they use
+- When signals change, components re-render automatically
+- No manual state management or DOM manipulation required
+
+### Local State
+
+- The Local Counter demonstrates component-scoped signals
+- Shows how signals can be used for local component state
+- Demonstrates the importance of stable signal references
+
+## Technical Implementation
+
+### Store (`store.ts`)
+
+- Defines the core signals and their relationships
+- Implements computed values and effects
+- Provides update functions for synchronous and asynchronous operations
+
+### Components (`main.ts`)
+
+- **SignalDisplay**: Reusable component for displaying signal values
+- **ComputedDisplay**: Shows computed values with rich formatting
+- **ButtonGroup**: Manages signal updates and loading states
+- **App**: Root component that orchestrates the entire application
+
+### Reactive System
+
+- Automatic dependency tracking
+- Efficient re-rendering
+- Memory leak prevention with automatic cleanup
+
+## Running the Example
+
+```bash
+cd examples/signals
+npm install
+npm run dev
 ```
 
-**Benefits of the Store Pattern:**
+Open your browser and navigate to the local development server. You'll see:
 
-- **Persistent State**: Signals maintain their values across component re-renders
-- **Centralized Logic**: All state management logic is in one place
-- **Reusable Functions**: Update functions can be imported and used by any component
-- **Better Testing**: Easier to test state logic in isolation
-- **Performance**: Prevents signal recreation on each component render
+- Three signal displays showing current values
+- A computed display showing combined statistics
+- Buttons to update signals synchronously and asynchronously
+- Real-time updates as you interact with the interface
 
-### Preserved Signals vs Regular Signals
+## What to Try
 
-- **Preserved Signals** (`signalD`, `counter`): Maintain their state between renders
-- **Regular Signals** (`regularSignal`): Get recreated on each render, losing their state
+1. **Click "Update Signal A"** - Watch Signal A increment and see computed values update
+2. **Click "Update Signal B"** - See Signal B update synchronously
+3. **Click "Update Signal B (Async)"** - Watch the loading state and async update
+4. **Click "Increment Local Counter"** - See local component state in action
+5. **Open the console** - Watch the reactive system log all updates
 
-### Interactive Elements
+## Learning Outcomes
 
-- **Increment Counter**: Increments `counterSignal` synchronously
-- **Increment Async Counter**: Increments `asyncCounterSignal` both synchronously and asynchronously with loading state
-- **Update Timestamp**: Updates `timestampSignal` with a new timestamp
-- **Re-render**: Forces a complete re-render to show the difference between preserved and regular signals
-- **Increment Counter**: Demonstrates that preserved signals maintain their state
+After exploring this example, you'll understand:
 
-## How to Test
+- How to create and use reactive signals
+- How computed values automatically track dependencies
+- How effects respond to signal changes
+- How components automatically re-render
+- How to handle async operations with signals
+- Best practices for signal placement and component design
 
-1. Click "Increment Counter" a few times - notice the counter increases
-2. Click "Re-render" - notice that:
-   - The preserved signals (`signalD`, `counter`) maintain their values
-   - The regular signal (`regularSignal`) gets a new random value
-3. Click "Increment Counter" - changes the global counter signal
-4. Click "Increment Async Counter" - changes async counter signal with loading state
-5. Click "Update Timestamp" - updates timestamp signal with a new timestamp
-
-## Code Highlights
-
-```typescript
-// Store pattern - signals defined at module level
-import {
-  counterSignal,
-  asyncCounterSignal,
-  timestampSignal,
-  incrementCounter,
-  incrementAsyncCounter,
-  updateTimestamp,
-} from './store';
-
-// Component uses imported signals
-const app = component(() => {
-  return div(
-    div(`Synchronous Counter: ${counterSignal.get()}`),
-    div(`Asynchronous Counter: ${asyncCounterSignal.get()}`),
-    div(`Current Timestamp: ${timestampSignal.get()}`),
-    button({ onclick: incrementCounter }, 'Increment Counter'),
-    button({ onclick: incrementAsyncCounter }, 'Increment Async Counter'),
-    button({ onclick: updateTimestamp }, 'Update Timestamp'),
-  );
-});
-
-// Preserved signal - maintains state between renders
-const signalD = preservedSignal('signalD', random());
-
-// Regular signal - recreated on each render
-const regularSignal = signal(random());
-
-// Preserved signal for counter
-const counter = preservedSignal('counter', 0);
-```
-
-## Why the Store Pattern Matters
-
-The store pattern solves a common problem in reactive applications: **signal recreation on component re-renders**. When signals are created inside component functions, they get recreated every time the component re-renders, which:
-
-1. **Loses State**: Previous values are discarded
-2. **Causes Performance Issues**: Unnecessary signal recreation
-3. **Breaks Reactivity**: New signals don't have the same subscribers
-4. **Makes Testing Harder**: State logic is scattered throughout components
-
-By moving signals to a central store:
-
-1. **State Persistence**: Signals maintain their values across renders
-2. **Better Performance**: No unnecessary recreation
-3. **Centralized Logic**: All state management in one place
-4. **Easier Testing**: State logic can be tested in isolation
-5. **Reusable Functions**: Update functions can be shared across components
-
-## Why Preserved Signals Matter
-
-In component-based architectures, you often need local state that persists between renders. Without preserved signals, any signal created inside a component would be recreated on each render, making it impossible to maintain component state.
-
-Preserved signals solve this by:
-
-1. Using unique keys to identify signals within a component
-2. Automatically managing component instances
-3. Preserving signal state between renders
-4. Providing a clean API that feels natural
-
-This makes it easy to build interactive components with persistent local state!
+This example provides a solid foundation for building reactive applications with Tacit-DOM, demonstrating the power and simplicity of the reactive programming model.
