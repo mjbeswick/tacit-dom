@@ -309,3 +309,5 @@ const app = component(() => {
 // 4. The render function efficiently updates only the changed parts of the DOM
 // 5. The UI stays in sync with the reactive state automatically
 render(app, document.getElementById('app')!);
+
+// render(testComponent, document.getElementById('app')!);

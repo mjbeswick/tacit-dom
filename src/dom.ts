@@ -1513,7 +1513,7 @@ function cleanupElement(element: HTMLElement): void {
  * render(Greeting, document.getElementById('root'), { name: 'Alice' });
  * ```
  */
-export function render<P = void>(
+export function render<P = {}>(
   component: (() => HTMLElement) | Component<P>,
   container: HTMLElement,
   props?: P,
@@ -1537,7 +1537,11 @@ export function render<P = void>(
       component._setContainer(container);
     }
 
-    const element = component(props);
+    // Default props to { children: undefined } if not provided
+    const defaultProps = { children: undefined, ...props } as P & {
+      children?: any;
+    };
+    const element = component(defaultProps);
     container.appendChild(element);
   } catch (error) {
     console.error('Error rendering component:', error);
@@ -1633,7 +1637,9 @@ export function createReactiveList<T>(
   return container;
 }
 
-export type Component<P = void> = ((props?: P) => HTMLElement) & {
+export type Component<P = {}> = ((
+  props?: P & { children?: any },
+) => HTMLElement) & {
   _setContainer?: (container: HTMLElement) => void;
 };
 
@@ -1678,8 +1684,8 @@ export type ErrorBoundaryOptions = {
  * render(SafeComponent, document.getElementById('app'));
  * ```
  */
-export function errorBoundary<P = void>(
-  component: (props?: P) => HTMLElement,
+export function errorBoundary<P = {}>(
+  component: (props: P & { children?: any }) => HTMLElement,
   options: ErrorBoundaryOptions = {},
 ): Component<P> {
   const { onError, fallback, logToConsole = true } = options;
@@ -1734,7 +1740,11 @@ export function errorBoundary<P = void>(
 
     try {
       // Attempt to render the wrapped component
-      const element = component(props);
+      // Default props to { children: undefined } if not provided
+      const defaultProps = { children: undefined, ...props } as P & {
+        children?: any;
+      };
+      const element = component(defaultProps);
 
       // Add error boundary marker for potential re-renders
       if (element instanceof HTMLElement) {
@@ -1839,8 +1849,8 @@ export function errorBoundary<P = void>(
  * render(Greeting({ name: 'Alice' }), document.getElementById('greeting'));
  * ```
  */
-export function createReactiveComponent<P = void>(
-  component: (props?: P) => HTMLElement,
+export function createReactiveComponent<P = {}>(
+  component: (props: P & { children?: any }) => HTMLElement,
 ): Component<P> {
   let currentElement: HTMLElement | null = null;
   let isRendering = false;
@@ -1848,7 +1858,7 @@ export function createReactiveComponent<P = void>(
   let effectCleanup: (() => void) | null = null;
   let hasInitialized = false;
 
-  const reactiveComponent = (props?: P) => {
+  const reactiveComponent = (props?: P & { children?: any }) => {
     if (isRendering) {
       // Prevent infinite loops during rendering
       return currentElement!;
@@ -1856,7 +1866,11 @@ export function createReactiveComponent<P = void>(
 
     isRendering = true;
     try {
-      const element = component(props);
+      // Default props to { children: undefined } if not provided
+      const defaultProps = { children: undefined, ...props } as P & {
+        children?: any;
+      };
+      const element = component(defaultProps);
       currentElement = element;
 
       // Set up the effect after the first render to track dependencies
@@ -1886,14 +1900,16 @@ export function createReactiveComponent<P = void>(
       if (container && !isRendering) {
         // Execute the component to establish signal tracking
         // This ensures the effect tracks all signal dependencies
-        component();
+        component({ children: undefined } as P & { children?: any });
 
         // Schedule a re-render when dependencies change
         requestAnimationFrame(() => {
           if (container && !isRendering) {
             // Clear container and render new content
             container.innerHTML = '';
-            const newElement = reactiveComponent();
+            const newElement = reactiveComponent({
+              children: undefined,
+            } as P & { children?: any });
             container.appendChild(newElement);
           }
         });
