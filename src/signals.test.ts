@@ -602,4 +602,125 @@ describe('Signals', () => {
       }).not.toThrow();
     });
   });
+
+  describe('Signal Subscription and Dependency Tracking', () => {
+    test('signal properly tracks effect dependencies', () => {
+      const s = signal(0);
+      let effectRuns = 0;
+      let lastValue = 0;
+
+      const cleanup = effect(() => {
+        effectRuns++;
+        lastValue = s.get();
+      });
+
+      // Initial run
+      expect(effectRuns).toBe(1);
+      expect(lastValue).toBe(0);
+
+      // Update signal - should trigger effect
+      s.set(42);
+      expect(effectRuns).toBe(2);
+      expect(lastValue).toBe(42);
+
+      // Update signal again - should trigger effect
+      s.set(100);
+      expect(effectRuns).toBe(3);
+      expect(lastValue).toBe(100);
+
+      cleanup();
+    });
+
+    test('signal tracks multiple effects independently', () => {
+      const s = signal(0);
+      let effect1Runs = 0;
+      let effect2Runs = 0;
+
+      const cleanup1 = effect(() => {
+        effect1Runs++;
+        s.get();
+      });
+
+      const cleanup2 = effect(() => {
+        effect2Runs++;
+        s.get();
+      });
+
+      // Both effects should run initially
+      expect(effect1Runs).toBe(1);
+      expect(effect2Runs).toBe(1);
+
+      // Update signal - both effects should run
+      s.set(42);
+      expect(effect1Runs).toBe(2);
+      expect(effect2Runs).toBe(2);
+
+      // Clean up first effect
+      cleanup1();
+
+      // Update signal - only second effect should run
+      s.set(100);
+      expect(effect1Runs).toBe(2); // Should not change
+      expect(effect2Runs).toBe(3); // Should increment
+
+      cleanup2();
+    });
+
+    test('signal subscription works correctly', () => {
+      const s = signal(0);
+      let subscriptionCalls = 0;
+      let lastValue = 0;
+
+      const unsubscribe = s.subscribe(() => {
+        subscriptionCalls++;
+        lastValue = s.get();
+      });
+
+      // Initial subscription should not trigger callback
+      expect(subscriptionCalls).toBe(0);
+
+      // Update signal - should trigger subscription
+      s.set(42);
+      expect(subscriptionCalls).toBe(1);
+      expect(lastValue).toBe(42);
+
+      // Update signal again - should trigger subscription
+      s.set(100);
+      expect(subscriptionCalls).toBe(2);
+      expect(lastValue).toBe(100);
+
+      // Unsubscribe
+      unsubscribe();
+
+      // Update signal - should NOT trigger subscription
+      s.set(200);
+      expect(subscriptionCalls).toBe(2); // Should not change
+      expect(lastValue).toBe(100); // Should not change
+    });
+
+    test('signal only notifies when value actually changes', () => {
+      const s = signal(42);
+      let notificationCount = 0;
+
+      s.subscribe(() => {
+        notificationCount++;
+      });
+
+      // Set same value - should not notify
+      s.set(42);
+      expect(notificationCount).toBe(0);
+
+      // Set different value - should notify
+      s.set(100);
+      expect(notificationCount).toBe(1);
+
+      // Set same value again - should not notify
+      s.set(100);
+      expect(notificationCount).toBe(1);
+
+      // Set different value - should notify
+      s.set(200);
+      expect(notificationCount).toBe(2);
+    });
+  });
 });

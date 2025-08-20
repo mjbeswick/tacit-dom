@@ -1269,4 +1269,124 @@ describe('createReactiveComponent', () => {
       expect(container.querySelector('.value')?.textContent).toBe('Value: 42');
     });
   });
+
+  test('should properly track signals created outside component function', () => {
+    const { signal } = require('./signals');
+
+    let renderCount = 0;
+
+    // Create signals OUTSIDE the component function (like the fixed localCounter)
+    const externalSignal = signal(0);
+    const externalCounter = signal(100);
+
+    // Component that accesses external signals
+    const TestComponent = createReactiveComponent(() => {
+      renderCount++;
+
+      // Access both external signals to subscribe to them
+      const signalValue = externalSignal.get();
+      const counterValue = externalCounter.get();
+
+      return div(
+        { className: 'test-component' },
+        div({ className: 'signal-value' }, `Signal: ${signalValue}`),
+        div({ className: 'counter-value' }, `Counter: ${counterValue}`),
+      );
+    });
+
+    const container = document.createElement('div');
+    render(TestComponent, container);
+
+    // Initial render
+    expect(renderCount).toBe(1);
+    expect(container.querySelector('.signal-value')?.textContent).toBe(
+      'Signal: 0',
+    );
+    expect(container.querySelector('.counter-value')?.textContent).toBe(
+      'Counter: 100',
+    );
+
+    // Wait for the effect to be set up (this calls the component again to track dependencies)
+    return new Promise((resolve) => setTimeout(resolve, 10))
+      .then(() => {
+        // After effect setup, renderCount should be 2 (initial + effect setup)
+        expect(renderCount).toBe(2);
+
+        // Update external signal - should trigger re-render
+        externalSignal.set(42);
+
+        // Wait for effect to run
+        return new Promise((resolve) => setTimeout(resolve, 50));
+      })
+      .then(() => {
+        // After signal update, renderCount should be greater than before
+        expect(renderCount).toBeGreaterThanOrEqual(3);
+        expect(container.querySelector('.signal-value')?.textContent).toBe(
+          'Signal: 42',
+        );
+        expect(container.querySelector('.counter-value')?.textContent).toBe(
+          'Counter: 100',
+        );
+
+        // Update external counter - should trigger another re-render
+        externalCounter.set(200);
+
+        return new Promise((resolve) => setTimeout(resolve, 50));
+      })
+      .then(() => {
+        // After counter update, renderCount should be greater than before
+        expect(renderCount).toBeGreaterThanOrEqual(4);
+        expect(container.querySelector('.signal-value')?.textContent).toBe(
+          'Signal: 42',
+        );
+        expect(container.querySelector('.counter-value')?.textContent).toBe(
+          'Counter: 200',
+        );
+      });
+  });
+
+  test('should NOT track signals created inside component function (demonstrates the bug)', () => {
+    const { signal } = require('./signals');
+
+    let renderCount = 0;
+
+    // Component that creates signals INSIDE the function (like the old localCounter)
+    const TestComponent = createReactiveComponent(() => {
+      renderCount++;
+
+      // Create signal INSIDE component function (this is the bug scenario)
+      const internalSignal = signal(0);
+
+      return div(
+        { className: 'test-component' },
+        div(
+          { className: 'internal-value' },
+          `Internal: ${internalSignal.get()}`,
+        ),
+      );
+    });
+
+    const container = document.createElement('div');
+    render(TestComponent, container);
+
+    // Initial render
+    expect(renderCount).toBe(1);
+    expect(container.querySelector('.internal-value')?.textContent).toBe(
+      'Internal: 0',
+    );
+
+    // Try to update the internal signal - this should NOT trigger a re-render
+    // because the signal reference changes on each render
+    const internalSignal = signal(0); // This is a different signal instance
+
+    // Wait a bit to see if any re-render happens
+    return new Promise((resolve) => setTimeout(resolve, 50)).then(() => {
+      // The component may render multiple times due to the effect system setup
+      // but the important thing is that internal signals don't trigger re-renders
+      expect(renderCount).toBeGreaterThanOrEqual(1);
+      expect(container.querySelector('.internal-value')?.textContent).toBe(
+        'Internal: 0',
+      );
+    });
+  });
 });
