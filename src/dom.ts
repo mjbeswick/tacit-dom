@@ -19,7 +19,7 @@ import {
 } from './signals';
 
 // DOM types for event handling
-type EventListener = (_event: Event) => void | Promise<void>;
+type EventListener = (event: Event) => void | Promise<void>;
 
 // Inline classNames function to avoid circular dependency
 function classNames(
@@ -306,7 +306,7 @@ function getDomAttributeName(propName: string): string {
 }
 
 // Strongly typed event handlers
-type EventHandler<T = Event> = (_event: T) => void | boolean;
+type EventHandler<T = Event> = (event: T) => void | boolean;
 
 // Helper to normalize camelCase React-like event prop names to DOM event names
 function getDomEventNameFromProp(propKey: string): string {
@@ -873,8 +873,8 @@ export type ElementChildren = (
  * properties and children.
  */
 export type ElementCreator = (
-  _props?: ElementProps | ElementChildren[0],
-  ..._children: ElementChildren
+  props?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
 ) => HTMLElement;
 
 /**
@@ -1591,7 +1591,7 @@ export function cleanup(component: HTMLElement): void {
  */
 export function createReactiveList<T>(
   signal: Signal<T[]>,
-  renderItem: (_item: T, _index: number) => HTMLElement,
+  renderItem: (item: T, index: number) => HTMLElement,
 ): HTMLElement {
   const container = document.createElement('div');
   const subscriptions: Array<{
