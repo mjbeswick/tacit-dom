@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🎯 Tacit-DOM
+![Tacit-DOM Banner](docs/images/tacit-dom_banner.svg)
 
 > **Implicit. Reactive. Powerful.**
 
