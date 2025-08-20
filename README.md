@@ -421,6 +421,7 @@ Tacit-DOM uses a clean, intuitive naming convention:
 
 - **`component<P>`** - Function to create reactive components (alias for `createReactiveComponent`)
 - **`Component<P>`** - Type for reactive components with props
+- **`errorBoundary<P>`** - Function to wrap components with error handling capabilities
 
 ```typescript
 import { component, Component } from 'tacit-dom';
@@ -438,6 +439,12 @@ const Greeting: Component<{ name: string }> = component((props) => {
 // Usage
 SimpleCounter();
 Greeting({ name: 'Alice' });
+
+// Error boundary example
+const SafeGreeting = errorBoundary(Greeting, {
+  fallback: (error) => div('Error loading greeting'),
+  onError: (error) => console.error('Greeting error:', error),
+});
 ```
 
 ### Advanced Features
@@ -524,6 +531,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 - **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
 - **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
 - **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
+- **🚨 Error Boundary** (`/error-boundary-demo`): Graceful error handling and recovery for components
 
 ### Example Features
 
@@ -558,6 +566,7 @@ Each example runs on a different port:
 - **Strongly Typed Props**: `http://localhost:5176`
 - **Signals**: `http://localhost:5177`
 - **ClassNames**: `http://localhost:5178`
+- **Error Boundary**: `http://localhost:3004`
 
 For detailed information about each example, see the [Examples README](examples/README.md).
 

@@ -1638,6 +1638,180 @@ export type Component<P = void> = ((props?: P) => HTMLElement) & {
 };
 
 /**
+ * Error boundary configuration options.
+ */
+export type ErrorBoundaryOptions = {
+  /** Function called when an error occurs */
+  onError?: (error: Error, errorInfo: { componentStack?: string }) => void;
+  /** Fallback UI to render when an error occurs */
+  fallback?: (error: Error) => HTMLElement;
+  /** Whether to log errors to console (default: true) */
+  logToConsole?: boolean;
+};
+
+/**
+ * Error boundary component that catches errors in child components.
+ *
+ * This function wraps a component and provides error handling capabilities.
+ * When an error occurs in the wrapped component, it renders a fallback UI
+ * instead of crashing the entire application.
+ *
+ * @param component - The component to wrap with error boundary
+ * @param options - Configuration options for error handling
+ * @returns A component wrapped with error boundary functionality
+ *
+ * @example
+ * ```typescript
+ * const SafeComponent = errorBoundary(
+ *   () => div('This might throw an error'),
+ *   {
+ *     fallback: (error) => div(
+ *       { className: 'error-boundary' },
+ *       h2('Something went wrong'),
+ *       p(error.message),
+ *       button({ onclick: () => window.location.reload() }, 'Reload')
+ *     ),
+ *     onError: (error) => console.error('Component error:', error)
+ *   }
+ * );
+ *
+ * render(SafeComponent, document.getElementById('app'));
+ * ```
+ */
+export function errorBoundary<P = void>(
+  component: (props?: P) => HTMLElement,
+  options: ErrorBoundaryOptions = {},
+): Component<P> {
+  const { onError, fallback, logToConsole = true } = options;
+
+  let hasError = false;
+  let error: Error | null = null;
+  let errorInfo: { componentStack?: string } = {};
+
+  const errorBoundaryComponent = (props?: P): HTMLElement => {
+    // If we have an error, render fallback UI
+    if (hasError && error) {
+      let fallbackElement: HTMLElement;
+
+      if (fallback) {
+        fallbackElement = fallback(error);
+      } else {
+        // Default fallback UI
+        fallbackElement = div(
+          { className: 'error-boundary' },
+          h2('Something went wrong'),
+          p(error.message),
+          button(
+            {
+              onclick: () => {
+                hasError = false;
+                error = null;
+                errorInfo = {};
+                // Force re-render by updating a signal or similar mechanism
+                // For now, we'll use a simple approach
+                const container = document.querySelector(
+                  '[data-error-boundary]',
+                );
+                if (container) {
+                  container.innerHTML = '';
+                  const newElement = errorBoundaryComponent(props);
+                  container.appendChild(newElement);
+                }
+              },
+            },
+            'Try again',
+          ),
+        );
+      }
+
+      // Always mark fallback elements with error boundary attribute
+      if (fallbackElement instanceof HTMLElement) {
+        fallbackElement.setAttribute('data-error-boundary', 'true');
+      }
+
+      return fallbackElement;
+    }
+
+    try {
+      // Attempt to render the wrapped component
+      const element = component(props);
+
+      // Add error boundary marker for potential re-renders
+      if (element instanceof HTMLElement) {
+        element.setAttribute('data-error-boundary', 'true');
+      } else if (
+        element &&
+        typeof (element as any).setAttribute === 'function'
+      ) {
+        (element as any).setAttribute('data-error-boundary', 'true');
+      }
+
+      return element;
+    } catch (err) {
+      // Catch synchronous errors
+      hasError = true;
+      error = err instanceof Error ? err : new Error(String(err));
+      errorInfo.componentStack = error.stack;
+
+      if (logToConsole) {
+        console.error('Error boundary caught an error:', error);
+      }
+
+      if (onError) {
+        onError(error, errorInfo);
+      }
+
+      // Return fallback UI
+      return errorBoundaryComponent(props);
+    }
+  };
+
+  // Override the toString to mark this as an error boundary component
+  const originalToString = errorBoundaryComponent.toString;
+  errorBoundaryComponent.toString = (): string => {
+    return `[ErrorBoundary: ${originalToString.call(errorBoundaryComponent)}]`;
+  };
+
+  // Add error boundary specific methods
+  errorBoundaryComponent._setContainer = (container: HTMLElement) => {
+    // Mark container for error boundary
+    container.setAttribute('data-error-boundary', 'true');
+
+    // If the wrapped component has _setContainer, call it
+    if ((component as any)._setContainer) {
+      (component as any)._setContainer(container);
+    }
+  };
+
+  // Method to manually trigger error boundary
+  errorBoundaryComponent._triggerError = (
+    err: Error,
+    info?: { componentStack?: string },
+  ) => {
+    hasError = true;
+    error = err;
+    errorInfo = info || {};
+
+    if (logToConsole) {
+      console.error('Error boundary manually triggered:', error);
+    }
+
+    if (onError) {
+      onError(error, errorInfo);
+    }
+  };
+
+  // Method to reset error state
+  errorBoundaryComponent._reset = () => {
+    hasError = false;
+    error = null;
+    errorInfo = {};
+  };
+
+  return errorBoundaryComponent;
+}
+
+/**
  * Creates a reactive component that automatically re-renders when its dependencies change.
  *
  * This function wraps a component function and sets up automatic re-rendering

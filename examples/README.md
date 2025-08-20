@@ -74,6 +74,16 @@ npm install
 npm run dev
 ```
 
+### Error Boundary (`/error-boundary-demo`)
+
+An example demonstrating the error boundary functionality for graceful error handling in components.
+
+```bash
+cd error-boundary-demo
+npm install
+npm run dev
+```
+
 ## Running Examples
 
 Each example is self-contained with its own `package.json`, `vite.config.ts`, and `tsconfig.json`. To run any example:
@@ -94,6 +104,7 @@ Each example runs on a different port to avoid conflicts:
 - Signals: `http://localhost:5177`
 - ClassNames: `http://localhost:5178`
 - Inline i18n: `http://localhost:3001`
+- Error Boundary: `http://localhost:3004`
 
 ## Building Examples
 

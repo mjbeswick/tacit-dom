@@ -98,6 +98,60 @@ The underlying function that creates reactive components. `component` is the pre
 
 Type for reactive components with optional props.
 
+### `errorBoundary<P>(component: (props?: P) => HTMLElement, options?: ErrorBoundaryOptions): Component<P>`
+
+Creates an error boundary wrapper around a component to catch and handle errors gracefully.
+
+**Parameters:**
+
+- `component: (props?: P) => HTMLElement` - The component function to wrap with error boundary
+- `options?: ErrorBoundaryOptions` - Optional configuration for error handling
+
+**Returns:**
+
+- `Component<P>` - A component wrapped with error boundary functionality
+
+**Example:**
+
+```typescript
+import { errorBoundary, div, h2, p, button } from 'tacit-dom';
+
+const BuggyComponent = () => {
+  if (Math.random() > 0.5) {
+    throw new Error('Random error occurred!');
+  }
+  return div('Component rendered successfully');
+};
+
+const SafeComponent = errorBoundary(BuggyComponent, {
+  fallback: (error) =>
+    div(
+      h2('Something went wrong'),
+      p(`Error: ${error.message}`),
+      button({ onclick: () => window.location.reload() }, 'Reload'),
+    ),
+  onError: (error) => console.error('Component error:', error),
+});
+
+// Usage
+render(SafeComponent, document.getElementById('app'));
+```
+
+### `ErrorBoundaryOptions`
+
+Configuration options for error boundaries.
+
+```typescript
+type ErrorBoundaryOptions = {
+  /** Function called when an error occurs */
+  onError?: (error: Error, errorInfo: { componentStack?: string }) => void;
+  /** Fallback UI to render when an error occurs */
+  fallback?: (error: Error) => HTMLElement;
+  /** Whether to log errors to console (default: true) */
+  logToConsole?: boolean;
+};
+```
+
 **Type Definition:**
 
 ```typescript
