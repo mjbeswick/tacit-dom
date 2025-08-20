@@ -1,5 +1,5 @@
 {
-  "name": "error-boundary-demo",
+  "name": "error-boundary",
   "version": "1.0.0",
   "description": "Error Boundary Demo for Tacit-DOM",
   "main": "main.ts",

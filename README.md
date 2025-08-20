@@ -531,7 +531,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 - **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
 - **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
 - **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
-- **🚨 Error Boundary** (`/error-boundary-demo`): Graceful error handling and recovery for components
+- **🚨 Error Boundary** (`/error-boundary`): Graceful error handling and recovery for components
 
 ### Example Features
 

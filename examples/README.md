@@ -74,12 +74,12 @@ npm install
 npm run dev
 ```
 
-### Error Boundary (`/error-boundary-demo`)
+### Error Boundary (`/error-boundary`)
 
 An example demonstrating the error boundary functionality for graceful error handling in components.
 
 ```bash
-cd error-boundary-demo
+cd error-boundary
 npm install
 npm run dev
 ```
