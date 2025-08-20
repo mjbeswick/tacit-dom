@@ -1541,6 +1541,7 @@ export function render<P = {}>(
     const defaultProps = { children: undefined, ...props } as P & {
       children?: any;
     };
+
     const element = component(defaultProps);
     container.appendChild(element);
   } catch (error) {
