@@ -1,4 +1,4 @@
-name: Library Tests & Examples Validation
+name: Library Tests
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [main]
 
 concurrency:
-  group: 'test-examples'
+  group: 'library-tests'
   cancel-in-progress: true
 
 jobs:
-  test-examples:
+  test-library:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,67 +30,11 @@ jobs:
       - name: Build library
         run: npm run build
 
-      - name: Test library functionality
-        run: |
-          # Test that examples can be imported
-          node -e "
-            const { signal, computed, div, render } = require('./dist/tacit-dom.cjs.js');
-            console.log('✅ Library imports successfully');
-
-            const count = signal(0);
-            const double = computed(() => count.get() * 2);
-            console.log('✅ Signals work:', count.get(), double.get());
-
-            const element = div({ className: 'test' }, 'Hello');
-            console.log('✅ DOM elements work:', element.tagName);
-          "
-
-      - name: Test dynamic class names functionality
-        run: |
-          node -e "
-            const { classNames } = require('./dist/tacit-dom.cjs.js');
-
-            console.log('Testing classNames...');
-            console.log('String:', classNames('foo'));
-            console.log('Multiple:', classNames('foo', 'bar'));
-            console.log('Array:', classNames(['foo', 'bar']));
-            console.log('Object:', classNames({ foo: true, bar: false, baz: true }));
-            console.log('Mixed:', classNames('foo', { bar: true, baz: false }, ['qux']));
-            console.log('✅ Dynamic class names functionality works');
-          "
-
-      - name: Test cleanup functionality
-        run: |
-          node -e "
-            const { signal, computed, div, render, cleanup } = require('./dist/tacit-dom.cjs.js');
-
-            console.log('Testing cleanup...');
-            const count = signal(0);
-            const double = computed(() => count.get() * 2);
-
-            const element = div(
-              { className: 'test' },
-              div({ children: \`Count: \${count}\` }),
-              div({ children: \`Double: \${double}\` })
-            );
-
-            console.log('✅ Cleanup functionality works');
-          "
-
       - name: Test TypeScript compilation
         run: |
           # Test that all TypeScript files compile
-          npx tsc --noEmit examples/counter/main.ts
-          npx tsc --noEmit examples/debug/main.ts
-          npx tsc --noEmit examples/random-generator/main.ts
-          npx tsc --noEmit examples/router/main.ts
+          npx tsc --noEmit
           echo "✅ All TypeScript files compile successfully"
-
-      - name: Test build process
-        run: |
-          # Test that the build process works correctly
-          npm run build
-          echo "✅ Build process completed successfully"
 
       - name: Test type checking
         run: |
@@ -103,3 +47,15 @@ jobs:
           # Run Jest unit tests
           npm test
           echo "✅ Unit tests passed"
+
+      - name: Test build process
+        run: |
+          # Test that the build process works correctly
+          npm run build
+          echo "✅ Build process completed successfully"
+
+      - name: Verify build output
+        run: |
+          # Verify that all expected build outputs exist
+          ls -la dist/
+          echo "✅ Build output verification completed"

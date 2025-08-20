@@ -1,0 +1,98 @@
+name: Examples Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: 'examples-validation'
+  cancel-in-progress: true
+
+jobs:
+  validate-examples:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build
+
+      - name: Test library functionality
+        run: |
+          # Test that examples can be imported
+          node -e "
+            const { signal, computed, div, render } = require('./dist/tacit-dom.cjs.js');
+            console.log('✅ Library imports successfully');
+
+            const count = signal(0);
+            const double = computed(() => count.get() * 2);
+            console.log('✅ Signals work:', count.get(), double.get());
+
+            const element = div({ className: 'test' }, 'Hello');
+            console.log('✅ DOM elements work:', element.tagName);
+          "
+
+      - name: Test dynamic class names functionality
+        run: |
+          node -e "
+            const { classNames } = require('./dist/tacit-dom.cjs.js');
+
+            console.log('Testing classNames...');
+            console.log('String:', classNames('foo'));
+            console.log('Multiple:', classNames('foo', 'bar'));
+            console.log('Array:', classNames(['foo', 'bar']));
+            console.log('Object:', classNames({ foo: true, bar: false, baz: true }));
+            console.log('Mixed:', classNames('foo', { bar: true, baz: false }, ['qux']));
+            console.log('✅ Dynamic class names functionality works');
+          "
+
+      - name: Test cleanup functionality
+        run: |
+          node -e "
+            const { signal, computed, div, render, cleanup } = require('./dist/tacit-dom.cjs.js');
+
+            console.log('Testing cleanup...');
+            const count = signal(0);
+            const double = computed(() => count.get() * 2);
+
+            const element = div(
+              { className: 'test' },
+              div({ children: \`Count: \${count}\` }),
+              div({ children: \`Double: \${double}\` })
+            );
+
+            console.log('✅ Cleanup functionality works');
+          "
+
+      - name: Test examples TypeScript compilation
+        run: |
+          # Test that example TypeScript files compile
+          npx tsc --noEmit examples/signals/main.ts
+          npx tsc --noEmit examples/router/main.ts
+          npx tsc --noEmit examples/i18n/main.ts
+          npx tsc --noEmit examples/i18n-inline/main.ts
+          npx tsc --noEmit examples/error-boundary/main.ts
+          echo "✅ All example TypeScript files compile successfully"
+
+      - name: Test example builds
+        run: |
+          # Test that examples can be built
+          cd examples/signals && npm run build
+          cd ../router && npm run build
+          cd ../i18n && npm run build
+          cd ../i18n-inline && npm run build
+          cd ../error-boundary && npm run build
+          echo "✅ All examples build successfully"
