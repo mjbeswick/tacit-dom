@@ -1,11 +1,11 @@
-import { button, component, div, render } from '../../src/index';
+import { button, component, div, render, signal } from '../../src/index';
 import {
-  computedC,
-  signalA,
-  signalB,
-  updateA,
-  updateB,
-  updateBAsync,
+  computerScore,
+  gameStatus,
+  incrementComputerScore,
+  incrementComputerScoreAsync,
+  incrementUserScore,
+  userScore,
 } from './store';
 
 // ============================================================================
@@ -48,41 +48,79 @@ import {
  */
 const SignalDisplay = component<{
   title: string;
-  value: number;
+  value: number | string;
   className: string;
   onUpdate?: () => void;
 }>((props) => {
   return div(
-    { className: `mb-3 p-3 ${props?.className || ''} rounded` },
-    div({ className: 'fw-bold' }, props?.title || 'Signal'),
-    div({ className: 'fs-5' }, props?.value || 0),
+    { className: `mb-4 p-4 ${props?.className || ''} rounded shadow-sm` },
+    div(
+      { className: 'h6 mb-2 text-muted fw-semibold' },
+      props?.title || 'Signal',
+    ),
+    div({ className: 'h3 mb-0 fw-bold' }, props?.value || 0),
   );
 });
 
 /**
- * ComputedDisplay Component
+ * GameStatusDisplay Component
  *
- * Displays the computed value that automatically updates when its dependencies change.
+ * Displays rich game statistics that automatically update when scores change.
  * This component shows how computed values work in the reactive system.
  *
  * HOW IT WORKS:
- * - This component directly calls computedC.get() in its render function
+ * - This component directly calls gameStatus.get() in its render function
  * - This makes the component subscribe to the computed signal
- * - When signalA or signalB change, computedC recalculates
+ * - When userScore or computerScore change, gameStatus recalculates
  * - The component automatically re-renders with the new computed value
  *
  * REACTIVE BEHAVIOR:
- * - Direct subscription to computedC
- * - Automatic re-rendering when computedC changes
- * - Transitive dependency: changes to signalA/signalB → computedC → this component
+ * - Direct subscription to gameStatus
+ * - Automatic re-rendering when gameStatus changes
+ * - Transitive dependency: changes to userScore/computerScore → gameStatus → this component
  *
- * @returns A div element showing the computed signal value
+ * @returns A div element showing the computed game statistics
  */
-const ComputedDisplay = component(() => {
+const GameStatusDisplay = component(() => {
+  const status = gameStatus.get();
+
   return div(
-    { className: 'mb-4 p-3 bg-warning bg-opacity-10 rounded' },
-    div({ className: 'fw-bold text-warning' }, 'Computed C:'),
-    div({ className: 'fs-5' }, computedC.get()),
+    { className: 'mb-4 p-4 bg-gradient rounded shadow-sm border' },
+    div(
+      { className: 'd-flex justify-content-between align-items-center mb-3' },
+      div({ className: 'h5 mb-0 text-primary' }, '🎮 Game Statistics'),
+      div({ className: 'badge bg-primary fs-6' }, status.totalGames + ' Games'),
+    ),
+    div(
+      { className: 'row g-3' },
+      div(
+        { className: 'col-md-6' },
+        div(
+          { className: 'text-center p-3 bg-light rounded' },
+          div(
+            { className: 'h4 text-success mb-1' },
+            status.userPercentage + '%',
+          ),
+          div({ className: 'text-muted' }, 'Your Win Rate'),
+        ),
+      ),
+      div(
+        { className: 'col-md-6' },
+        div(
+          { className: 'text-center p-3 bg-light rounded' },
+          div(
+            { className: 'h4 text-danger mb-1' },
+            status.computerPercentage + '%',
+          ),
+          div({ className: 'text-muted' }, 'Computer Win Rate'),
+        ),
+      ),
+    ),
+    div(
+      { className: 'mt-3 p-3 bg-info bg-opacity-10 rounded text-center' },
+      div({ className: 'h6 text-info mb-1' }, status.summary),
+      div({ className: 'fs-4 fw-bold text-dark' }, status.score),
+    ),
   );
 });
 
@@ -161,12 +199,12 @@ const Button = component(
 /**
  * ButtonGroup Component
  *
- * Contains the main action buttons for updating signals A and B.
+ * Contains the main action buttons for updating the score values.
  * Demonstrates signal updates, async operations, and loading state management.
  *
  * HOW IT WORKS:
- * - This component contains the update logic for both signals
- * - It passes the loading state from signalB.pending to the Update B button
+ * - This component contains the update logic for both scores
+ * - It passes the loading state from computerScore.pending to the async button
  * - When buttons are clicked, they call the update functions from store.ts
  * - The update functions change signals, which trigger re-renders throughout the app
  *
@@ -177,47 +215,58 @@ const Button = component(
  * 4. UI automatically updates to reflect new state
  *
  * ASYNC UPDATE HANDLING:
- * - Update B button shows loading state while async operation is pending
- * - Loading state comes from signalB.pending (automatically managed)
+ * - Async button shows loading state while async operation is pending
+ * - Loading state comes from computerScore.pending (automatically managed)
  * - Button is disabled during loading to prevent multiple clicks
  *
  * @returns A div containing the update buttons
  */
 const ButtonGroup = component(() => {
-  // Handler for updating signal A synchronously
-  const handleUpdateA = () => {
-    updateA();
+  // Handler for updating userScore synchronously
+  const handleIncrementUserScore = () => {
+    incrementUserScore();
   };
 
-  // Handler for updating signal B synchronously
-  const handleUpdateB = () => {
-    updateB();
+  // Handler for updating computerScore synchronously
+  const handleIncrementComputerScore = () => {
+    incrementComputerScore();
   };
 
-  // Handler for updating signal B asynchronously
-  const handleUpdateBAsync = () => {
-    updateBAsync().catch(console.error);
+  // Handler for updating computerScore asynchronously
+  const handleIncrementComputerScoreAsync = () => {
+    incrementComputerScoreAsync().catch(console.error);
   };
 
   return div(
-    { className: 'd-flex justify-content-center gap-3' },
+    { className: 'd-flex justify-content-center gap-3 flex-wrap' },
     Button({
-      onclick: handleUpdateA,
-      className: 'btn-info btn-lg px-4',
-      children: 'Update A',
+      onclick: handleIncrementUserScore,
+      className: 'btn-success btn-lg px-4',
+      children: '🎯 Score a Point!',
     }),
     Button({
-      onclick: () => {
-        // Update both synchronously and asynchronously
-        handleUpdateB();
-        handleUpdateBAsync();
-      },
-      className: 'btn-success btn-lg px-4',
-      loading: signalB.pending, // Show loading state while async update is pending
-      children: 'Update B (Async)',
+      onclick: handleIncrementComputerScore,
+      className: 'btn-info btn-lg px-4',
+      children: '🤖 Computer Scores',
+    }),
+    Button({
+      onclick: handleIncrementComputerScoreAsync,
+      className: 'btn-warning btn-lg px-4',
+      loading: computerScore.pending, // Show loading state while async update is pending
+      children: '⏳ Computer Scores (Async)',
     }),
   );
 });
+
+// Create a local signal to demonstrate component-scoped state
+// This signal is accessible to the app component and persists across renders
+const localCounter = signal(0);
+
+// Helper function to increment the local counter
+const incrementLocal = () => {
+  localCounter.set(localCounter.get() + 1);
+  console.log(`local counter: ${localCounter.get()}`);
+};
 
 /**
  * Main App Component
@@ -227,7 +276,7 @@ const ButtonGroup = component(() => {
  *
  * HOW IT WORKS:
  * - This is the root component that orchestrates the entire application
- * - It reads signalA.get() and signalB.get() in its render function
+ * - It reads userScore.get() and computerScore.get() in its render function
  * - This makes the app component subscribe to both signals
  * - When either signal changes, the entire app re-renders
  *
@@ -239,68 +288,108 @@ const ButtonGroup = component(() => {
  * 5. DOM automatically reflects new state
  *
  * COMPONENT HIERARCHY:
- * app → SignalDisplay(s) + ComputedDisplay + ButtonGroup
+ * app → SignalDisplay(s) + GameStatusDisplay + ButtonGroup
  *       ↓
  *       Button(s) with event handlers
  *
  * SIGNAL SUBSCRIPTIONS:
- * - signalA: app component + ComputedDisplay (via computedC)
- * - signalB: app component + ComputedDisplay (via computedC) + ButtonGroup (loading state)
+ * - userScore: app component + GameStatusDisplay (via gameStatus)
+ * - computerScore: app component + GameStatusDisplay (via gameStatus) + ButtonGroup (loading state)
  *
- * @returns The main application layout with signal displays and controls
+ * @returns The main application layout with score displays and controls
  */
 const app = component(() => {
   // Debug logging to demonstrate when the component re-renders
   // This shows the reactive nature - every time a signal changes, this runs
-  console.log(`app renders: ${signalA.get()} ${signalB.get()}`);
+  console.log(`app renders: ${userScore.get()} ${computerScore.get()}`);
 
   // Additional logging for individual signal access
   // Each .get() call registers this component as a subscriber to that signal
-  console.log(`render signalA ${signalA.get()}`);
-  console.log(`render signalB ${signalB.get()}`);
+  console.log(`render userScore ${userScore.get()}`);
+  console.log(`render computerScore ${computerScore.get()}`);
+
+  // Log local signal access to show component-level reactivity
+  console.log(`local counter: ${localCounter.get()}`);
 
   return div(
     {
       className:
-        'min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light',
+        'min-vh-100 d-flex flex-column justify-content-center align-items-center bg-gradient',
+      style: 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);',
     },
     div(
-      { className: 'card p-4 shadow-sm' },
+      { className: 'card p-4 shadow-lg border-0' },
       // Header section
       div(
-        { className: 'card-header text-center mb-3' },
-        div({ className: 'h4 mb-0' }, 'Signal Demo with Props'),
+        { className: 'card-header text-center mb-4 bg-transparent border-0' },
+        div(
+          { className: 'h3 mb-2 text-primary fw-bold' },
+          '🎮 Reactive Game Demo',
+        ),
+        div(
+          { className: 'text-muted' },
+          'Watch how signals automatically update the UI in real-time!',
+        ),
       ),
       // Main content section
       div(
         { className: 'card-body' },
-        // Display signal A with info styling
-        // The value prop comes from signalA.get(), so this updates when signalA changes
+        // Display userScore with success styling
+        // The value prop comes from userScore.get(), so this updates when userScore changes
         SignalDisplay({
-          title: 'Signal A',
-          value: signalA.get(),
-          className: 'bg-info bg-opacity-10',
+          title: '🎯 Your Score',
+          value: userScore.get(),
+          className: 'bg-success bg-opacity-10 border border-success',
         }),
-        // Display signal B with success styling
-        // The value prop comes from signalB.get(), so this updates when signalB changes
+        // Display computerScore with info styling
+        // The value prop comes from computerScore.get(), so this updates when computerScore changes
         SignalDisplay({
-          title: 'Signal B',
-          value: signalB.get(),
-          className: 'bg-success bg-opacity-10',
+          title: '🤖 Computer Score',
+          value: computerScore.get(),
+          className: 'bg-info bg-opacity-10 border border-info',
         }),
-        // Display computed value
-        // This component directly subscribes to computedC and updates automatically
-        ComputedDisplay(),
+        // Display local counter with warning styling
+        // The value prop comes from localCounter.get(), so this updates when localCounter changes
+        SignalDisplay({
+          title: '🔢 Local Counter',
+          value: localCounter.get(),
+          className: 'bg-warning bg-opacity-10 border border-warning',
+        }),
+        // Display game statistics
+        // This component directly subscribes to gameStatus and updates automatically
+        GameStatusDisplay(),
         // Action buttons
         // This component manages the loading state and update logic
-        ButtonGroup(),
+        // Button controls section
+        div(
+          { className: 'd-flex gap-2 justify-content-center flex-wrap' },
+          // Increment user score button
+          Button({
+            onclick: incrementUserScore,
+            className: 'btn-primary',
+            children: '🎯 Score a Point!',
+          }),
+          // Increment computer score button (asynchronous with loading state)
+          Button({
+            onclick: incrementComputerScoreAsync,
+            className: 'btn-danger',
+            loading: computerScore.pending,
+            children: '⏳ Computer Scores (Async)',
+          }),
+          // Increment local counter button
+          Button({
+            onclick: incrementLocal,
+            className: 'btn-warning',
+            children: '🔢 Increment Local Counter',
+          }),
+        ),
       ),
     ),
   );
 });
 
 // Mount the application to the DOM
-// The app will automatically re-render whenever signalA or signalB change
+// The app will automatically re-render whenever userScore or computerScore change
 //
 // HOW MOUNTING WORKS:
 // 1. render() function creates the initial DOM from the app component
@@ -309,5 +398,3 @@ const app = component(() => {
 // 4. The render function efficiently updates only the changed parts of the DOM
 // 5. The UI stays in sync with the reactive state automatically
 render(app, document.getElementById('app')!);
-
-// render(testComponent, document.getElementById('app')!);
