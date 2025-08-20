@@ -527,7 +527,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 - **🎲 Random Generator** (`/random-generator`): Signal updates with automatic UI re-rendering
 - **🐛 Debug** (`/debug`): Reactive signals with disabled states and real-time logging
 - **🌐 Router** (`/router`): Advanced client-side routing with navigation and error handling
-- **🔒 Strongly Typed Props** (`/strongly-typed-props`): Demonstrates TypeScript type safety for all HTML element props
+
 - **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
 - **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
 - **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
@@ -553,7 +553,7 @@ Each example demonstrates different aspects of Tacit-DOM:
 # Or run individual examples
 cd examples/debug && npm install && npm run dev
 cd examples/router && npm install && npm run dev
-cd examples/strongly-typed-props && npm install && npm run dev
+
 ```
 
 ### Example Ports
@@ -563,7 +563,7 @@ Each example runs on a different port:
 - **Debug**: `http://localhost:5173`
 - **Random Generator**: `http://localhost:5174`
 - **Router**: `http://localhost:5175`
-- **Strongly Typed Props**: `http://localhost:5176`
+
 - **Signals**: `http://localhost:5177`
 - **ClassNames**: `http://localhost:5178`
 - **Error Boundary**: `http://localhost:3004`

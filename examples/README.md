@@ -34,16 +34,6 @@ npm install
 npm run dev
 ```
 
-### Strongly Typed Props (`/strongly-typed-props`)
-
-An example demonstrating the strongly typed props functionality in Tacit-DOM. Shows how each HTML element has its own specific prop type for better TypeScript support.
-
-```bash
-cd strongly-typed-props
-npm install
-npm run dev
-```
-
 ### Signals (`/signals`)
 
 An example demonstrating the unified signal API with preserved signals and reactive updates.
