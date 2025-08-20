@@ -18,7 +18,7 @@ run_example() {
 
 run_example "signals" "5177"
 run_example "classnames" "5178"
-run_example "i18n-inline-demo" "3001"
+run_example "i18n-inline" "3001"
 run_example "router" "5175"
 
 echo ""

@@ -54,12 +54,12 @@ npm install
 npm run dev
 ```
 
-### Inline i18n (`/i18n-inline-demo`)
+### Inline i18n (`/i18n-inline`)
 
 An example demonstrating the new inline i18n implementation with AST-based translation extraction.
 
 ```bash
-cd i18n-inline-demo
+cd i18n-inline
 npm install
 npm run dev
 ```

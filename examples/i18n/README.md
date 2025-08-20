@@ -18,7 +18,7 @@ This example demonstrates the internationalization (i18n) capabilities of Tacit-
 ### 1. Install Dependencies
 
 ```bash
-cd examples/i18n-demo
+cd examples/i18n
 npm install
 ```
 
@@ -54,7 +54,7 @@ The demo uses Vite for fast development and building:
 ## File Structure
 
 ```
-examples/i18n-demo/
+examples/i18n/
 ├── index.html          # Main HTML file
 ├── main.ts            # TypeScript application code
 ├── styles.css         # Styling

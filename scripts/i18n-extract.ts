@@ -34,14 +34,12 @@ const CONFIG = {
 } as const;
 
 // Detect if we're running from the demo directory
-const isDemoDirectory = process.cwd().includes('i18n-demo');
+const isDemoDirectory = process.cwd().includes('i18n');
 if (isDemoDirectory) {
   CONFIG.sourceFiles = ['**/*.{ts,tsx,js,jsx}'];
   CONFIG.localesDir = 'locales';
   CONFIG.supportedLocales = ['en', 'es', 'fr', 'de'];
 }
-
-
 
 // Translation storage
 const translations = new Map<TranslationKey, TranslationInfo>();

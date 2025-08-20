@@ -63,10 +63,10 @@ userNamespace.t('title', 'User Profile');
 Translations are imported statically:
 
 ```typescript
-import en from '../i18n-demo/locales/en.json';
-import es from '../i18n-demo/locales/es.json';
-import fr from '../i18n-demo/locales/fr.json';
-import de from '../i18n-demo/locales/de.json';
+import en from '../i18n/locales/en.json';
+import es from '../i18n/locales/es.json';
+import fr from '../i18n/locales/fr.json';
+import de from '../i18n/locales/de.json';
 
 const translations = { en, es, fr, de };
 ```

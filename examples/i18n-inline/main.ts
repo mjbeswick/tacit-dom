@@ -18,10 +18,10 @@ import {
 } from '../../src/index';
 
 // Static JSON imports so translations are bundled
-import de from '../i18n-demo/locales/de.json';
-import en from '../i18n-demo/locales/en.json';
-import es from '../i18n-demo/locales/es.json';
-import fr from '../i18n-demo/locales/fr.json';
+import de from '../i18n/locales/de.json';
+import en from '../i18n/locales/en.json';
+import es from '../i18n/locales/es.json';
+import fr from '../i18n/locales/fr.json';
 
 // Initialize inline i18n
 let i18n: any;
