@@ -29,6 +29,7 @@ const incrementLocal = () => {
  * - Renders a button with appropriate styling and disabled state when loading
  * - The loading prop comes from a signal's .pending state (e.g., signalB.pending)
  * - When loading is true, the button is disabled to prevent multiple clicks
+ * - Loading state shows a spinner and hides the button text
  *
  * PROPS:
  * - onclick: Function to call when button is clicked
@@ -50,7 +51,16 @@ const Button = component<{
       className: `btn ${props?.className || ''}`,
       disabled: props?.loading,
     },
-    props?.loading ? 'Loading...' : props?.children || 'Button',
+    props?.loading
+      ? div(
+          { className: 'd-flex align-items-center justify-content-center' },
+          div({
+            className: 'spinner-border spinner-border-sm me-2',
+            role: 'status',
+          }),
+          'Loading...',
+        )
+      : props?.children || 'Button',
   );
 });
 
@@ -214,6 +224,11 @@ const ButtonGroup = component(() => {
         className: 'btn-warning btn-lg px-4 py-2',
         loading: signalB.pending, // Show loading state while async update is pending
         children: 'Update Signal B (Async)',
+      }),
+      Button({
+        onclick: incrementLocal,
+        className: 'btn-success btn-lg px-4 py-2',
+        children: 'Increment Local Counter',
       }),
     ),
   );
