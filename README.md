@@ -413,7 +413,8 @@ Tacit-DOM provides comprehensive documentation covering all aspects of the libra
 
 - **[DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
 - **[Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
-- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management
+- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management (recommended)
+- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Migrate from deprecated `className` to `classNames`
 
 #### Component Naming Convention
 
@@ -467,7 +468,8 @@ For detailed API documentation, see [API.md](docs/API.md).
 - **[API Reference](docs/API.md)**: Complete API documentation
 - **[Signals Guide](docs/SIGNALS.md)**: Comprehensive guide to reactive signals
 - **[Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and patterns for using signals
-- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class name utility
+- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class name utility (recommended)
+- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Migrate from deprecated `className` to `classNames`
 - **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
 - **[Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
 - **[i18n Guide](docs/I18N.md)**: Internationalization and localization support

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Tacit-DOM library provides a reactive signal system that allows you to create reactive state and automatically update the DOM when that state changes.
+The Tacit-DOM library provides a reactive signal system that allows you to create reactive state and automatically update the DOM when that state changes. This is a complete rewrite that works like Preact/React with automatic component re-rendering.
 
 ## Basic Signals
 
@@ -101,279 +101,636 @@ console.log(count.pending); // false
 - Display progress indicators
 - Prevent multiple simultaneous updates
 
-**Important**: The `pending` property is reactive, so any effects or components that read it will automatically re-run when the pending state changes. This means you can use it directly in your UI components without manually managing state updates.
+## Computed Values
 
-## Computed Signals
+### Creating Computed Values
 
-Computed signals automatically update when their dependencies change.
+Computed values are derived from signals and automatically update when their dependencies change:
 
 ```typescript
-import { computed } from 'tacit-dom';
+import { signal, computed } from 'tacit-dom';
 
 const firstName = signal('John');
 const lastName = signal('Doe');
 
-const fullName = computed(() => {
-  return firstName.get() + ' ' + lastName.get();
-});
+// Computed value that automatically updates
+const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
+const initials = computed(() => 
+  `${firstName.get()[0]}${lastName.get()[0]}`
+);
 
 console.log(fullName.get()); // "John Doe"
+console.log(initials.get()); // "JD"
 
+// When dependencies change, computed values update automatically
 firstName.set('Jane');
 console.log(fullName.get()); // "Jane Doe"
+console.log(initials.get()); // "JD"
+```
+
+### Computed Values with Multiple Dependencies
+
+```typescript
+const a = signal(1);
+const b = signal(2);
+const c = signal(3);
+
+// Computed value that depends on multiple signals
+const sum = computed(() => a.get() + b.get() + c.get());
+const average = computed(() => sum.get() / 3);
+const product = computed(() => a.get() * b.get() * c.get());
+
+console.log(sum.get()); // 6
+console.log(average.get()); // 2
+console.log(product.get()); // 6
+
+// Update one signal
+a.set(5);
+console.log(sum.get()); // 10
+console.log(average.get()); // 3.33...
+console.log(product.get()); // 30
+```
+
+### Computed Values in Components
+
+When used in components, computed values automatically trigger re-renders when their dependencies change:
+
+```typescript
+import { component, useSignal, computed, div, button } from 'tacit-dom';
+
+const UserProfile = component(() => {
+  const firstName = useSignal('John');
+  const lastName = useSignal('Doe');
+  
+  // These computed values will automatically update the UI
+  const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
+  const initials = computed(() => 
+    `${firstName.get()[0]}${lastName.get()[0]}`
+  );
+  
+  return div(
+    div(`Full Name: ${fullName.get()}`),
+    div(`Initials: ${initials.get()}`),
+    button({ 
+      onClick: () => firstName.set('Jane') 
+    }, 'Change First Name'),
+  );
+});
 ```
 
 ## Effects
 
-Effects run side effects when their dependencies change.
+### Basic Effects
+
+Effects run side effects and automatically re-execute when dependencies change:
 
 ```typescript
-import { effect } from 'tacit-dom';
+import { signal, effect } from 'tacit-dom';
 
 const count = signal(0);
 
-effect(() => {
-  console.log('Count is now:', count.get());
+// Effect that runs whenever count changes
+const cleanup = effect(() => {
+  console.log('Count changed to:', count.get());
+  
+  // Return cleanup function (optional)
+  return () => {
+    console.log('Cleaning up effect');
+  };
 });
 
-count.set(5); // Logs: "Count is now: 5"
+// Later, dispose of the effect
+cleanup();
 ```
 
-## Mount Effects
+### Effects with Cleanup
 
-The `mount` function provides a convenient way to set up resources when a component first mounts and automatically clean them up when the component unmounts.
+Effects can return cleanup functions that run before the effect re-runs or when the effect is disposed:
 
 ```typescript
-import { mount } from 'tacit-dom';
+const count = signal(0);
 
-function TimerComponent() {
-  const count = signal(0);
+const cleanup = effect(() => {
+  console.log('Setting up effect for count:', count.get());
+  
+  // Set up an interval
+  const interval = setInterval(() => {
+    console.log('Current count:', count.get());
+  }, 1000);
+  
+  // Return cleanup function
+  return () => {
+    console.log('Cleaning up effect');
+    clearInterval(interval);
+  };
+});
 
-  mount(() => {
+// When count changes, cleanup runs first, then the effect runs again
+count.set(5);
+
+// When disposing, cleanup runs one final time
+cleanup();
+```
+
+### Effects in Components
+
+Effects automatically clean up when components unmount, making them perfect for component lifecycle management:
+
+```typescript
+import { component, useSignal, effect, div, button } from 'tacit-dom';
+
+const Timer = component(() => {
+  const count = useSignal(0);
+  
+  // Effect that sets up a timer
+  effect(() => {
     const interval = setInterval(() => {
       count.set(count.get() + 1);
     }, 1000);
-
+    
+    // Cleanup runs when component unmounts or effect re-runs
     return () => clearInterval(interval);
-  }, [count]);
-
-  return div(`Count: ${count.get()}`);
-}
-```
-
-### When to Use Mount
-
-- **Timers and Intervals**: `setInterval`, `setTimeout`
-- **Event Listeners**: Global event listeners, WebSocket connections
-- **Third-party Libraries**: Initializing libraries that need cleanup
-- **Resource Management**: Any resource that needs to be cleaned up
-
-### How It Works
-
-1. **First Run**: The mount function runs once when the component first renders
-2. **Dependency Tracking**: It tracks the specified signals/computed values
-3. **Automatic Cleanup**: When the component unmounts, cleanup functions are automatically called
-4. **No Manual Management**: No need to remember to call cleanup functions
-
-### Example with Multiple Resources
-
-```typescript
-function ChatComponent() {
-  const messages = signal<string[]>([]);
-  const isConnected = signal(false);
-
-  mount(() => {
-    // Set up WebSocket connection
-    const ws = new WebSocket('ws://localhost:8080');
-
-    ws.onopen = () => isConnected.set(true);
-    ws.onmessage = (event) => {
-      messages.update((prev) => [...prev, event.data]);
-    };
-
-    // Set up heartbeat timer
-    const heartbeat = setInterval(() => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.send('ping');
-      }
-    }, 30000);
-
-    // Return cleanup function
-    return () => {
-      ws.close();
-      clearInterval(heartbeat);
-    };
-  }, [messages, isConnected]);
-
-  return div(
-    div(
-      { className: isConnected.get() ? 'connected' : 'disconnected' },
-      isConnected.get() ? 'Connected' : 'Disconnected',
-    ),
-    div(messages.get().map((msg) => div(msg))),
-  );
-}
-```
-
-## Signal Preservation
-
-When used inside components, signals can optionally preserve their state between renders by providing a unique key.
-
-### The Problem
-
-```typescript
-const app = () => {
-  // This signal is recreated on every render
-  const count = signal(0);
-
-  return div(button({ onclick: () => count.set(count.get() + 1) }, count));
-};
-```
-
-In this example, the `count` signal is recreated every time the component renders, so the counter never increments.
-
-### The Solution: Signal with Key
-
-```typescript
-const app = () => {
-  // This signal preserves its state between renders
-  const count = signal(0, 'count');
-
-  return div(button({ onclick: () => count.set(count.get() + 1) }, count));
-};
-```
-
-### How Signal Preservation Works
-
-1. **Optional Key Parameter**: Pass a unique key as the second parameter to `signal()`
-2. **Component Context Detection**: The signal automatically detects if it's being used in a component context
-3. **State Persistence**: Signals with the same key maintain their state between renders
-4. **Backward Compatibility**: Signals without keys work exactly as before
-
-### Multiple Preserved Signals
-
-```typescript
-const app = () => {
-  const count = signal(0, 'count');
-  const name = signal('John', 'name');
-  const isVisible = signal(true, 'visible');
-
-  return div(
-    button({ onclick: () => count.set(count.get() + 1) }, count),
-    input({ value: name, oninput: (e) => name.set(e.target.value) }),
-    button(
-      { onclick: () => isVisible.set(!isVisible.get()) },
-      isVisible.get() ? 'Hide' : 'Show',
-    ),
-  );
-};
-```
-
-### When to Use Keys
-
-- **Use keys** for component-local state that needs to persist between renders
-- **Don't use keys** for global signals or temporary values
-- **Don't use keys** when you want the signal to be recreated on each render
-
-### Best Practices
-
-1. **Use descriptive keys**: Choose meaningful keys that describe the signal's purpose
-2. **Keep keys unique**: Each signal in a component should have a different key
-3. **Use for component state**: Signals with keys are perfect for component-local state
-4. **Combine with computed**: Use preserved signals with computed signals for derived state
-
-```typescript
-const app = () => {
-  const firstName = signal('John', 'firstName');
-  const lastName = signal('Doe', 'lastName');
-
-  const fullName = computed(() => {
-    return firstName.get() + ' ' + lastName.get();
   });
-
+  
   return div(
-    input({ value: firstName, oninput: (e) => firstName.set(e.target.value) }),
-    input({ value: lastName, oninput: (e) => lastName.set(e.target.value) }),
-    p('Full name: ', fullName),
+    div(`Timer: ${count.get()}`),
+    button({ 
+      onClick: () => count.set(0) 
+    }, 'Reset'),
   );
-};
+});
 ```
 
 ## Batching Updates
 
-Use the `batch` function to group multiple signal updates together.
+### Why Batch Updates?
+
+Batching multiple signal updates prevents unnecessary re-renders and effects from running multiple times:
 
 ```typescript
-import { batch } from 'tacit-dom';
+import { signal, batch, effect } from 'tacit-dom';
 
-const firstName = signal('John');
-const lastName = signal('Doe');
+const a = signal(0);
+const b = signal(0);
+const c = signal(0);
 
-// Updates are batched together
+// Without batching - effect runs 3 times
+effect(() => {
+  console.log('Effect ran, values:', a.get(), b.get(), c.get());
+});
+
+a.set(1); // Effect runs
+b.set(2); // Effect runs again
+c.set(3); // Effect runs again
+
+// With batching - effect runs only once
 batch(() => {
-  firstName.set('Jane');
-  lastName.set('Smith');
+  a.set(4);
+  b.set(5);
+  c.set(6);
+}); // Effect runs once with all new values
+```
+
+### Batching in Components
+
+Batching is particularly useful in components when updating multiple related signals:
+
+```typescript
+import { component, useSignal, batch, div, button } from 'tacit-dom';
+
+const UserForm = component(() => {
+  const firstName = useSignal('');
+  const lastName = useSignal('');
+  const email = useSignal('');
+  
+  const resetForm = () => {
+    // Batch all updates together
+    batch(() => {
+      firstName.set('');
+      lastName.set('');
+      email.set('');
+    });
+  };
+  
+  const fillSampleData = () => {
+    // Batch all updates together
+    batch(() => {
+      firstName.set('John');
+      lastName.set('Doe');
+      email.set('john.doe@example.com');
+    });
+  };
+  
+  return div(
+    div(`Name: ${firstName.get()} ${lastName.get()}`),
+    div(`Email: ${email.get()}`),
+    button({ onClick: resetForm }, 'Reset'),
+    button({ onClick: fillSampleData }, 'Fill Sample'),
+  );
 });
 ```
 
-## Debug Mode
+## Component-Scoped Signals with useSignal
 
-Enable debug mode to see effect execution logs.
+### The useSignal Hook
+
+The `useSignal` hook creates component-scoped signals that persist across re-renders:
 
 ```typescript
-import { setDebugMode } from 'tacit-dom';
+import { component, useSignal, div, button } from 'tacit-dom';
 
-setDebugMode(true);
+const Counter = component(() => {
+  // This signal persists across re-renders
+  const count = useSignal(0);
+  
+  return div(
+    div(`Count: ${count.get()}`),
+    button({ 
+      onClick: () => count.set(count.get() + 1) 
+    }, 'Increment'),
+  );
+});
 ```
 
-## Complete Example
+### Multiple Signals in Components
+
+You can use multiple `useSignal` calls in a single component:
 
 ```typescript
-import {
-  div,
-  button,
-  input,
-  p,
-  signal,
-  computed,
-  effect,
-  render,
-} from 'tacit-dom';
-
-const app = () => {
-  const count = signal(0, 'count');
-  const name = signal('', 'name');
-
-  const greeting = computed(() => {
-    return name.get() ? `Hello, ${name.get()}!` : 'Please enter your name';
-  });
-
-  effect(() => {
-    console.log('Count changed to:', count.get());
-  });
-
+const UserForm = component(() => {
+  const name = useSignal('');
+  const email = useSignal('');
+  const age = useSignal(0);
+  
   return div(
-    h1('Unified Signals Example'),
-    div(
-      input({
-        placeholder: 'Enter your name',
-        value: name,
-        oninput: (e) => name.set(e.target.value),
-      }),
-    ),
-    div(
-      button(
-        { onclick: () => count.set(count.get() + 1) },
-        'Increment (',
-        count,
-        ')',
-      ),
-    ),
-    p(greeting),
+    div(`Name: ${name.get()}`),
+    div(`Email: ${email.get()}`),
+    div(`Age: ${age.get()}`),
+    button({ 
+      onClick: () => {
+        name.set('John Doe');
+        email.set('john@example.com');
+        age.set(30);
+      }
+    }, 'Fill Sample Data'),
   );
+});
+```
+
+### Signals vs useSignal
+
+- **`signal()`**: Creates global signals that persist across the entire application
+- **`useSignal()`**: Creates component-scoped signals that persist across component re-renders
+
+```typescript
+// Global signal - accessible everywhere
+const globalCounter = signal(0);
+
+const ComponentA = component(() => {
+  // Local signal - only accessible within this component
+  const localCounter = useSignal(0);
+  
+  return div(
+    div(`Global: ${globalCounter.get()}`),
+    div(`Local: ${localCounter.get()}`),
+    button({ 
+      onClick: () => globalCounter.set(globalCounter.get() + 1) 
+    }, 'Increment Global'),
+    button({ 
+      onClick: () => localCounter.set(localCounter.get() + 1) 
+    }, 'Increment Local'),
+  );
+});
+
+const ComponentB = component(() => {
+  // Can access global signal
+  return div(`Global counter: ${globalCounter.get()}`);
+  // Cannot access localCounter from ComponentA
+});
+```
+
+## Advanced Patterns
+
+### Derived State with Computed
+
+```typescript
+const ShoppingCart = component(() => {
+  const items = useSignal([
+    { name: 'Apple', price: 1.00, quantity: 2 },
+    { name: 'Banana', price: 0.50, quantity: 3 },
+    { name: 'Orange', price: 1.25, quantity: 1 },
+  ]);
+  
+  // Computed values for derived state
+  const totalItems = computed(() => 
+    items.get().reduce((sum, item) => sum + item.quantity, 0)
+  );
+  
+  const totalPrice = computed(() => 
+    items.get().reduce((sum, item) => sum + (item.price * item.quantity), 0)
+  );
+  
+  const averagePrice = computed(() => 
+    totalPrice.get() / totalItems.get()
+  );
+  
+  return div(
+    div(`Total Items: ${totalItems.get()}`),
+    div(`Total Price: $${totalPrice.get().toFixed(2)}`),
+    div(`Average Price: $${averagePrice.get().toFixed(2)}`),
+  );
+});
+```
+
+### Conditional Effects
+
+```typescript
+const UserProfile = component(() => {
+  const user = useSignal(null);
+  const isLoading = useSignal(false);
+  
+  // Effect that only runs when user changes
+  effect(() => {
+    const currentUser = user.get();
+    if (currentUser) {
+      console.log('User loaded:', currentUser.name);
+      document.title = `${currentUser.name}'s Profile`;
+    }
+  });
+  
+  // Effect that only runs when loading state changes
+  effect(() => {
+    if (isLoading.get()) {
+      console.log('Loading user data...');
+    } else {
+      console.log('User data loaded');
+    }
+  });
+  
+  return div(
+    isLoading.get() ? div('Loading...') : div('User profile loaded'),
+  );
+});
+```
+
+### Signal Composition
+
+```typescript
+const App = component(() => {
+  const theme = useSignal('light');
+  const language = useSignal('en');
+  
+  // Computed value that depends on multiple signals
+  const settings = computed(() => ({
+    theme: theme.get(),
+    language: language.get(),
+    isDark: theme.get() === 'dark',
+    isEnglish: language.get() === 'en',
+  }));
+  
+  // Effect that runs when settings change
+  effect(() => {
+    const currentSettings = settings.get();
+    console.log('Settings changed:', currentSettings);
+    
+    // Apply theme
+    document.body.className = currentSettings.isDark ? 'dark' : 'light';
+    
+    // Apply language
+    document.documentElement.lang = currentSettings.language;
+  });
+  
+  return div(
+    div(`Theme: ${settings.get().theme}`),
+    div(`Language: ${settings.get().language}`),
+    button({ 
+      onClick: () => theme.set(theme.get() === 'light' ? 'dark' : 'light') 
+    }, 'Toggle Theme'),
+    button({ 
+      onClick: () => language.set(language.get() === 'en' ? 'es' : 'en') 
+    }, 'Toggle Language'),
+  );
+});
+```
+
+## Performance Considerations
+
+### Signal Optimization
+
+- **Avoid creating signals in render functions**: Signals should be created once and reused
+- **Use computed values for expensive calculations**: They only recalculate when dependencies change
+- **Batch updates when possible**: Use `batch()` for multiple related signal updates
+- **Clean up subscriptions**: Effects automatically clean up, but manual subscriptions should be cleaned up
+
+### Component Optimization
+
+- **Components automatically re-render only when needed**: No manual optimization required
+- **Signals persist across re-renders**: No need to recreate signals on each render
+- **Effects automatically track dependencies**: No manual subscription management needed
+- **Automatic cleanup**: Effects and subscriptions are cleaned up when components unmount
+
+### Memory Management
+
+```typescript
+const ComponentWithManualSubscription = component(() => {
+  const count = useSignal(0);
+  
+  // Manual subscription (usually not needed in components)
+  const unsubscribe = count.subscribe(() => {
+    console.log('Count changed');
+  });
+  
+  // Clean up when component unmounts
+  effect(() => {
+    return () => {
+      unsubscribe();
+    };
+  });
+  
+  return div(`Count: ${count.get()}`);
+});
+```
+
+## Best Practices
+
+### 1. Use useSignal for Component State
+
+```typescript
+// ✅ Good - use useSignal for component state
+const Counter = component(() => {
+  const count = useSignal(0);
+  return div(`Count: ${count.get()}`);
+});
+
+// ❌ Bad - don't create signals in render functions
+const Counter = component(() => {
+  const count = signal(0); // This recreates the signal on every render
+  return div(`Count: ${count.get()}`);
+});
+```
+
+### 2. Use Computed Values for Derived State
+
+```typescript
+// ✅ Good - use computed for derived state
+const UserProfile = component(() => {
+  const firstName = useSignal('John');
+  const lastName = useSignal('Doe');
+  const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
+  
+  return div(`Name: ${fullName.get()}`);
+});
+
+// ❌ Bad - don't recalculate in render
+const UserProfile = component(() => {
+  const firstName = useSignal('John');
+  const lastName = useSignal('Doe');
+  
+  return div(`Name: ${firstName.get()} ${lastName.get()}`); // This recalculates on every render
+});
+```
+
+### 3. Batch Related Updates
+
+```typescript
+// ✅ Good - batch related updates
+const updateUser = () => {
+  batch(() => {
+    firstName.set('Jane');
+    lastName.set('Smith');
+    email.set('jane.smith@example.com');
+  });
 };
 
-render(app, document.getElementById('app')!);
+// ❌ Bad - separate updates trigger multiple effects
+const updateUser = () => {
+  firstName.set('Jane');     // Effect runs
+  lastName.set('Smith');     // Effect runs again
+  email.set('jane@example.com'); // Effect runs again
+};
 ```
 
-This example demonstrates how signals with keys maintain their state between renders, allowing you to build interactive components with persistent local state.
+### 4. Handle Async Updates Properly
+
+```typescript
+// ✅ Good - handle async updates with pending state
+const submitForm = async () => {
+  await formData.update(async (prev) => {
+    const response = await fetch('/api/submit', {
+      method: 'POST',
+      body: JSON.stringify(prev),
+    });
+    return await response.json();
+  });
+};
+
+// Use pending state in UI
+return button(
+  { 
+    disabled: formData.pending,
+    onClick: submitForm 
+  },
+  formData.pending ? 'Submitting...' : 'Submit'
+);
+```
+
+### 5. Clean Up Effects When Needed
+
+```typescript
+// ✅ Good - return cleanup function from effects
+effect(() => {
+  const interval = setInterval(() => {
+    count.set(count.get() + 1);
+  }, 1000);
+  
+  return () => clearInterval(interval);
+});
+
+// ✅ Good - use effect for component lifecycle
+effect(() => {
+  // Component mounted
+  console.log('Component mounted');
+  
+  return () => {
+    // Component will unmount
+    console.log('Component unmounting');
+  };
+});
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Signals not updating**: Make sure you're using `.get()` to read values and `.set()` to update them
+2. **Effects running too often**: Check if you're creating new objects/arrays in render functions
+3. **Memory leaks**: Effects automatically clean up, but manual subscriptions should be cleaned up
+4. **Performance issues**: Use `batch()` for multiple updates and `computed` for expensive calculations
+
+### Debugging Tips
+
+```typescript
+// Enable debug logging
+const count = signal(0);
+
+// Add logging to track signal changes
+count.subscribe(() => {
+  console.log('Count changed to:', count.get());
+});
+
+// Use the pending property to track async updates
+effect(() => {
+  console.log('Count pending:', count.pending);
+});
+```
+
+## Migration from Previous Versions
+
+### Key Changes
+
+1. **No more manual subscriptions**: Effects automatically track dependencies
+2. **No more signal keys**: `useSignal()` handles component-scoped signals automatically
+3. **Simplified API**: No more `createReactiveComponent`, `reactiveText`, etc.
+4. **Automatic re-rendering**: Components automatically re-render when signals change
+5. **Preact-like syntax**: Use `component()` and `useSignal()` like React hooks
+
+### Before (Old API)
+
+```typescript
+// Old way
+const Counter = createReactiveComponent(() => {
+  const count = signal(0, 'counter');
+  return div(
+    span(`Count: ${count.get()}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+});
+```
+
+### After (New API)
+
+```typescript
+// New way
+const Counter = component(() => {
+  const count = useSignal(0);
+  return div(
+    div(`Count: ${count.get()}`),
+    button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+});
+```
+
+## Summary
+
+The new Tacit-DOM signals system provides:
+
+- **Automatic reactivity**: Components automatically re-render when signals change
+- **Component-scoped state**: Use `useSignal()` for local component state
+- **Global state**: Use `signal()` for application-wide state
+- **Derived state**: Use `computed()` for values that depend on other signals
+- **Side effects**: Use `effect()` for DOM updates, API calls, and cleanup
+- **Performance**: Automatic batching and optimization
+- **Type safety**: Full TypeScript support
+- **Simple API**: No manual subscription management needed
+
+This makes building reactive applications much simpler and more intuitive, similar to modern frameworks like React and Preact.

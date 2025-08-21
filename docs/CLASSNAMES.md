@@ -2,7 +2,17 @@
 
 ## Overview
 
-The `classNames` prop provides a flexible way to conditionally join CSS class names together directly on DOM elements. It's similar to popular libraries like `clsx` or `classnames`, offering intelligent handling of various input types without needing to call a separate function.
+The `classNames` prop is the **recommended way** to handle CSS classes in Tacit-DOM. It provides a flexible way to conditionally join CSS class names together directly on DOM elements, similar to popular libraries like `clsx` or `classnames`.
+
+> **Note**: The `className` prop is deprecated and will be removed in a future version. Use `classNames` instead for all new code.
+
+## Why Use classNames Instead of className?
+
+1. **More powerful**: Handles objects, arrays, and conditional logic
+2. **Consistent API**: Single prop for all class name scenarios
+3. **Cleaner syntax**: No need to wrap in `classNames()` function
+4. **Future-proof**: This is the direction Tacit-DOM is heading
+5. **Better performance**: Single prop processing instead of two separate handlers
 
 ## Basic Usage
 

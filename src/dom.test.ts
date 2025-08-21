@@ -80,6 +80,33 @@ describe('DOM Element Creation', () => {
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class2');
     });
+
+    it('should create div element with classNames object', () => {
+      const element = div({ classNames: { 'class1': true, 'class2': false, 'class3': true } });
+      expect(element.tagName).toBe('DIV');
+      expect(element.className).toBe('class1 class3');
+    });
+
+    it('should create div element with classNames mixed array', () => {
+      const element = div({ classNames: ['class1', { 'class2': true, 'class3': false }, 'class4'] });
+      expect(element.tagName).toBe('DIV');
+      expect(element.className).toBe('class1 class2 class4');
+    });
+
+    it('should handle classNames with falsy values', () => {
+      const element = div({ classNames: ['class1', '', null, undefined, false, 'class2'] });
+      expect(element.tagName).toBe('DIV');
+      expect(element.className).toBe('class1 class2');
+    });
+
+    it('should prioritize classNames over className when both are provided', () => {
+      const element = div({ 
+        className: 'old-class', 
+        classNames: 'new-class' 
+      });
+      expect(element.tagName).toBe('DIV');
+      expect(element.className).toBe('new-class');
+    });
   });
 
   describe('Button Element Creation', () => {
@@ -95,10 +122,10 @@ describe('DOM Element Creation', () => {
       expect(element.textContent).toBe('Click me');
     });
 
-    it('should create button element with onclick handler', () => {
+    it('should create button element with onClick handler', () => {
       let clicked = false;
       const element = button({
-        onclick: () => {
+        onClick: () => {
           clicked = true;
         },
       });
@@ -201,7 +228,7 @@ describe('DOM Element Creation', () => {
           button(
             {
               className: 'increment-local',
-              onclick: () => localCounter.set(localCounter.get() + 1),
+              onClick: () => localCounter.set(localCounter.get() + 1),
             },
             'Increment Local',
           ),

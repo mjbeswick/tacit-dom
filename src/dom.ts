@@ -121,6 +121,10 @@ function setupElement(
   // Handle class names
   if (props.className) {
     // Deprecated: className will be removed in a future version
+    console.warn(
+      'Tacit-DOM: The "className" prop is deprecated and will be removed in a future version. ' +
+        'Use "classNames" instead. See docs/MIGRATION_GUIDE.md for migration help.',
+    );
     element.className = props.className;
   }
   if (props.classNames) {
