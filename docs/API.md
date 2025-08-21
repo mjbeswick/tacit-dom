@@ -31,15 +31,55 @@ a.set(5);
 console.log(sum.get()); // 7
 ```
 
+### Effects
+
+Effects run side effects and automatically re-execute when dependencies change.
+
+```typescript
+import { signal, effect } from 'tacit-dom';
+
+const count = signal(0);
+
+// Effect that runs whenever count changes
+const cleanup = effect(() => {
+  console.log('Count changed to:', count.get());
+
+  // Return cleanup function (optional)
+  return () => {
+    console.log('Cleaning up effect');
+  };
+});
+
+// Later, dispose of the effect
+cleanup();
+```
+
+### Batching
+
+Batch multiple signal updates to prevent unnecessary re-renders.
+
+```typescript
+import { signal, batch } from 'tacit-dom';
+
+const a = signal(0);
+const b = signal(0);
+
+// Both updates happen together
+batch(() => {
+  a.set(1);
+  b.set(2);
+});
+```
+
 ## API Reference
 
-### `component<P = void>(componentFn: (props?: P) => HTMLElement): Component<P>`
+### `component<P = {}>(componentFn: (props: P) => HTMLElement): Component<P>`
 
-Creates a reactive component that automatically re-renders when its dependencies change. This is an alias for `createReactiveComponent`.
+Creates a reactive component that automatically re-renders when its dependencies change.
 
 **Parameters:**
 
-- `componentFn: (props?: P) => HTMLElement` - The component function that returns a DOM element
+- `componentFn: (props: P) => HTMLElement` - The component function that returns a DOM element
 
 **Returns:**
 
@@ -48,17 +88,17 @@ Creates a reactive component that automatically re-renders when its dependencies
 **Example:**
 
 ```typescript
-import { component, div, h1, p, button, signal, render } from 'tacit-dom';
+import { component, div, h1, p, button, useSignal, render } from 'tacit-dom';
 
 // Component without props
 const Counter = component(() => {
-  const count = signal(0);
+  const count = useSignal(0);
 
   return div(
     { className: 'counter' },
     h1('Counter'),
     p(`Count: ${count.get()}`),
-    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+    button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
   );
 });
 
@@ -78,245 +118,308 @@ render(
 );
 ```
 
-### `createReactiveComponent<P = void>(componentFn: (props?: P) => HTMLElement): Component<P>`
+### `useSignal<T>(initialValue: T): Signal<T>`
 
-The underlying function that creates reactive components. `component` is the preferred alias.
-
-**Parameters:**
-
-- `componentFn: (props?: P) => HTMLElement` - The component function that returns a DOM element
-
-**Returns:**
-
-- `Component<P>` - A reactive component function with additional internal methods
-
-**Internal Methods:**
-
-- `_setContainer(container: HTMLElement): void` - Sets the container for automatic re-rendering
-
-### `Component<P = void>`
-
-Type for reactive components with optional props.
-
-### `errorBoundary<P>(component: (props?: P) => HTMLElement, options?: ErrorBoundaryOptions): Component<P>`
-
-Creates an error boundary wrapper around a component to catch and handle errors gracefully.
-
-**Parameters:**
-
-- `component: (props?: P) => HTMLElement` - The component function to wrap with error boundary
-- `options?: ErrorBoundaryOptions` - Optional configuration for error handling
-
-**Returns:**
-
-- `Component<P>` - A component wrapped with error boundary functionality
-
-**Example:**
-
-```typescript
-import { errorBoundary, div, h2, p, button } from 'tacit-dom';
-
-const BuggyComponent = () => {
-  if (Math.random() > 0.5) {
-    throw new Error('Random error occurred!');
-  }
-  return div('Component rendered successfully');
-};
-
-const SafeComponent = errorBoundary(BuggyComponent, {
-  fallback: (error) =>
-    div(
-      h2('Something went wrong'),
-      p(`Error: ${error.message}`),
-      button({ onclick: () => window.location.reload() }, 'Reload'),
-    ),
-  onError: (error) => console.error('Component error:', error),
-});
-
-// Usage
-render(SafeComponent, document.getElementById('app'));
-```
-
-### `ErrorBoundaryOptions`
-
-Configuration options for error boundaries.
-
-```typescript
-type ErrorBoundaryOptions = {
-  /** Function called when an error occurs */
-  onError?: (error: Error, errorInfo: { componentStack?: string }) => void;
-  /** Fallback UI to render when an error occurs */
-  fallback?: (error: Error) => HTMLElement;
-  /** Whether to log errors to console (default: true) */
-  logToConsole?: boolean;
-};
-```
-
-**Type Definition:**
-
-```typescript
-type Component<P = void> = ((props?: P) => HTMLElement) & {
-  _setContainer: (container: HTMLElement) => void;
-};
-```
-
-**Usage:**
-
-```typescript
-import type { Component } from 'tacit-dom';
-
-// Component without props
-const SimpleComponent: Component = component(() => {
-  return div('Hello World');
-});
-
-// Component with typed props
-const UserComponent: Component<{ name: string; age: number }> = component(
-  (props) => {
-    return div(`Name: ${props?.name}, Age: ${props?.age}`);
-  },
-);
-```
-
-### `signal<T>(initialValue: T, key?: string): Signal<T>`
-
-Creates a reactive signal with an initial value. When used inside components, signals can optionally preserve their state between renders by providing a unique key.
+Hook for creating component-scoped signals that persist across re-renders. Can only be called inside a component.
 
 **Parameters:**
 
 - `initialValue: T` - The initial value for the signal
-- `key?: string` - Optional unique key for preserving state between component renders
+
+**Returns:**
+
+- `Signal<T>` - A reactive signal that persists across component re-renders
+
+**Example:**
+
+```typescript
+import { component, useSignal, div, button } from 'tacit-dom';
+
+const Counter = component(() => {
+  const count = useSignal(0);
+  const doubled = useSignal(0);
+
+  // The signal persists across re-renders
+  return div(
+    div(`Count: ${count.get()}`),
+    div(`Doubled: ${doubled.get()}`),
+    button(
+      {
+        onClick: () => {
+          count.set(count.get() + 1);
+          doubled.set(count.get() * 2);
+        },
+      },
+      'Increment',
+    ),
+  );
+});
+```
+
+### `Component<P = {}>`
+
+Type for reactive components with optional props.
+
+```typescript
+type Component<P = {}> = (props?: P) => HTMLElement;
+```
+
+### `render(component: HTMLElement | (() => HTMLElement) | Component<any>, container: HTMLElement): void`
+
+Renders a component into a container element.
+
+**Parameters:**
+
+- `component: HTMLElement | (() => HTMLElement) | Component<any>` - The component to render
+- `container: HTMLElement` - The container element to render into
+
+**Example:**
+
+```typescript
+import { render, component, div } from 'tacit-dom';
+
+const App = component(() => div('Hello World'));
+render(App, document.getElementById('app'));
+```
+
+### `cleanup(element: HTMLElement): void`
+
+Cleans up a component and removes it from the DOM.
+
+**Parameters:**
+
+- `element: HTMLElement` - The element to clean up
+
+**Example:**
+
+```typescript
+import { cleanup } from 'tacit-dom';
+
+const element = document.getElementById('my-component');
+cleanup(element);
+```
+
+## DOM Element Factory Functions
+
+Tacit-DOM provides factory functions for creating DOM elements with reactive properties.
+
+### `div(props?: ElementProps, ...children: ElementChildren): HTMLElement`
+
+Creates a div element with optional props and children.
+
+**Parameters:**
+
+- `props?: ElementProps` - Optional element properties (className, event handlers, etc.)
+- `...children: ElementChildren` - Child elements, text, or signals
+
+**Returns:**
+
+- `HTMLElement` - A div element
+
+**Example:**
+
+```typescript
+import { div, signal } from 'tacit-dom';
+
+const count = signal(0);
+
+const element = div(
+  { className: 'counter' },
+  'Count: ',
+  count, // Signals are automatically reactive
+  div({ className: 'nested' }, 'Nested content'),
+);
+```
+
+### `button(props?: ElementProps, ...children: ElementChildren): HTMLElement`
+
+Creates a button element with optional props and children.
+
+**Parameters:**
+
+- `props?: ElementProps` - Optional element properties
+- `...children: ElementChildren` - Child elements, text, or signals
+
+**Returns:**
+
+- `HTMLElement` - A button element
+
+**Example:**
+
+```typescript
+import { button, signal } from 'tacit-dom';
+
+const count = signal(0);
+
+const element = button(
+  {
+    className: 'btn btn-primary',
+    onClick: () => count.set(count.get() + 1),
+  },
+  'Increment',
+);
+```
+
+### Other Element Factory Functions
+
+- `h1(props?, ...children)` - Creates h1 elements
+- `p(props?, ...children)` - Creates paragraph elements
+- `span(props?, ...children)` - Creates span elements
+- `a(props?, ...children)` - Creates anchor elements
+
+## Element Properties
+
+### `ElementProps`
+
+Common properties that can be applied to any element:
+
+```typescript
+type ElementProps = {
+  /** @deprecated Use classNames instead. className will be removed in a future version. */
+  className?: string;
+  /**
+   * Flexible CSS class names prop that accepts strings, arrays, objects, and more.
+   * This is the recommended way to handle CSS classes.
+   */
+  classNames?:
+    | string
+    | string[]
+    | { [key: string]: any }
+    | (string | { [key: string]: any })[];
+
+  // Mouse events
+  onClick?: EventHandler;
+  onDoubleClick?: EventHandler;
+  onMouseDown?: EventHandler;
+  onMouseUp?: EventHandler;
+  onMouseMove?: EventHandler;
+  onMouseEnter?: EventHandler;
+  onMouseLeave?: EventHandler;
+  onMouseOver?: EventHandler;
+  onMouseOut?: EventHandler;
+  onWheel?: EventHandler<WheelEvent>;
+
+  // Keyboard events
+  onKeyDown?: EventHandler<KeyboardEvent>;
+  onKeyUp?: EventHandler<KeyboardEvent>;
+  onKeyPress?: EventHandler<KeyboardEvent>;
+
+  // Form events
+  onChange?: EventHandler;
+  onInput?: EventHandler;
+  onSubmit?: EventHandler;
+  onFocus?: EventHandler;
+  onBlur?: EventHandler;
+
+  // Drag and drop events
+  onDrag?: EventHandler;
+  onDragStart?: EventHandler;
+  onDragEnd?: EventHandler;
+  onDragEnter?: EventHandler;
+  onDragLeave?: EventHandler;
+  onDragOver?: EventHandler;
+  onDrop?: EventHandler;
+
+  // Touch events
+  onTouchStart?: EventHandler<TouchEvent>;
+  onTouchMove?: EventHandler<TouchEvent>;
+  onTouchEnd?: EventHandler<TouchEvent>;
+
+  // Other events
+  onScroll?: EventHandler;
+  onResize?: EventHandler;
+  onLoad?: EventHandler;
+  onError?: EventHandler;
+};
+```
+
+### `EventHandler<T = Event>`
+
+Type for event handlers:
+
+```typescript
+type EventHandler<T = Event> = (event: T) => void | boolean;
+```
+
+## Signal API
+
+### `Signal<T>`
+
+Type for reactive signals:
+
+```typescript
+type Signal<T> = {
+  get(): T;
+  set(value: T): void;
+  update(fn: (prev: T) => T | Promise<T>): Promise<void>;
+  subscribe(fn: () => void): () => void;
+  readonly pending: boolean;
+};
+```
+
+### `signal<T>(initialValue: T): Signal<T>`
+
+Creates a reactive signal with an initial value.
+
+**Parameters:**
+
+- `initialValue: T` - The initial value for the signal
 
 **Returns:**
 
 - `Signal<T>` - A reactive signal object
 
-**Example:**
+**Methods:**
 
-```typescript
-// Global signal (no preservation needed)
-const globalCount = signal(0);
-
-// Component-local signal with preservation
-const app = () => {
-  const localCount = signal(0, 'count'); // Preserved between renders
-  const tempValue = signal('temp'); // Recreated each render
-
-  return div(
-    button({ onclick: () => localCount.set(localCount.get() + 1) }, localCount),
-  );
-};
-```
-
-### `Signal<T>`
-
-A reactive signal object with the following methods:
-
-#### `get(): T`
-
-Gets the current value of the signal.
-
-**Returns:**
-
-- `T` - The current value
-
-#### `set(value: T): void`
-
-Sets a new value for the signal and notifies all subscribers.
-
-**Parameters:**
-
-- `value: T` - The new value
-
-#### `update(fn: (prev: T) => T | Promise<T>): Promise<void>`
-
-Updates the signal value based on the previous value. Supports both synchronous and asynchronous update functions.
-
-**Parameters:**
-
-- `fn: (prev: T) => T | Promise<T>` - Function that receives the previous value and returns the new value or a Promise resolving to the new value
-
-**Returns:**
-
-- `Promise<void>` - Promise that resolves when the update is complete
+- `get(): T` - Gets the current value and tracks dependencies
+- `set(value: T): void` - Sets a new value
+- `update(fn: (prev: T) => T | Promise<T>): Promise<void>` - Updates based on previous value
+- `subscribe(fn: () => void): () => void` - Subscribes to changes
+- `pending: boolean` - Whether any updates are in progress
 
 **Example:**
 
 ```typescript
-// Synchronous update
+import { signal } from 'tacit-dom';
+
+const count = signal(0);
+
+// Read value
+console.log(count.get()); // 0
+
+// Set value
+count.set(5);
+
+// Update value
 await count.update((prev) => prev + 1);
 
-// Asynchronous update
-await count.update(async (prev) => {
-  const result = await fetch('/api/increment', {
-    method: 'POST',
-    body: JSON.stringify({ value: prev }),
-  });
-  const data = await result.json();
-  return data.newValue;
-});
-```
-
-#### `pending: boolean`
-
-A read-only reactive property that indicates whether the signal has any pending updates. This property automatically triggers effects and component re-renders when the pending state changes, making it perfect for UI state management to show loading indicators or disable inputs during updates.
-
-**Example:**
-
-```typescript
-const count = signal(0);
-
-// Check if updates are in progress
-if (count.pending) {
-  console.log('Signal is being updated...');
-}
-
-// Use in UI components
-button(
-  {
-    disabled: count.pending,
-    onclick: () =>
-      count.update(async (prev) => {
-        await someAsyncOperation();
-        return prev + 1;
-      }),
-  },
-  count.pending ? 'Updating...' : 'Increment',
-);
-```
-
-#### `subscribe(callback: () => void): () => void`
-
-Subscribes to changes in the signal.
-
-**Parameters:**
-
-- `callback: () => void` - Function to call when the signal changes
-
-**Returns:**
-
-- `() => void` - Unsubscribe function
-
-**Example:**
-
-```typescript
-const count = signal(0);
+// Subscribe to changes
 const unsubscribe = count.subscribe(() => {
   console.log('Count changed to:', count.get());
 });
 
-count.set(5); // Logs: "Count changed to: 5"
-await count.update((prev) => prev + 1); // Logs: "Count changed to: 6"
-unsubscribe(); // Stop listening for changes
+// Check pending state
+console.log(count.pending); // false
 ```
 
-### `computed<T>(fn: () => T): Computed<T>`
+### `Computed<T>`
 
-Creates a computed value that automatically updates when its dependencies change.
+Type for computed values:
+
+```typescript
+type Computed<T> = {
+  get(): T;
+  subscribe(fn: () => void): () => void;
+};
+```
+
+### `computed<T>(computeFn: () => T): Computed<T>`
+
+Creates a computed value that automatically updates when dependencies change.
 
 **Parameters:**
 
-- `fn: () => T` - Function that computes the value
+- `computeFn: () => T` - Function that computes the value
 
 **Returns:**
 
@@ -325,98 +428,48 @@ Creates a computed value that automatically updates when its dependencies change
 **Example:**
 
 ```typescript
+import { signal, computed } from 'tacit-dom';
+
 const a = signal(1);
 const b = signal(2);
+
 const sum = computed(() => a.get() + b.get());
-const doubleSum = computed(() => sum.get() * 2);
+console.log(sum.get()); // 3
+
+a.set(5);
+console.log(sum.get()); // 7
 ```
 
-### `Computed<T>`
+### `effect(fn: () => void | (() => void)): () => void`
 
-A computed value object with the following methods:
-
-#### `get(): T`
-
-Gets the current computed value.
-
-**Returns:**
-
-- `T` - The current computed value
-
-#### `subscribe(callback: () => void): () => void`
-
-Subscribes to changes in the computed value.
+Runs a side effect that automatically re-executes when dependencies change.
 
 **Parameters:**
 
-- `callback: () => void` - Function to call when the computed value changes
+- `fn: () => void | (() => void)` - Function to run, optionally returns cleanup function
 
 **Returns:**
 
-- `() => void` - Unsubscribe function
-
-### `effect(fn: () => void, options?: EffectOptions): () => void`
-
-Runs a reactive effect that re-executes when its dependencies change.
-
-**Parameters:**
-
-- `fn: () => void` - Function to execute
-- `options?: EffectOptions` - Optional configuration
-
-**Returns:**
-
-- `() => void` - Cleanup function
+- `() => void` - Function to dispose of the effect
 
 **Example:**
 
 ```typescript
+import { signal, effect } from 'tacit-dom';
+
 const count = signal(0);
 
-effect(() => {
-  console.log('Count is now:', count.get());
+const cleanup = effect(() => {
+  console.log('Count changed to:', count.get());
+
+  // Optional cleanup function
+  return () => {
+    console.log('Effect cleanup');
+  };
 });
 
-count.set(5); // Logs: "Count is now: 5"
-```
-
-### `EffectOptions`
-
-Configuration options for effects:
-
-```typescript
-type EffectOptions = {
-  name?: string; // Name for debugging
-  maxRuns?: number; // Maximum number of times the effect can run
-  autoDisable?: boolean; // Automatically disable after maxRuns
-};
-```
-
-### `mount(fn: () => void | (() => void), dependencies: (Signal<any> | Computed<any>)[]): void`
-
-Mounts a component effect that runs once when dependencies are first accessed, and automatically cleans up when the component unmounts.
-
-**Parameters:**
-
-- `fn: () => void | (() => void)` - Function to run on mount, can return a cleanup function
-- `dependencies: (Signal<any> | Computed<any>)[]` - Array of signals or computed values to track
-
-**Example:**
-
-```typescript
-function TimerComponent() {
-  const count = signal(0);
-
-  mount(() => {
-    const interval = setInterval(() => {
-      count.set(count.get() + 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [count]);
-
-  return div(`Count: ${count.get()}`);
-}
+// Later, dispose of the effect
+cleanup();
 ```
 
 ### `batch(fn: () => void): void`
@@ -430,721 +483,301 @@ Batches multiple signal updates into a single effect flush.
 **Example:**
 
 ```typescript
-const firstName = signal('John');
-const lastName = signal('Doe');
+import { signal, batch } from 'tacit-dom';
 
-// Updates are batched together
+const a = signal(0);
+const b = signal(0);
+
+// Both updates happen together
 batch(() => {
-  firstName.set('Jane');
-  lastName.set('Smith');
+  a.set(1);
+  b.set(2);
 });
 ```
 
-### `setDebugMode(enabled: boolean): void`
+## Component Patterns
 
-Enables or disables debug mode for console logging.
-
-**Parameters:**
-
-- `enabled: boolean` - Whether to enable debug mode
-
-### `setComponentInstance(componentInstance: object): void`
-
-Sets the current component instance for signal preservation. This is used internally by the rendering system.
-
-**Parameters:**
-
-- `componentInstance: object` - The component instance
-
-### `clearComponentInstance(): void`
-
-Clears the current component instance. This is used internally by the rendering system.
-
-### `cleanupPreservedSignals(componentInstance: object): void`
-
-Cleans up preserved signals for a component instance. This should be called when a component is unmounted.
-
-**Parameters:**
-
-- `componentInstance: object` - The component instance to clean up
-
-### `classes(...inputs: ClassValue[]): string`
-
-Conditionally joins CSS class names together. This is the preferred function name for the classNames utility.
-
-**Parameters:**
-
-- `...inputs: ClassValue[]` - Any number of class name values to join
-
-**Returns:**
-
-- `string` - A space-separated string of class names
-
-**Example:**
+### Functional Components
 
 ```typescript
-import { classes } from 'tacit-dom';
+import { component, useSignal, div, button } from 'tacit-dom';
 
-classes('foo', 'bar'); // 'foo bar'
-classes({ active: true, disabled: false }); // 'active'
-classes('button', { primary: true }, ['icon', 'large']); // 'button primary icon large'
-```
+const Counter = component(() => {
+  const count = useSignal(0);
 
-### `classNames(...inputs: ClassValue[]): string`
-
-Alias for `classes()` function. Conditionally joins CSS class names together.
-
-**Parameters:**
-
-- `...inputs: ClassValue[]` - Any number of class name values to join
-
-**Returns:**
-
-- `string` - A space-separated string of class names
-
-## DOM Elements
-
-All HTML elements are available as factory functions that return DOM elements.
-
-### Basic Elements
-
-```typescript
-import { div, h1, h2, h3, h4, h5, h6, p, span, a } from 'tacit-dom';
-
-const element = div(
-  { className: 'container' },
-  h1('Title'),
-  p('Content'),
-  span('Inline text'),
-  a({ href: '#' }, 'Link'),
-);
-```
-
-### Form Elements
-
-```typescript
-import {
-  form,
-  input,
-  textarea,
-  select,
-  option,
-  label,
-  button,
-} from 'tacit-dom';
-
-const formElement = form(
-  { onsubmit: (e) => e.preventDefault() },
-  label('Name:'),
-  input({ type: 'text', placeholder: 'Enter name' }),
-  textarea({ placeholder: 'Enter description' }),
-  select(
-    option({ value: '1' }, 'Option 1'),
-    option({ value: '2' }, 'Option 2'),
-  ),
-  button({ type: 'submit' }, 'Submit'),
-);
-```
-
-### List Elements
-
-```typescript
-import { ul, ol, li } from 'tacit-dom';
-
-const list = ul(li('Item 1'), li('Item 2'), li('Item 3'));
-```
-
-### Table Elements
-
-```typescript
-import { table, tr, td, th } from 'tacit-dom';
-
-const tableElement = table(
-  tr(th('Header 1'), th('Header 2')),
-  tr(td('Cell 1'), td('Cell 2')),
-);
-```
-
-### Media Elements
-
-```typescript
-import { img, video, audio, canvas } from 'tacit-dom';
-
-const mediaElements = div(
-  img({ src: 'image.jpg', alt: 'Image' }),
-  video({ src: 'video.mp4', controls: true }),
-  audio({ src: 'audio.mp3', controls: true }),
-  canvas({ width: 300, height: 200 }),
-);
-```
-
-### Semantic Elements
-
-```typescript
-import { nav, header, footer, main, section, article, aside } from 'tacit-dom';
-
-const semanticLayout = div(
-  header('Header'),
-  nav('Navigation'),
-  main(section('Section 1'), article('Article'), aside('Sidebar')),
-  footer('Footer'),
-);
-```
-
-### Additional Elements
-
-```typescript
-import {
-  details,
-  summary,
-  dialog,
-  menu,
-  menuitem,
-  pre,
-  template,
-} from 'tacit-dom';
-
-const additionalElements = div(
-  details(summary('Click to expand'), p('Hidden content')),
-  dialog('Modal dialog'),
-  menu(menuitem('Menu item 1'), menuitem('Menu item 2')),
-  pre('Preformatted text'),
-);
-```
-
-## DOM Utilities
-
-### `template(strings: TemplateStringsArray, ...values: (Signal<any> | Computed<any> | any)[]): HTMLElement`
-
-Creates a reactive template string that can interpolate signals. This is a more powerful alternative to template strings that allows explicit signal binding.
-
-**Parameters:**
-
-- `strings: TemplateStringsArray` - Template string literals
-- `...values: (Signal<any> | Computed<any> | any)[]` - Values to interpolate, can include signals
-
-**Returns:**
-
-- `HTMLElement` - A reactive DOM element
-
-**Example:**
-
-```typescript
-const count = signal(0);
-const name = signal('World');
-
-const element = template`Hello ${name}, count is ${count}`;
-
-// The element automatically updates when signals change
-count.set(5); // Updates the displayed count
-name.set('Universe'); // Updates the displayed name
-```
-
-### `createElement(tagName: string): ElementCreator`
-
-Creates a factory function for a custom HTML element.
-
-**Parameters:**
-
-- `tagName: string` - The HTML tag name
-
-**Returns:**
-
-- `ElementCreator` - A function that creates elements of the specified type
-
-**Example:**
-
-```typescript
-const customDiv = createElement('custom-div');
-const element = customDiv({ className: 'custom' }, 'Custom content');
-```
-
-### `createReactiveList<T>(items: Signal<T[]> | T[], renderFn: (item: T, index: number) => HTMLElement): HTMLElement`
-
-Creates a reactive list that automatically updates when the items array changes.
-
-**Parameters:**
-
-- `items: Signal<T[]> | T[]` - Array of items or signal containing array
-- `renderFn: (item: T, index: number) => HTMLElement` - Function to render each item
-
-**Returns:**
-
-- `HTMLElement` - A container element containing the rendered list
-
-**Example:**
-
-```typescript
-const items = signal(['apple', 'banana', 'orange']);
-
-const list = createReactiveList(items, (item, index) =>
-  li({ key: index }, item),
-);
-
-// When items change, the list automatically updates
-items.set(['grape', 'mango', 'kiwi']);
-```
-
-### `render(component: () => HTMLElement, container: HTMLElement): void`
-
-Renders a component to a DOM container.
-
-**Parameters:**
-
-- `component: () => HTMLElement` - The component function to render
-- `container: HTMLElement` - The container element
-
-**Example:**
-
-```typescript
-const app = () => {
-  const count = signal(0);
   return div(
-    p(`Count: ${count}`),
-    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+    { className: 'counter' },
+    div(`Count: ${count.get()}`),
+    button(
+      {
+        onClick: () => count.set(count.get() + 1),
+      },
+      'Increment',
+    ),
   );
-};
-
-const container = document.getElementById('app');
-if (container) {
-  render(app, container);
-}
-```
-
-### `cleanup(component: HTMLElement): void`
-
-Cleans up a component and its associated reactive subscriptions.
-
-**Parameters:**
-
-- `component: HTMLElement` - The component element to clean up
-
-**Example:**
-
-```typescript
-const container = document.getElementById('app');
-if (container) {
-  render(app, container);
-
-  // Later, when unmounting
-  cleanup(container);
-}
-```
-
-## Router
-
-### `createRouter(config: RouterConfig): Router`
-
-Creates a router instance with the specified configuration.
-
-**Parameters:**
-
-- `config: RouterConfig` - Router configuration object
-
-**Returns:**
-
-- `Router` - A router instance
-
-**Example:**
-
-```typescript
-const router = createRouter({
-  routes: [
-    { path: '/', component: HomePage },
-    { path: '/about', component: AboutPage },
-    { path: '/users/:id', component: UserPage },
-  ],
-  basePath: '/app',
-  defaultRoute: '/',
-  notFoundComponent: NotFoundPage,
 });
 ```
 
-### `router(props: RouterConfig): HTMLElement`
-
-Router component that can be used directly in the component tree.
-
-**Parameters:**
-
-- `props: RouterConfig` - Router configuration
-
-**Returns:**
-
-- `HTMLElement` - A router container element
-
-**Example:**
+### Components with Props
 
 ```typescript
-const App = () => {
-  return router({
-    routes: [
-      { path: '/', component: HomePage },
-      { path: '/about', component: AboutPage },
-    ],
-  });
+import { component, div, h1 } from 'tacit-dom';
+
+type UserCardProps = {
+  name: string;
+  email: string;
+  avatar?: string;
 };
+
+const UserCard = component<UserCardProps>((props) => {
+  return div(
+    { className: 'user-card' },
+    props.avatar && img({ src: props.avatar, alt: props.name }),
+    h1(props.name),
+    div({ className: 'email' }, props.email),
+  );
+});
+
+// Usage
+const userCard = UserCard({
+  name: 'John Doe',
+  email: 'john@example.com',
+});
 ```
 
-### `link(props: { to: string; className?: string; children: any; [key: string]: any }): HTMLElement`
-
-Creates a navigation link that integrates with the router.
-
-**Parameters:**
-
-- `props.to: string` - The route to navigate to
-- `props.className?: string` - Optional CSS class name
-- `props.children: any` - Link content
-- `props[key: string]: any` - Additional HTML attributes
-
-**Returns:**
-
-- `HTMLElement` - An anchor element with router integration
-
-**Example:**
+### Conditional Rendering
 
 ```typescript
-const navigation = nav(
-  link({ to: '/', className: 'nav-link' }, 'Home'),
-  link({ to: '/about', className: 'nav-link' }, 'About'),
-  link({ to: '/contact', className: 'nav-link' }, 'Contact'),
-);
+import { component, useSignal, div, button } from 'tacit-dom';
+
+const ToggleComponent = component(() => {
+  const isVisible = useSignal(true);
+
+  return div(
+    button(
+      {
+        onClick: () => isVisible.set(!isVisible.get()),
+      },
+      'Toggle',
+    ),
+    isVisible.get() ? div('Visible content') : null,
+  );
+});
 ```
 
-### Router Types
+### List Rendering
 
 ```typescript
-type Route = {
-  path: string;
-  component: (data?: any) => HTMLElement;
-  loader?: (params: RouteParams, search: RouteSearch) => Promise<any> | any;
-  errorBoundary?: (error: Error) => HTMLElement;
-};
+import { component, useSignal, div, ul, li } from 'tacit-dom';
 
-type RouterConfig = {
-  routes: Route[];
-  basePath?: string;
-  defaultRoute?: string;
-  notFoundComponent?: () => HTMLElement;
-};
+const TodoList = component(() => {
+  const todos = useSignal(['Learn Tacit-DOM', 'Build app', 'Deploy']);
 
-type RouteParams = Record<string, string>;
-type RouteSearch = Record<string, string>;
-
-type RouterState = {
-  currentPath: string;
-  params: RouteParams;
-  search: RouteSearch;
-  data: any;
-  error: Error | null;
-  isLoading: boolean;
-};
+  return div(
+    h1('Todo List'),
+    ul(...todos.get().map((todo, index) => li({ key: index }, todo))),
+  );
+});
 ```
 
 ## Event Handling
 
-All DOM elements support event handlers through props:
+### Click Events
 
 ```typescript
-const button = button(
-  {
-    onclick: (e) => console.log('Clicked!'),
-    onmouseenter: () => console.log('Mouse entered'),
-    onmouseleave: () => console.log('Mouse left'),
-    onkeydown: (e) => console.log('Key pressed:', e.key),
-  },
-  'Click me',
-);
-```
+import { button, useSignal } from 'tacit-dom';
 
-## Styling
+const Counter = component(() => {
+  const count = useSignal(0);
 
-Elements can be styled using className and style props:
-
-```typescript
-const styledElement = div(
-  {
-    className: 'my-class',
-    style: 'background-color: red; color: white; padding: 10px;',
-  },
-  'Styled content',
-);
-```
-
-## Reactive Values in DOM
-
-Signals and computed values can be used directly in DOM elements:
-
-```typescript
-const count = signal(0);
-const doubleCount = computed(() => count.get() * 2);
-
-const reactiveElement = div(
-  p(`Count: ${count}`),
-  p(`Double: ${doubleCount}`),
-  button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
-);
-```
-
-## TypeScript Types
-
-```typescript
-import { type Signal, type Computed, type ClassValue } from 'tacit-dom';
-
-// Signal types
-const count: Signal<number> = signal(0);
-const name: Signal<string> = signal('John');
-const items: Signal<string[]> = signal(['apple', 'banana']);
-
-// Computed types
-const sum: Computed<number> = computed(() => a.get() + b.get());
-const formatted: Computed<string> = computed(() => `Count: ${count.get()}`);
-
-// Class value types
-const classes: ClassValue[] = ['button', { primary: true }, ['icon', 'large']];
-```
-
-### Element Props Types
-
-All DOM elements have strongly-typed props:
-
-```typescript
-import type {
-  DivProps,
-  ButtonProps,
-  InputProps,
-  FormProps,
-  // ... and many more
-} from 'tacit-dom';
-
-// These types include common attributes, event handlers, and element-specific attributes
-const button: ButtonProps = {
-  className: 'btn',
-  onclick: (e) => console.log('clicked'),
-  disabled: false,
-  type: 'submit',
-};
-```
-
-## Best Practices
-
-### 1. Component Structure
-
-```typescript
-const MyComponent = () => {
-  // Local state with preservation
-  const localCount = signal(0, 'count');
-
-  // Computed values
-  const displayValue = computed(() => localCount.get() * 2);
-
-  // Event handlers
   const handleClick = () => {
-    localCount.set(localCount.get() + 1);
+    count.set(count.get() + 1);
   };
 
-  // Return DOM element
-  return div(
-    { className: 'my-component' },
-    h1('My Component'),
-    p(`Value: ${displayValue}`),
-    button({ onclick: handleClick }, 'Increment'),
-  );
-};
+  return button({ onClick: handleClick }, `Count: ${count.get()}`);
+});
 ```
 
-### 2. Global State Management
+### Form Events
 
 ```typescript
-// Global signals
-const globalCount = signal(0);
-const globalUser = signal({ name: 'John', age: 30 });
+import { input, form, useSignal } from 'tacit-dom';
 
-// Global computed values
-const isAdult = computed(() => globalUser.get().age >= 18);
-const displayName = computed(() => globalUser.get().name);
-```
+const ContactForm = component(() => {
+  const name = useSignal('');
+  const email = useSignal('');
 
-### 3. Store Pattern
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    console.log('Form submitted:', { name: name.get(), email: email.get() });
+  };
 
-The store pattern is a recommended approach for organizing global state in Tacit-DOM applications. It provides a centralized location for signals, computed values, and update functions.
-
-```typescript
-// store.ts
-import { signal, computed } from 'tacit-dom';
-
-// Centralized signal definitions
-export const signalA = signal(0);
-export const signalB = signal(0);
-export const signalC = signal(Date.now());
-
-// Computed values that depend on signals
-export const computedC = computed(() => `${signalA.get()} / ${signalB.get()}`);
-
-// Update functions that modify signals
-export const updateA = () => {
-  signalA.set(signalA.get() + 1);
-};
-
-export const updateB = () => {
-  signalB.set(signalB.get() + 1);
-};
-
-export const updateC = () => {
-  signalC.set(Date.now());
-};
-
-// Async update functions
-export const updateBAsync = async () => {
-  await signalB.update(async (value) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return value + 1;
-  });
-};
-```
-
-**Benefits of the Store Pattern:**
-
-- **Persistent State**: Signals maintain their values across component re-renders
-- **Centralized Logic**: All state management logic is in one place
-- **Reusable Functions**: Update functions can be imported and used by any component
-- **Better Testing**: Easier to test state logic in isolation
-- **Performance**: Prevents signal recreation on each component render
-
-**Usage in Components:**
-
-```typescript
-// main.ts
-import { signalA, signalB, signalC, updateA, updateB, updateC } from './store';
-
-const app = component(() => {
-  return div(
-    div(`Signal A: ${signalA.get()}`),
-    div(`Signal B: ${signalB.get()}`),
-    div(`Signal C: ${signalC.get()}`),
-    button({ onclick: updateA }, 'Update A'),
-    button({ onclick: updateB }, 'Update B'),
-    button({ onclick: updateC }, 'Update C'),
+  return form(
+    { onSubmit: handleSubmit },
+    input({
+      value: name.get(),
+      onInput: (e) => name.set((e.target as HTMLInputElement).value),
+      placeholder: 'Name',
+    }),
+    input({
+      value: email.get(),
+      onInput: (e) => email.set((e.target as HTMLInputElement).value),
+      placeholder: 'Email',
+    }),
+    button({ type: 'submit' }, 'Submit'),
   );
 });
 ```
 
-### 4. Event Handling
+### Keyboard Events
 
 ```typescript
-const handleFormSubmit = (e: Event) => {
-  e.preventDefault();
-  // Handle form submission
-};
+import { input, useSignal } from 'tacit-dom';
 
-const handleInputChange = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  value.set(target.value);
-};
+const SearchInput = component(() => {
+  const query = useSignal('');
 
-const form = form(
-  { onsubmit: handleFormSubmit },
-  input({ oninput: handleInputChange }),
-);
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      console.log('Searching for:', query.get());
+    }
+  };
+
+  return input({
+    value: query.get(),
+    onInput: (e) => query.set((e.target as HTMLInputElement).value),
+    onKeyDown: handleKeyDown,
+    placeholder: 'Search...',
+  });
+});
 ```
 
-### 4. Conditional Rendering
+## State Management
+
+### Local Component State
 
 ```typescript
-const showDetails = signal(false);
+import { component, useSignal } from 'tacit-dom';
 
-const component = div(
-  button(
-    { onclick: () => showDetails.set(!showDetails.get()) },
-    'Toggle Details',
-  ),
-  showDetails.get() && div({ className: 'details' }, p('Hidden details here')),
-);
-```
+const LocalStateComponent = component(() => {
+  const count = useSignal(0);
+  const name = useSignal('World');
 
-### 5. List Rendering
-
-```typescript
-const items = signal(['apple', 'banana', 'orange']);
-
-const list = createReactiveList(items, (item, index) =>
-  li({ key: index }, item),
-);
-```
-
-### 6. CSS Modules Integration
-
-```typescript
-import styles from './Component.module.css';
-
-const Button = ({ variant, disabled, children }) => {
-  return button(
-    {
-      className: classes(styles.button, styles[`button--${variant}`], {
-        [styles['button--disabled']]: disabled,
-      }),
-    },
-    children,
-  );
-};
-```
-
-### 7. Template String Interpolation
-
-```typescript
-const user = signal({ name: 'John', age: 30 });
-const greeting = template`Hello ${user.get().name}, you are ${user.get().age} years old`;
-
-// Updates automatically when user changes
-user.set({ name: 'Jane', age: 25 });
-```
-
-### 8. Component Lifecycle with mount
-
-```typescript
-const TimerComponent = () => {
-  const count = signal(0);
-
-  mount(() => {
-    const interval = setInterval(() => {
-      count.set(count.get() + 1);
-    }, 1000);
-
-    // Return cleanup function
-    return () => clearInterval(interval);
-  }, [count]);
-
-  return div(`Timer: ${count.get()}`);
-};
-```
-
-### 9. Router with Loaders and Error Boundaries
-
-```typescript
-const UserPage = () => {
-  return div('User Profile');
-};
-
-const userLoader = async (params: RouteParams) => {
-  const response = await fetch(`/api/users/${params.id}`);
-  if (!response.ok) throw new Error('User not found');
-  return response.json();
-};
-
-const userErrorBoundary = (error: Error) => {
   return div(
-    { className: 'error' },
-    h1('Error'),
-    p(error.message),
-    button({ onclick: () => window.history.back() }, 'Go Back'),
+    div(`Hello, ${name.get()}!`),
+    div(`Count: ${count.get()}`),
+    button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
   );
-};
-
-const routes = [
-  {
-    path: '/users/:id',
-    component: UserPage,
-    loader: userLoader,
-    errorBoundary: userErrorBoundary,
-  },
-];
+});
 ```
+
+### Global State
+
+```typescript
+import { signal } from 'tacit-dom';
+
+// Global state
+const globalCounter = signal(0);
+const globalUser = signal({ name: 'Guest', isLoggedIn: false });
+
+// Actions
+const incrementGlobal = () => globalCounter.set(globalCounter.get() + 1);
+const loginUser = (name: string) => globalUser.set({ name, isLoggedIn: true });
+
+// Export for use in components
+export { globalCounter, globalUser, incrementGlobal, loginUser };
+```
+
+### Derived State
+
+```typescript
+import { component, useSignal, computed } from 'tacit-dom';
+
+const UserProfile = component(() => {
+  const firstName = useSignal('John');
+  const lastName = useSignal('Doe');
+
+  // Computed value that updates automatically
+  const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
+  const initials = computed(() => `${firstName.get()[0]}${lastName.get()[0]}`);
+
+  return div(
+    div(`Full Name: ${fullName.get()}`),
+    div(`Initials: ${initials.get()}`),
+  );
+});
+```
+
+## Performance Considerations
+
+### Signal Optimization
+
+- Avoid creating signals in render functions
+- Use computed values for expensive calculations
+- Batch updates when possible
+- Clean up subscriptions to prevent memory leaks
+
+### Component Optimization
+
+- Components automatically re-render only when needed
+- Signals persist across re-renders
+- Effects automatically track dependencies
+- No manual subscription management needed
+
+## Migration from Previous Versions
+
+### Key Changes
+
+1. **Component System**: Use `component()` instead of `createReactiveComponent()`
+2. **State Management**: Use `useSignal()` hook instead of creating signals in components
+3. **Event Handling**: Use camelCase event names (`onClick` instead of `onclick`)
+4. **Reactivity**: Components automatically re-render when signals change
+5. **No More**: `reactiveText`, `createReactiveComponent`, manual subscriptions
+
+### Before (Old API)
+
+```typescript
+// Old way
+const Counter = createReactiveComponent(() => {
+  const count = signal(0);
+  return div(
+    span(`Count: ${count.get()}`),
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+});
+```
+
+### After (New API)
+
+```typescript
+// New way
+const Counter = component(() => {
+  const count = useSignal(0);
+  return div(
+    div(`Count: ${count.get()}`),
+    button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
+  );
+});
+```
+
+## Best Practices
+
+1. **Use `useSignal()` for component state** - Signals persist across re-renders
+2. **Keep components simple** - Extract complex logic into separate functions
+3. **Use computed values** - For derived state that depends on other signals
+4. **Handle events properly** - Use camelCase event names and proper event types
+5. **Clean up effects** - Return cleanup functions from effects when needed
+6. **Batch updates** - Use `batch()` for multiple related signal updates
+7. **Type your components** - Use TypeScript generics for better type safety
+
+## Examples
+
+See the `examples/` directory for complete working examples of:
+
+- Basic signals and components
+- Complex state management
+- Form handling
+- List rendering
+- Conditional rendering
+- Event handling
+- Performance optimization
