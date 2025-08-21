@@ -51,7 +51,7 @@ const RecoverableComponent = createReactiveComponent<{
       p(`Mode: ${mode.get()}`),
       button({ onclick: () => mode.set('normal') }, 'Set Normal'),
       button(
-        { onclick: () => mode.set('error'), className: 'danger' },
+        { onclick: () => mode.set('error'), classNames: 'danger' },
         'Trigger Error',
       ),
       button({ onclick: () => mode.set('recovered') }, 'Set Recovered'),

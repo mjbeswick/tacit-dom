@@ -104,7 +104,7 @@ const stopwatchComponent = component(() => {
       button(
         {
           classNames: styles.startBtn,
-          onclick: startTimer,
+          onClick: startTimer,
           disabled: isRunning.get(),
         },
         'Start',
@@ -112,7 +112,7 @@ const stopwatchComponent = component(() => {
       button(
         {
           classNames: styles.stopBtn,
-          onclick: stopTimer,
+          onClick: stopTimer,
           disabled: !isRunning.get(),
         },
         'Stop',
@@ -120,14 +120,14 @@ const stopwatchComponent = component(() => {
       button(
         {
           classNames: styles.resetBtn,
-          onclick: resetTimer,
+          onClick: resetTimer,
         },
         'Reset',
       ),
       button(
         {
           classNames: styles.lapBtn,
-          onclick: recordLap,
+          onClick: recordLap,
           disabled: !isRunning.get(),
         },
         'Lap',

@@ -7,6 +7,7 @@ import {
   updateB,
   updateBAsync,
 } from './store';
+import styles from './styles.module.css';
 
 // Button component with loading state
 const Button = component<{
@@ -17,28 +18,28 @@ const Button = component<{
 }>((props) => {
   return button(
     {
-      onclick: props?.onclick,
-      className: `btn ${props?.className || ''} position-relative`,
+      onClick: props?.onclick,
+      classNames: [styles.btn, props?.className || ''],
       disabled: props?.loading,
     },
     div(
       {
-        className: 'd-flex align-items-center justify-content-center',
-        style: props?.loading ? 'visibility: hidden' : '',
+        classNames: styles.btnContent,
       },
-      props?.children || 'Button',
+      props?.loading ? 'Loading...' : props?.children || 'Button',
     ),
-    props?.loading &&
-      div(
-        {
-          className:
-            'position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center',
-        },
-        div({
-          className: 'spinner-border spinner-border-sm',
-          role: 'status',
-        }),
-      ),
+    ...(props?.loading
+      ? [
+          div(
+            {
+              classNames: styles.spinner,
+            },
+            div({
+              classNames: styles.spinnerInner,
+            }),
+          ),
+        ]
+      : []),
   );
 });
 
@@ -49,9 +50,9 @@ const CounterDisplay = component<{
   className?: string;
 }>((props) => {
   return div(
-    { className: `mb-3 p-3 ${props?.className || ''} rounded` },
-    div({ className: 'h6 mb-1 text-muted' }, props?.title || 'Counter'),
-    div({ className: 'h2 mb-0' }, props?.value || 0),
+    { classNames: [styles.counterDisplay, props?.className || ''] },
+    div({ classNames: styles.counterTitle }, props?.title || 'Counter'),
+    div({ classNames: styles.counterValue }, props?.value || 0),
   );
 });
 
@@ -60,35 +61,41 @@ const ComputedDisplay = component(() => {
   const status = computedC.get();
 
   return div(
-    { className: 'mb-3 p-3 bg-light rounded border' },
+    { classNames: styles.computedDisplay },
     div(
-      { className: 'd-flex justify-content-between align-items-center mb-2' },
-      div({ className: 'h5 mb-0' }, 'Combined Display'),
-      div({ className: 'badge bg-primary' }, status.total + ' Total'),
+      { classNames: styles.computedHeader },
+      div({ classNames: styles.computedTitle }, 'Combined Display'),
+      div({ classNames: styles.badge }, status.total + ' Total'),
     ),
     div(
-      { className: 'row g-2' },
+      { classNames: styles.computedGrid },
       div(
-        { className: 'col-md-6' },
+        { classNames: styles.computedItem },
         div(
-          { className: 'text-center p-2 bg-white rounded' },
-          div({ className: 'h4 text-success mb-1' }, status.percentageA + '%'),
-          div({ className: 'small text-muted' }, 'Counter A'),
+          { classNames: styles.computedItem },
+          div(
+            { classNames: [styles.computedPercentage, styles.percentageA] },
+            status.percentageA + '%',
+          ),
+          div({ classNames: styles.computedLabel }, 'Counter A'),
         ),
       ),
       div(
-        { className: 'col-md-6' },
+        { classNames: styles.computedItem },
         div(
-          { className: 'text-center p-2 bg-white rounded' },
-          div({ className: 'h4 text-danger mb-1' }, status.percentageB + '%'),
-          div({ className: 'small text-muted' }, 'Counter B'),
+          { classNames: styles.computedItem },
+          div(
+            { classNames: [styles.computedPercentage, styles.percentageB] },
+            status.percentageB + '%',
+          ),
+          div({ classNames: styles.computedLabel }, 'Counter B'),
         ),
       ),
     ),
     div(
-      { className: 'mt-2 p-2 bg-info bg-opacity-10 rounded text-center' },
-      div({ className: 'h6 mb-1' }, status.summary),
-      div({ className: 'fs-5' }, status.score),
+      { classNames: styles.computedSummary },
+      div({ classNames: styles.summaryTitle }, status.summary),
+      div({ classNames: styles.summaryScore }, status.score),
     ),
   );
 });
@@ -107,72 +114,68 @@ const app = component(() => {
 
   return div(
     {
-      className:
-        'min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light',
+      classNames: styles.app,
     },
     div(
-      { className: 'card p-4 shadow-lg border-0' },
+      { classNames: styles.card },
       div(
-        { className: 'card-header text-center mb-4 bg-transparent border-0' },
+        { classNames: styles.cardHeader },
+        div({ classNames: styles.title }, 'Reactive Counter Demo'),
         div(
-          { className: 'h3 mb-2 text-primary fw-bold' },
-          'Reactive Counter Demo',
-        ),
-        div(
-          { className: 'text-muted' },
+          { classNames: styles.subtitle },
           'Watch how counters automatically update the UI in real-time!',
         ),
       ),
       div(
-        { className: 'card-body' },
+        { classNames: styles.cardBody },
         CounterDisplay({
           title: 'Counter A',
           value: counterA.get(),
-          className: 'bg-success bg-opacity-10 border border-success',
+          className: styles.counterSuccess,
         }),
         CounterDisplay({
           title: 'Counter B',
           value: counterB.get(),
-          className: 'bg-info bg-opacity-10 border border-info',
+          className: styles.counterInfo,
         }),
         CounterDisplay({
           title: 'Local Counter',
           value: localCounter.get(),
-          className: 'bg-warning bg-opacity-10 border border-warning',
+          className: styles.counterWarning,
         }),
         ComputedDisplay(),
         div(
-          { className: 'row g-2 mt-4' },
+          { classNames: styles.buttonGrid },
           div(
-            { className: 'col-12 col-md-6' },
+            { classNames: styles.buttonGrid },
             Button({
               onclick: updateA,
-              className: 'btn-success w-100',
+              className: styles.btnSuccess,
               children: 'Update Counter A',
             }),
           ),
           div(
-            { className: 'col-12 col-md-6' },
+            { classNames: styles.buttonGrid },
             Button({
               onclick: updateB,
-              className: 'btn-info w-100',
+              className: styles.btnInfo,
               children: 'Update Counter B',
             }),
           ),
           div(
-            { className: 'col-12 col-md-6' },
+            { classNames: styles.buttonGrid },
             Button({
               onclick: updateBAsync,
-              className: 'btn-warning w-100',
+              className: styles.btnWarning,
               loading: counterB.pending,
               children: 'Update B Async',
             }),
           ),
           div(
-            { className: 'col-12 col-md-6' },
+            { classNames: styles.buttonGrid },
             Button({
               onclick: incrementLocal,
-              className: 'btn-secondary w-100',
+              className: styles.btnSecondary,
               children: 'Update Local',
             }),
           ),

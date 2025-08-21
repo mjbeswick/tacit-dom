@@ -12,275 +12,229 @@ body {
   background: #f5f5f5;
 }
 
-.routerApp {
+.app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-.appHeader {
-  background: #2c3e50;
+.header {
+  background-color: #007bff;
   color: white;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 3rem 0;
+  flex-shrink: 0;
 }
 
-.appTitle {
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.headerContent {
+  text-align: center;
+}
+
+.title {
+  font-size: 3rem;
+  font-weight: 300;
   margin-bottom: 1rem;
-  font-size: 1.8rem;
 }
 
-.mainNavigation {
+.subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.nav {
+  background-color: #f8f9fa;
+  padding: 1rem 0;
+  flex-shrink: 0;
+}
+
+.navContent {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .navLinks {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.navLink,
-.routeLink,
-.userLink,
-.postLink,
-.backLink,
-.homeLink,
-.errorLink {
-  color: #3498db;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-  display: inline-block;
-}
-
-.navLink:hover,
-.routeLink:hover,
-.userLink:hover,
-.postLink:hover {
-  background: #3498db;
-  color: white;
-}
-
-.backLink:hover,
-.homeLink:hover,
-.errorLink:hover {
-  background: #e74c3c;
-  color: white;
-}
-
-.browserNav {
-  display: flex;
   gap: 0.5rem;
-}
-
-.navButton {
-  padding: 0.5rem 1rem;
-  border: 1px solid #34495e;
-  background: #34495e;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.navButton:hover:not(:disabled) {
-  background: #2c3e50;
-}
-
-.navButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.appMain {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-}
-
-.page {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.featureList {
-  margin: 2rem 0;
-}
-
-.featureItem {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin: 1rem 0;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-}
-
-.featureIcon {
-  font-size: 1.5rem;
-}
-
-.navigationDemo {
-  margin: 2rem 0;
-}
-
-.routeLinks {
-  display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.usersList,
-.postsList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.userItem,
-.postItem {
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #f8f9fa;
-}
-
-.userItem h3,
-.postItem h3 {
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-}
-
-.userActions,
-.postActions,
-.searchActions,
-.errorActions {
-  display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-}
-
-.postContent {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 4px;
-}
-
-.searchResults {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: #e8f4fd;
-  border-radius: 4px;
-  border-left: 4px solid #3498db;
-}
-
-.errorBoundary {
-  background: #fdf2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 2rem;
-  text-align: center;
-}
-
-.errorBoundary h2 {
-  color: #dc2626;
+  justify-content: center;
   margin-bottom: 1rem;
 }
 
-.retryButton {
+.navButtons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.navBtn {
   padding: 0.5rem 1rem;
-  background: #dc2626;
-  color: white;
-  border: none;
+  border: 1px solid #007bff;
   border-radius: 4px;
+  background: transparent;
+  color: #007bff;
   cursor: pointer;
-  margin-left: 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
 }
 
-.retryButton:hover {
-  background: #b91c1c;
-}
-
-.notFoundPage {
-  text-align: center;
-}
-
-.routerLoading {
-  text-align: center;
-  padding: 3rem;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.routerError {
-  text-align: center;
-  padding: 2rem;
-  color: #dc2626;
-}
-
-.routerNotFound {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-}
-
-.appFooter {
-  background: #2c3e50;
+.navBtn:hover {
+  background: #007bff;
   color: white;
-  padding: 1rem;
-  text-align: center;
-  margin-top: auto;
 }
 
-.appFooter p {
-  margin: 0.5rem 0;
+.navBtn.active {
+  background: #007bff;
+  color: white;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.pageTitle {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.pageContent {
+  line-height: 1.6;
+  color: #666;
+}
+
+.card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.cardContent {
+  color: #666;
+  line-height: 1.5;
+}
+
+.userList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.userItem {
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background: white;
+}
+
+.userName {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.25rem;
+}
+
+.userEmail {
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.postList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.postItem {
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  background: white;
+}
+
+.postTitle {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.postBody {
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.postMeta {
+  font-size: 0.875rem;
+  color: #999;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.footer {
+  background-color: #f8f9fa;
+  padding: 2rem 0;
+  text-align: center;
+  color: #666;
+  border-top: 1px solid #e9ecef;
 }
 
 @media (max-width: 768px) {
-  .mainNavigation {
+  .navContent {
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
   }
-
+  
   .navLinks {
-    justify-content: center;
+    margin-bottom: 1rem;
   }
-
-  .browserNav {
-    justify-content: center;
+  
+  .title {
+    font-size: 2rem;
   }
-
-  .routeLinks {
-    flex-direction: column;
-  }
-
-  .userActions,
-  .postActions,
-  .searchActions,
-  .errorActions {
-    flex-direction: column;
-  }
-
-  .appMain {
-    padding: 1rem;
-  }
-
-  .page {
-    padding: 1rem;
+  
+  .subtitle {
+    font-size: 1rem;
   }
 }

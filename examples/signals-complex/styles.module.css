@@ -1,0 +1,272 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 2rem;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  width: 100%;
+}
+
+.cardHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #007bff;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.counterDisplay {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.counterSuccess {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-color: #28a745;
+}
+
+.counterInfo {
+  background-color: rgba(23, 162, 184, 0.1);
+  border-color: #17a2b8;
+}
+
+.counterWarning {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-color: #ffc107;
+}
+
+.counterTitle {
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.counterValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.computedDisplay {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.computedHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.computedTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+}
+
+.badge {
+  background-color: #007bff;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.computedGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.computedItem {
+  text-align: center;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 4px;
+}
+
+.computedPercentage {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.percentageA {
+  color: #28a745;
+}
+
+.percentageB {
+  color: #dc3545;
+}
+
+.computedLabel {
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.computedSummary {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: rgba(23, 162, 184, 0.1);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.summaryTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #0c5460;
+}
+
+.summaryScore {
+  font-size: 1.125rem;
+  color: #0c5460;
+}
+
+.buttonGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.btn {
+  padding: 0.75rem 1rem;
+  border: 1px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: transparent;
+  position: relative;
+  width: 100%;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btnSuccess {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.btnSuccess:hover:not(:disabled) {
+  background: #28a745;
+  color: white;
+}
+
+.btnInfo {
+  border-color: #17a2b8;
+  color: #17a2b8;
+}
+
+.btnInfo:hover:not(:disabled) {
+  background: #17a2b8;
+  color: white;
+}
+
+.btnWarning {
+  border-color: #ffc107;
+  color: #ffc107;
+}
+
+.btnWarning:hover:not(:disabled) {
+  background: #ffc107;
+  color: white;
+}
+
+.btnSecondary {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.btnSecondary:hover:not(:disabled) {
+  background: #6c757d;
+  color: white;
+}
+
+.btnContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinnerInner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .buttonGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .computedGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -10,107 +10,213 @@
  * - Loading states
  */
 
-import {
-  button,
-  div,
-  footer,
-  h1,
-  h2,
-  h3,
-  header,
-  history,
-  li,
-  link,
-  main,
-  nav,
-  p,
-  router,
-  ul,
-} from '../../src/index';
+import { button, div, p, span, render } from '../../src/index';
+import { router } from '../../src/router';
+import styles from './styles.module.css';
 
+const routerInstance = router({
+  routes: [
+    {
+      path: '/',
+      component: () => {
+        return div(
+          { classNames: styles.page },
+          div(
+            { classNames: styles.card },
+            div(
+              { classNames: styles.cardContent },
+              div(
+                { classNames: styles.cardTitle },
+                'Welcome to the Router Example',
+              ),
+              p(
+                { classNames: styles.pageContent },
+                'This is a simple router built with Reactive DOM. Click the navigation links above to explore different routes.',
+              ),
+              div(
+                { classNames: styles.pageContent },
+                div({ classNames: styles.cardTitle }, 'Features:'),
+                div(
+                  { classNames: styles.pageContent },
+                  div(
+                    { classNames: styles.pageContent },
+                    'Route loaders with async data fetching',
+                  ),
+                  div(
+                    { classNames: styles.pageContent },
+                    'Browser back/forward navigation',
+                  ),
+                  div(
+                    { classNames: styles.pageContent },
+                    'URL parameter parsing',
+                  ),
+                  div(
+                    { classNames: styles.pageContent },
+                    'Search parameter handling',
+                  ),
+                  div({ classNames: styles.pageContent }, 'Error boundaries'),
+                  div({ classNames: styles.pageContent }, 'Loading states'),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    },
+    {
+      path: '/users',
+      loader: async () => {
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        return { users: ['John', 'Jane', 'Jim'] };
+      },
+      component: (data) => {
+        console.log('Rendering users', data);
+        return div(
+          { classNames: styles.page },
+          div(
+            { classNames: styles.card },
+            div(
+              { classNames: styles.cardContent },
+              div({ classNames: styles.cardTitle }, 'Users'),
+              p(
+                { classNames: styles.pageContent },
+                'Here are the users loaded from the server:',
+              ),
+              div(
+                { classNames: styles.userList },
+                ...data.users.map((user: string) =>
+                  div(
+                    { classNames: styles.userItem },
+                    div({ classNames: styles.userName }, user),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    },
+    {
+      path: '/posts',
+      loader: async () => {
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        return { posts: ['Post 1', 'Post 2', 'Post 3'] };
+      },
+      component: (data) => {
+        console.log('Rendering posts', data);
+        return div(
+          { classNames: styles.page },
+          div(
+            { classNames: styles.card },
+            div(
+              { classNames: styles.cardContent },
+              div({ classNames: styles.cardTitle }, 'Posts'),
+              p(
+                { classNames: styles.pageContent },
+                'Here are the posts loaded from the server:',
+              ),
+              div(
+                { classNames: styles.postList },
+                ...data.posts.map((post: string) =>
+                  div(
+                    { classNames: styles.postItem },
+                    div({ classNames: styles.postTitle }, post),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    },
+  ],
+});
+
+// Update navigation handlers to use the router instance
 const app = () => {
   const handleBack = () => {
-    history.back();
+    if (typeof window !== 'undefined') {
+      window.history.back();
+    }
   };
 
   const handleForward = () => {
-    history.forward();
+    if (typeof window !== 'undefined') {
+      window.history.forward();
+    }
+  };
+
+  const navigateTo = (path: string) => {
+    routerInstance.navigate(path);
   };
 
   return div(
-    { className: 'min-vh-100 d-flex flex-column' },
+    { classNames: styles.app },
 
     // Header section
-    header(
-      { className: 'bg-primary text-white py-5 flex-shrink-0' },
+    div(
+      { classNames: styles.header },
       div(
-        { className: 'container' },
+        { classNames: styles.container },
         div(
-          { className: 'row justify-content-center' },
-          div(
-            { className: 'col-lg-8 text-center' },
-            h1({ className: 'display-4 mb-3' }, 'Router Example'),
-            p(
-              { className: 'lead mb-0' },
-              'A simple router with loaders, browser navigation, and reactive state.',
-            ),
+          { classNames: styles.headerContent },
+          div({ classNames: styles.title }, 'Router Example'),
+          p(
+            { classNames: styles.subtitle },
+            'A simple router with loaders, browser navigation, and reactive state.',
           ),
         ),
       ),
     ),
 
     // Navigation section
-    nav(
-      { className: 'bg-light py-3 flex-shrink-0' },
+    div(
+      { classNames: styles.nav },
       div(
-        { className: 'container' },
+        { classNames: styles.container },
         div(
-          { className: 'row align-items-center' },
+          { classNames: styles.navContent },
           div(
-            { className: 'col-lg-8 col-md-7 mb-3 mb-md-0' },
+            { classNames: styles.navLinks },
             div(
               {
-                className:
-                  'd-flex gap-2 flex-wrap justify-content-center justify-content-md-start',
+                classNames: styles.navBtn,
+                onClick: () => navigateTo('/'),
               },
-              link({
-                to: '/',
-                children: 'Home',
-                className: 'btn btn-outline-primary',
-              }),
-              link({
-                to: '/users',
-                children: 'Users',
-                className: 'btn btn-outline-primary',
-              }),
-              link({
-                to: '/posts',
-                children: 'Posts',
-                className: 'btn btn-outline-primary',
-              }),
+              'Home',
+            ),
+            div(
+              {
+                classNames: styles.navBtn,
+                onClick: () => navigateTo('/users'),
+              },
+              'Users',
+            ),
+            div(
+              {
+                classNames: styles.navBtn,
+                onClick: () => navigateTo('/posts'),
+              },
+              'Posts',
             ),
           ),
           div(
-            { className: 'col-lg-4 col-md-5' },
-            div(
+            { classNames: styles.navButtons },
+            button(
               {
-                className:
-                  'd-flex gap-2 justify-content-center justify-content-md-end',
+                onClick: handleBack,
+                classNames: styles.navBtn,
               },
-              button(
-                {
-                  onclick: handleBack,
-                  className: 'btn btn-secondary',
-                },
-                '← Back',
-              ),
-              button(
-                {
-                  onclick: handleForward,
-                  className: 'btn btn-secondary',
-                },
-                'Forward →',
-              ),
+              '← Back',
+            ),
+            button(
+              {
+                onClick: handleForward,
+                classNames: styles.navBtn,
+              },
+              'Forward →',
             ),
           ),
         ),
@@ -118,51 +224,57 @@ const app = () => {
     ),
 
     // Main content - flexible and growing
-    main(
-      { className: 'flex-grow-1 py-4' },
+    div(
+      { classNames: styles.main },
       div(
-        { className: 'container' },
-        router({
+        { classNames: styles.container },
+        routerInstance({
           routes: [
             {
               path: '/',
               component: () => {
                 return div(
-                  { className: 'row justify-content-center' },
+                  { classNames: styles.page },
                   div(
-                    { className: 'col-lg-8' },
+                    { classNames: styles.card },
                     div(
-                      { className: 'card shadow-sm' },
+                      { classNames: styles.cardContent },
                       div(
-                        { className: 'card-body text-center' },
-                        h2(
-                          { className: 'card-title h3 mb-4' },
-                          'Welcome to the Router Example',
-                        ),
-                        p(
-                          { className: 'card-text mb-4' },
-                          'This is a simple router built with Reactive DOM. Click the navigation links above to explore different routes.',
-                        ),
+                        { classNames: styles.cardTitle },
+                        'Welcome to the Router Example',
+                      ),
+                      p(
+                        { classNames: styles.pageContent },
+                        'This is a simple router built with Reactive DOM. Click the navigation links above to explore different routes.',
+                      ),
+                      div(
+                        { classNames: styles.pageContent },
+                        div({ classNames: styles.cardTitle }, 'Features:'),
                         div(
-                          { className: 'text-start' },
-                          h3({ className: 'h5 mb-3' }, 'Features:'),
-                          ul(
-                            { className: 'list-unstyled' },
-                            li(
-                              { className: 'mb-2' },
-                              'Route loaders with async data fetching',
-                            ),
-                            li(
-                              { className: 'mb-2' },
-                              'Browser back/forward navigation',
-                            ),
-                            li({ className: 'mb-2' }, 'URL parameter parsing'),
-                            li(
-                              { className: 'mb-2' },
-                              'Search parameter handling',
-                            ),
-                            li({ className: 'mb-2' }, 'Error boundaries'),
-                            li({ className: 'mb-0' }, 'Loading states'),
+                          { classNames: styles.pageContent },
+                          div(
+                            { classNames: styles.pageContent },
+                            'Route loaders with async data fetching',
+                          ),
+                          div(
+                            { classNames: styles.pageContent },
+                            'Browser back/forward navigation',
+                          ),
+                          div(
+                            { classNames: styles.pageContent },
+                            'URL parameter parsing',
+                          ),
+                          div(
+                            { classNames: styles.pageContent },
+                            'Search parameter handling',
+                          ),
+                          div(
+                            { classNames: styles.pageContent },
+                            'Error boundaries',
+                          ),
+                          div(
+                            { classNames: styles.pageContent },
+                            'Loading states',
                           ),
                         ),
                       ),
@@ -181,30 +293,22 @@ const app = () => {
               component: (data) => {
                 console.log('Rendering users', data);
                 return div(
-                  { className: 'row justify-content-center' },
+                  { classNames: styles.page },
                   div(
-                    { className: 'col-lg-8' },
+                    { classNames: styles.card },
                     div(
-                      { className: 'card shadow-sm' },
+                      { classNames: styles.cardContent },
+                      div({ classNames: styles.cardTitle }, 'Users'),
+                      p(
+                        { classNames: styles.pageContent },
+                        'Here are the users loaded from the server:',
+                      ),
                       div(
-                        { className: 'card-body' },
-                        h2({ className: 'card-title h3 mb-4' }, 'Users'),
-                        p(
-                          { className: 'card-text mb-4' },
-                          'Here are the users loaded from the server:',
-                        ),
-                        div(
-                          { className: 'row g-3' },
-                          ...data.users.map((user: string) =>
-                            div(
-                              { className: 'col-md-4' },
-                              div(
-                                {
-                                  className: 'p-3 bg-light rounded text-center',
-                                },
-                                h3({ className: 'h5 mb-0' }, user),
-                              ),
-                            ),
+                        { classNames: styles.userList },
+                        ...data.users.map((user: string) =>
+                          div(
+                            { classNames: styles.userItem },
+                            div({ classNames: styles.userName }, user),
                           ),
                         ),
                       ),
@@ -223,30 +327,22 @@ const app = () => {
               component: (data) => {
                 console.log('Rendering posts', data);
                 return div(
-                  { className: 'row justify-content-center' },
+                  { classNames: styles.page },
                   div(
-                    { className: 'col-lg-8' },
+                    { classNames: styles.card },
                     div(
-                      { className: 'card shadow-sm' },
+                      { classNames: styles.cardContent },
+                      div({ classNames: styles.cardTitle }, 'Posts'),
+                      p(
+                        { classNames: styles.pageContent },
+                        'Here are the posts loaded from the server:',
+                      ),
                       div(
-                        { className: 'card-body' },
-                        h2({ className: 'card-title h3 mb-4' }, 'Posts'),
-                        p(
-                          { className: 'card-text mb-4' },
-                          'Here are the posts loaded from the server:',
-                        ),
-                        div(
-                          { className: 'row g-3' },
-                          ...data.posts.map((post: string) =>
-                            div(
-                              { className: 'col-md-4' },
-                              div(
-                                {
-                                  className: 'p-3 bg-light rounded text-center',
-                                },
-                                h3({ className: 'h5 mb-0' }, post),
-                              ),
-                            ),
+                        { classNames: styles.postList },
+                        ...data.posts.map((post: string) =>
+                          div(
+                            { classNames: styles.postItem },
+                            div({ classNames: styles.postTitle }, post),
                           ),
                         ),
                       ),
@@ -261,19 +357,12 @@ const app = () => {
     ),
 
     // Footer section
-    footer(
-      { className: 'bg-light py-3 flex-shrink-0' },
+    div(
+      { classNames: styles.footer },
       div(
-        { className: 'container' },
-        div(
-          { className: 'row justify-content-center' },
-          div(
-            { className: 'col-12 text-center' },
-            p(
-              { className: 'text-muted mb-0' },
-              'Reactive DOM Router Example - Built with reactive primitives and Bootstrap',
-            ),
-          ),
+        { classNames: styles.container },
+        p(
+          'Reactive DOM Router Example - Built with reactive primitives and CSS modules',
         ),
       ),
     ),

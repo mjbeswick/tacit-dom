@@ -1,5 +1,6 @@
 import { button, component, div, render, useSignal } from '../../src/index';
 import { globalCounter, incrementGlobal } from './store';
+import styles from './styles.module.css';
 
 // Main app component
 const app = component(() => {
@@ -14,39 +15,35 @@ const app = component(() => {
   };
 
   return div(
-    {
-      className:
-        'min-vh-100 d-flex flex-column justify-content-center align-items-center bg-light p-4',
-    },
+    { classNames: styles.app },
     div(
-      { className: 'card p-4' },
+      { classNames: styles.card },
       div(
-        { className: 'card-header text-center mb-4 bg-transparent border-0' },
+        { classNames: styles.cardHeader },
+        div({ classNames: styles.title }, 'Simple Signals Demo'),
         div(
-          { className: 'h3 mb-2 text-primary fw-bold' },
-          'Simple Signals Demo',
-        ),
-        div(
-          { className: 'text-muted' },
+          { classNames: styles.subtitle },
           'Global vs Local Signals with Reactive Updates',
         ),
       ),
       div(
-        { className: 'card-body' },
+        { classNames: styles.cardBody },
         // Global counter display
         div(
           {
-            className:
-              'mb-4 p-3 bg-success bg-opacity-10 border border-success rounded',
+            classNames: [styles.counterSection, styles.globalCounter],
           },
           div(
-            { className: 'd-flex align-items-center justify-content-between' },
-            div({ className: 'h6 mb-0 text-muted' }, 'Global Counter'),
-            div({ className: 'h2 mb-0 text-success' }, globalCounter.get()),
+            { classNames: styles.counterHeader },
+            div({ classNames: styles.counterLabel }, 'Global Counter'),
+            div(
+              { classNames: [styles.counterValue, styles.globalValue] },
+              globalCounter.get(),
+            ),
             button(
               {
-                onclick: incrementGlobal,
-                className: 'btn btn-success',
+                onClick: incrementGlobal,
+                classNames: [styles.btn, styles.btnGlobal],
               },
               'Increment Global',
             ),
@@ -55,17 +52,19 @@ const app = component(() => {
         // Local counter display
         div(
           {
-            className:
-              'mb-4 p-3 bg-warning bg-opacity-10 border border-warning rounded',
+            classNames: [styles.counterSection, styles.localCounter],
           },
           div(
-            { className: 'd-flex align-items-center justify-content-between' },
-            div({ className: 'h6 mb-0 text-muted' }, 'Local Counter'),
-            div({ className: 'h2 mb-0 text-warning' }, localCounter.get()),
+            { classNames: styles.counterHeader },
+            div({ classNames: styles.counterLabel }, 'Local Counter'),
+            div(
+              { classNames: [styles.counterValue, styles.localValue] },
+              localCounter.get(),
+            ),
             button(
               {
-                onclick: incrementLocal,
-                className: 'btn btn-warning',
+                onClick: incrementLocal,
+                classNames: [styles.btn, styles.btnLocal],
               },
               'Increment Local',
             ),
@@ -74,12 +73,11 @@ const app = component(() => {
         // Info section
         div(
           {
-            className:
-              'p-3 bg-info bg-opacity-10 border border-info rounded text-center',
+            classNames: [styles.counterSection, styles.infoSection],
           },
-          div({ className: 'h6 mb-2' }, 'How it works'),
+          div({ classNames: styles.infoTitle }, 'How it works'),
           div(
-            { className: 'small text-muted' },
+            { classNames: styles.infoText },
             'The global counter persists across component re-renders and automatically decrements every second, while the local counter resets each time. ' +
               'Both automatically update the UI when their values change!',
           ),

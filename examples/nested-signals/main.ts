@@ -37,21 +37,21 @@ const counter = component((props: { title: string; initialValue?: number }) => {
         { classNames: styles.buttons },
         button(
           {
-            onclick: decrement,
+            onClick: decrement,
             classNames: [styles.btn, styles.btnDecrement],
           },
           '-',
         ),
         button(
           {
-            onclick: reset,
+            onClick: reset,
             classNames: [styles.btn, styles.btnReset],
           },
           'Reset',
         ),
         button(
           {
-            onclick: increment,
+            onClick: increment,
             classNames: [styles.btn, styles.btnIncrement],
           },
           '+',
@@ -69,33 +69,33 @@ const app = component(() => {
     { classNames: styles.app },
     div(
       { classNames: styles.container },
-      h1({ className: styles.appTitle }, 'Counters with Local Signals'),
+      h1({ classNames: styles.appTitle }, 'Counters with Local Signals'),
       div(
-        { className: styles.countersRow },
+        { classNames: styles.countersRow },
         counter({ title: 'Counter A', initialValue: 0 }),
         counter({ title: 'Counter B', initialValue: 10 }),
       ),
       div(
-        { className: styles.footer },
+        { classNames: styles.footer },
         div(
-          { className: styles.infoBox },
-          h1({ className: styles.infoTitle }, '🔍 What to observe:'),
+          { classNames: styles.infoBox },
+          h1({ classNames: styles.infoTitle }, '🔍 What to observe:'),
           div(
-            { className: styles.infoList },
+            { classNames: styles.infoList },
             div(
-              { className: styles.infoItem },
+              { classNames: styles.infoItem },
               '• Each counter should maintain its own independent state',
             ),
             div(
-              { className: styles.infoItem },
+              { classNames: styles.infoItem },
               '• Clicking + or - on Counter A should only affect Counter A',
             ),
             div(
-              { className: styles.infoItem },
+              { classNames: styles.infoItem },
               '• Clicking + or - on Counter B should only affect Counter B',
             ),
             div(
-              { className: styles.infoItem },
+              { classNames: styles.infoItem },
               '• Check the browser console for state change logs!',
             ),
           ),

@@ -53,13 +53,13 @@ const RiskyComponent = component(() => {
   });
 
   return div(
-    { className: 'component' },
+    { classNames: 'component' },
     h3('Risky Component'),
     p('This component demonstrates error handling with try/catch.'),
     button(
       {
         onclick: handleToggleShouldThrow,
-        className: buttonClass.get(),
+        classNames: buttonClass.get(),
       },
       buttonText.get(),
     ),
@@ -70,7 +70,7 @@ const RiskyComponent = component(() => {
       'Run Risky Operation',
     ),
     div(
-      { className: errorMessage.get() ? 'error' : 'success' },
+      { classNames: errorMessage.get() ? 'error' : 'success' },
       p(result.get()),
     ),
   );
