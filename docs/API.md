@@ -964,7 +964,71 @@ const isAdult = computed(() => globalUser.get().age >= 18);
 const displayName = computed(() => globalUser.get().name);
 ```
 
-### 3. Event Handling
+### 3. Store Pattern
+
+The store pattern is a recommended approach for organizing global state in Tacit-DOM applications. It provides a centralized location for signals, computed values, and update functions.
+
+```typescript
+// store.ts
+import { signal, computed } from 'tacit-dom';
+
+// Centralized signal definitions
+export const signalA = signal(0);
+export const signalB = signal(0);
+export const signalC = signal(Date.now());
+
+// Computed values that depend on signals
+export const computedC = computed(() => `${signalA.get()} / ${signalB.get()}`);
+
+// Update functions that modify signals
+export const updateA = () => {
+  signalA.set(signalA.get() + 1);
+};
+
+export const updateB = () => {
+  signalB.set(signalB.get() + 1);
+};
+
+export const updateC = () => {
+  signalC.set(Date.now());
+};
+
+// Async update functions
+export const updateBAsync = async () => {
+  await signalB.update(async (value) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return value + 1;
+  });
+};
+```
+
+**Benefits of the Store Pattern:**
+
+- **Persistent State**: Signals maintain their values across component re-renders
+- **Centralized Logic**: All state management logic is in one place
+- **Reusable Functions**: Update functions can be imported and used by any component
+- **Better Testing**: Easier to test state logic in isolation
+- **Performance**: Prevents signal recreation on each component render
+
+**Usage in Components:**
+
+```typescript
+// main.ts
+import { signalA, signalB, signalC, updateA, updateB, updateC } from './store';
+
+const app = component(() => {
+  return div(
+    div(`Signal A: ${signalA.get()}`),
+    div(`Signal B: ${signalB.get()}`),
+    div(`Signal C: ${signalC.get()}`),
+    button({ onclick: updateA }, 'Update A'),
+    button({ onclick: updateB }, 'Update B'),
+    button({ onclick: updateC }, 'Update C'),
+  );
+});
+```
+
+### 4. Event Handling
 
 ```typescript
 const handleFormSubmit = (e: Event) => {

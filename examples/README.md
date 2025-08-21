@@ -74,6 +74,16 @@ npm install
 npm run dev
 ```
 
+### Tree (`/tree`)
+
+A comprehensive example demonstrating an interactive tree component with collapsible nodes using the `collapsedPaths` signal pattern for state management.
+
+```bash
+cd tree
+npm install
+npm run dev
+```
+
 ## Running Examples
 
 Each example is self-contained with its own `package.json`, `vite.config.ts`, and `tsconfig.json`. To run any example:
@@ -88,7 +98,7 @@ Each example is self-contained with its own `package.json`, `vite.config.ts`, an
 Each example runs on a different port to avoid conflicts:
 
 - Debug: `http://localhost:5173`
-- Random Generator: `http://localhost:5174`
+- Tree: `http://localhost:5174`
 - Router: `http://localhost:5175`
 - Strongly Typed Props: `http://localhost:5176`
 - Signals: `http://localhost:5177`

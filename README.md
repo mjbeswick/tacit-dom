@@ -538,6 +538,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 Each example demonstrates different aspects of Tacit-DOM:
 
 - **Reactive Signals**: Global state management without providers or context
+- **Store Pattern**: Centralized state management with persistent signals across component re-renders
 - **Computed Values**: Automatic dependency tracking and derived state
 - **Event Handling**: Built-in DOM event support with reactive updates
 - **Type Safety**: Full TypeScript support with strongly typed props

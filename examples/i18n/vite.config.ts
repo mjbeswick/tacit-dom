@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   root: '.',
   server: {
-    port: 3001,
+    port: 0,
     open: true,
     cors: true,
   },
@@ -20,5 +20,8 @@ export default defineConfig({
     alias: {
       'tacit-dom': '../../src/index.ts',
     },
+  },
+  esbuild: {
+    target: 'esnext',
   },
 });

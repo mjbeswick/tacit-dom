@@ -15,6 +15,7 @@ import {
   getReactiveById,
   REACTIVE_MARKER_PREFIX,
   REACTIVE_MARKER_SUFFIX,
+  setCurrentComponentContext,
   Signal,
   signal,
 } from './signals';
@@ -27,22 +28,6 @@ let currentComponent: {
   signals: Map<number, Signal<any>>;
   stateIndex: number;
 } | null = null;
-
-/**
- * Creates a stateful signal that persists between component re-renders.
- * This should be used instead of signal() inside reactive components.
- */
-export function useState<T>(initialValue: T): Signal<T> {
-  if (!currentComponent) {
-    throw new Error('useState can only be called inside a reactive component');
-  }
-
-  const index = currentComponent.stateIndex++;
-  if (!currentComponent.signals.has(index)) {
-    currentComponent.signals.set(index, signal(initialValue));
-  }
-  return currentComponent.signals.get(index) as Signal<T>;
-}
 
 // Inline classNames function to avoid circular dependency
 function classNames(
@@ -1676,7 +1661,7 @@ export function createReactiveList<T>(
 export type Component<P = {}> = ((
   props?: P & { children?: any },
 ) => HTMLElement) & {
-  _setContainer?: (container: HTMLElement) => void;
+  _setContainer?: (container: HTMLElement, props?: any) => void;
 };
 
 /**
@@ -1722,9 +1707,13 @@ export function createReactiveComponent<P = {}>(
       currentProps = props;
     }
 
-    // Set up component context for useState
+    // Set up component context for useState and signal()
     const prevComponent = currentComponent;
-    currentComponent = { signals: componentSignals, stateIndex: 0 };
+    const componentContext = { signals: componentSignals, stateIndex: 0 };
+    currentComponent = componentContext;
+
+    // Set the context in signals module so signal() can detect it
+    setCurrentComponentContext(componentContext);
 
     try {
       // Always execute the component function to track dependencies
@@ -1743,6 +1732,7 @@ export function createReactiveComponent<P = {}>(
     } finally {
       // Restore previous component context
       currentComponent = prevComponent;
+      setCurrentComponentContext(prevComponent);
     }
   };
 
@@ -1940,13 +1930,16 @@ export function errorBoundary<P = {}>(
   };
 
   // Add error boundary specific methods
-  errorBoundaryComponent._setContainer = (container: HTMLElement) => {
+  errorBoundaryComponent._setContainer = (
+    container: HTMLElement,
+    props?: any,
+  ) => {
     // Mark container for error boundary
     container.setAttribute('data-error-boundary', 'true');
 
     // If the wrapped component has _setContainer, call it
     if ((component as any)._setContainer) {
-      (component as any)._setContainer(container);
+      (component as any)._setContainer(container, props);
     }
   };
 

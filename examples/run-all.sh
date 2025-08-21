@@ -16,6 +16,7 @@ run_example() {
 }
 # Start all examples
 
+run_example "tree" "5174"
 run_example "signals" "5177"
 run_example "classnames" "5178"
 run_example "i18n-inline" "3001"
@@ -23,6 +24,7 @@ run_example "router" "5175"
 
 echo ""
 echo "All examples are starting..."
+echo "Tree: http://localhost:5174"
 echo "Signals: http://localhost:5177"
 echo "ClassNames: http://localhost:5178"
 echo "Inline i18n: http://localhost:3001"

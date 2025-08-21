@@ -61,7 +61,6 @@ export {
   th,
   tr,
   ul,
-  useState,
   video,
 } from './dom';
 

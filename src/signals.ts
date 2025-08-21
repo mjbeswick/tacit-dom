@@ -412,9 +412,29 @@ function batch(fn: () => void): void {
 }
 
 /**
- * Creates a reactive signal with an initial value.
+ * Component context interface for sharing state between dom.ts and signals.ts
  */
-function signal<T>(initialValue: T): Signal<T> {
+type ComponentContext = {
+  signals: Map<number, Signal<any>>;
+  stateIndex: number;
+};
+
+/**
+ * Global reference to the current component context
+ */
+let currentComponentContext: ComponentContext | null = null;
+
+/**
+ * Sets the current component context (called by dom.ts)
+ */
+function setCurrentComponentContext(context: ComponentContext | null): void {
+  currentComponentContext = context;
+}
+
+/**
+ * Core signal creation logic (internal)
+ */
+function createSignalInternal<T>(initialValue: T): Signal<T> {
   let value = initialValue;
   let pendingUpdates = 0;
   const subscribers = new Set<Subscriber>();
@@ -518,6 +538,40 @@ function signal<T>(initialValue: T): Signal<T> {
 }
 
 /**
+ * Creates a component-scoped signal that persists between re-renders
+ */
+function createComponentSignal<T>(initialValue: T): Signal<T> {
+  if (!currentComponentContext) {
+    throw new Error(
+      'createComponentSignal can only be called inside a reactive component',
+    );
+  }
+
+  const index = currentComponentContext.stateIndex++;
+  if (!currentComponentContext.signals.has(index)) {
+    currentComponentContext.signals.set(
+      index,
+      createSignalInternal(initialValue),
+    );
+  }
+  return currentComponentContext.signals.get(index) as Signal<T>;
+}
+
+/**
+ * Creates a reactive signal with an initial value.
+ * When called within a component context, automatically creates component-scoped state.
+ */
+function signal<T>(initialValue: T): Signal<T> {
+  // Check if we're in a component context and should create component-scoped state
+  if (currentComponentContext) {
+    return createComponentSignal(initialValue);
+  }
+
+  // Create a regular global signal
+  return createSignalInternal(initialValue);
+}
+
+/**
  * Creates a computed value that automatically updates when its dependencies change.
  */
 function computed<T>(computeFn: () => T): Computed<T> {
@@ -607,6 +661,7 @@ export {
   computed,
   effect,
   getReactiveById,
+  setCurrentComponentContext,
   setDebugMode,
   signal,
 };

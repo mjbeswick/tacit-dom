@@ -3,6 +3,7 @@ import {
   component,
   computed,
   div,
+  effect,
   h3,
   p,
   render,
@@ -15,22 +16,41 @@ const RiskyComponent = component(() => {
   const shouldThrow = signal(false);
   const errorMessage = signal<string | null>(null);
 
-  const riskyOperation = () => {
+  // Separate the computation from side effects
+  const result = computed(() => {
+    if (shouldThrow.get()) {
+      return 'Error occurred during operation';
+    }
+    return 'Operation completed successfully!';
+  });
+
+  // Create reactive button text and class
+  const buttonText = computed(() =>
+    shouldThrow.get() ? 'Disable Error' : 'Enable Error',
+  );
+  const buttonClass = computed(() => (shouldThrow.get() ? 'danger' : ''));
+
+  // Handle the risky operation separately
+  const runRiskyOperation = () => {
     try {
       if (shouldThrow.get()) {
         throw new Error('This is a simulated error from the risky component!');
       }
       errorMessage.set(null);
-      return 'Operation completed successfully!';
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unknown error occurred';
       errorMessage.set(message);
-      return 'Error occurred during operation';
     }
   };
 
-  const result = computed(() => riskyOperation());
+  const handleToggleShouldThrow = () => {
+    shouldThrow.update((x) => !x);
+  };
+
+  effect(() => {
+    console.log('shouldThrow changed to:', shouldThrow.get());
+  });
 
   return div(
     { className: 'component' },
@@ -38,16 +58,14 @@ const RiskyComponent = component(() => {
     p('This component demonstrates error handling with try/catch.'),
     button(
       {
-        onclick: () => shouldThrow.set(!shouldThrow.get()),
-        className: shouldThrow.get() ? 'danger' : '',
+        onclick: handleToggleShouldThrow,
+        className: buttonClass.get(),
       },
-      shouldThrow.get() ? 'Disable Error' : 'Enable Error',
+      buttonText.get(),
     ),
     button(
       {
-        onclick: () => {
-          result.get();
-        },
+        onclick: runRiskyOperation,
       },
       'Run Risky Operation',
     ),
@@ -160,7 +178,7 @@ const ConditionalErrorComponent = component(() => {
   );
 });
 
-// Example 4: Component with error recovery
+// Example 4: Component with conditional rendering based on error state
 const ErrorRecoveryComponent = component(() => {
   const attempts = signal(0);
   const lastError = signal<string | null>(null);
