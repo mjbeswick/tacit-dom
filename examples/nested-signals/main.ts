@@ -1,11 +1,11 @@
-import { button, component, div, h1, render, signal } from '../../src/index';
+import { button, component, div, h1, render, useSignal } from '../../src/index';
 import styles from './styles.module.css';
 
 // Counter component with its own local signal
 const counter = component((props: { title: string; initialValue?: number }) => {
   console.log('counter renders');
-  // Each Counter instance has its own local signal
-  const count = signal(props.initialValue || 0);
+  // Each Counter instance has its own local signal using useSignal hook
+  const count = useSignal(props.initialValue || 0);
 
   console.log('count', count.get());
 

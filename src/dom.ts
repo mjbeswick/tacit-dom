@@ -10,13 +10,14 @@
  */
 
 import {
-  Computed,
   effect,
   getReactiveById,
   REACTIVE_MARKER_PREFIX,
   REACTIVE_MARKER_SUFFIX,
   setCurrentComponentContext,
-  Signal,
+  signal,
+  type Computed,
+  type Signal,
 } from './signals';
 
 // DOM types for event handling
@@ -1684,9 +1685,7 @@ export type Component<P = {}> = ((
 
 /**
  * Creates a reactive component that automatically re-renders when its dependencies change.
- *
- * This function wraps a component function and sets up automatic re-rendering
- * when any signals or computed values used within the component change.
+ * Works like Preact/React - components re-render on every signal change.
  *
  * @param component - The component function to make reactive
  * @returns A reactive component function that can be used with render
@@ -1695,7 +1694,7 @@ export type Component<P = {}> = ((
  * ```typescript
  * // Component without props
  * const Counter = createReactiveComponent(() => {
- *   const count = signal(0);
+ *   const count = useSignal(0);
  *   return div(
  *     button({ onclick: () => count.set(count.get() + 1) }, `Count: ${count.get()}`)
  *   );
@@ -1703,76 +1702,48 @@ export type Component<P = {}> = ((
  *
  * // Component with props
  * const Greeting = createReactiveComponent<{ name: string }>((props) => {
- *   return div(`Hello, ${props?.name || 'World'}!`);
+ *   const greeting = useSignal(`Hello, ${props.name}!`);
+ *   return div(greeting.get());
  * });
- *
- * render(Counter, document.getElementById('app'));
- * render(Greeting({ name: 'Alice' }), document.getElementById('greeting'));
  * ```
  */
 export function createReactiveComponent<P = {}>(
   component: (props: P & { children?: any }) => HTMLElement,
 ): Component<P> {
-  // Return a function that creates isolated component instances
+  // Return a function that creates component instances that re-render
   const reactiveComponent = (props?: P & { children?: any }) => {
-    // Create a stable key for this component instance based on component identity
-    // We use the component function name or a hash of the function itself
-    const componentKey = component.name || component.toString().slice(0, 50);
+    // Create a unique key for this component instance
+    const instanceId = `${component.name || 'Anonymous'}_${Math.random().toString(36).substr(2, 9)}`;
 
-    // Check if we already have an instance for this component
-    const existingInstance = componentInstanceRegistry.get(componentKey);
-
-    if (existingInstance && existingInstance.componentFunction === component) {
-      // Reuse existing instance - this prevents signal recreation
-      console.log(`Reusing component instance: ${componentKey}`);
-
-      // Set up the component context for this instance
-      const prevComponent = currentComponent;
-      const componentContext = {
-        signals: existingInstance.signals,
-        stateIndex: 0,
-        instanceId: componentKey,
-        parentContainer: null,
-      };
-      currentComponent = componentContext;
-      setCurrentComponentContext(componentContext);
-
-      // Restore context
-      currentComponent = prevComponent;
-      setCurrentComponentContext(prevComponent);
-
-      return existingInstance.element;
-    }
-
-    // Create new instance
-    let container: HTMLElement | null = null;
-    let effectCleanup: (() => void) | null = null;
+    // Create container for this component instance
+    const container = document.createElement('div');
     let currentElement: HTMLElement | null = null;
     let currentProps: (P & { children?: any }) | null = props || null;
-    const componentSignals: Map<number, Signal<any>> = new Map(); // Isolated per instance
 
-    // Generate a unique ID for this component instance
-    const instanceId = componentKey;
+    // Component-scoped signals storage - persists across re-renders
+    const componentSignals = new Map<number, Signal<any>>();
+    const stateIndex = 0;
 
-    // Track if this component instance has been initialized
-    let isInitialized = false;
+    // Track if component is mounted
+    let isMounted = false;
+    let effectCleanup: (() => void) | null = null;
 
     const renderComponent = () => {
-      // Set up component context for useState and signal()
+      // Set up component context for useSignal and other hooks
       const prevComponent = currentComponent;
       const componentContext = {
         signals: componentSignals,
-        stateIndex: 0,
+        stateIndex: 0, // Reset state index for each render
         instanceId,
         parentContainer: container,
       };
       currentComponent = componentContext;
 
-      // Set the context in signals module so signal() can detect it
+      // Set the context in signals module so useSignal can detect it
       setCurrentComponentContext(componentContext);
 
       try {
-        // Always execute the component function to track dependencies
+        // Execute the component function - this will create/access signals
         const element = component(
           currentProps || ({ children: undefined } as P & { children?: any }),
         );
@@ -1791,11 +1762,12 @@ export function createReactiveComponent<P = {}>(
         effectCleanup();
       }
 
-      // Create an effect that will track all signal dependencies
+      // Create an effect that will track all signal dependencies and re-render
       effectCleanup = effect(() => {
-        if (!container) return;
+        if (!isMounted) return;
 
-        // Always re-render to track new dependencies, but preserve child component instances
+        // Track dependencies by calling renderComponent within the effect
+        // This ensures all signal.get() calls are tracked as dependencies
         const newElement = renderComponent();
 
         // Update the DOM
@@ -1807,166 +1779,82 @@ export function createReactiveComponent<P = {}>(
         }
 
         currentElement = newElement;
-        isInitialized = true;
-
-        // Update the registry with the new element
-        componentInstanceRegistry.set(componentKey, {
-          element: newElement,
-          signals: componentSignals,
-          props: currentProps,
-          lastRender: Date.now(),
-          componentFunction: component,
-        });
       });
     };
 
-    // Render the component immediately for static content
-    // The signal isolation is achieved by each instance having its own componentSignals map
+    // Initial render
     const element = renderComponent();
+    currentElement = element;
+    container.appendChild(element);
 
-    // Register this instance
-    componentInstanceRegistry.set(componentKey, {
-      element,
-      signals: componentSignals,
-      props: currentProps,
-      lastRender: Date.now(),
-      componentFunction: component,
-    });
-
-    // Store reactive state for this instance
-    (element as any)._reactiveSetup = {
+    // Set up the reactive system immediately
+    const reactiveSetup = {
       setContainer: (cont: HTMLElement, newProps?: P & { children?: any }) => {
-        container = cont;
-        // Ensure the first effect run replaces this initial element in-place
-        currentElement = element;
+        // Move our container to the new location
+        if (cont !== container) {
+          cont.innerHTML = '';
+          cont.appendChild(container);
+        }
+
         if (newProps) {
           currentProps = newProps;
         }
-        setupEffect();
+
+        // Mark as mounted and set up effect if not already done
+        if (!isMounted) {
+          isMounted = true;
+          setupEffect();
+        }
       },
       isReactiveInstance: true,
       hasSetupEffect: false,
       instanceId,
     };
 
-    // Attach the _setContainer method for render() compatibility
-    (element as any)._setContainer = (
-      element as any
-    )._reactiveSetup.setContainer;
+    // Attach reactive setup to the container
+    (container as any)._reactiveSetup = reactiveSetup;
 
-    // Set up auto-detection of when this element is added to the DOM
-    // Use a MutationObserver to detect when the element gets a parent
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (
-            node === element &&
-            element.parentElement &&
-            !(element as any)._reactiveSetup.hasSetupEffect
-          ) {
-            // Element was added to DOM, automatically set up reactive behavior
-            container = element.parentElement;
-            // Ensure the first effect run replaces this initial element in-place
-            currentElement = element;
-            (element as any)._reactiveSetup.hasSetupEffect = true;
-            setupEffect();
-            observer.disconnect(); // Stop observing once set up
-          }
-        });
-      });
+    // Set up effect after initial render is complete
+    // This ensures re-rendering works even without going through render()
+    // Use a microtask to delay until after the current execution context
+    queueMicrotask(() => {
+      isMounted = true;
+      setupEffect();
     });
 
-    // Start observing the document for changes
-    // Use a timeout to defer the observer setup to avoid immediate triggering
-    setTimeout(() => {
-      if (!(element as any)._reactiveSetup.hasSetupEffect) {
-        observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-        });
-      }
-    }, 0);
-
-    return element;
-  };
-
-  // For direct render() calls on the component function itself
-  reactiveComponent._setContainer = (
-    cont: HTMLElement,
-    props?: P & { children?: any },
-  ) => {
-    // Set up a special instance that only renders via effects
-    const container: HTMLElement | null = cont;
-    let effectCleanup: (() => void) | null = null;
-    let currentElement: HTMLElement | null = null;
-    const currentProps: (P & { children?: any }) | null = props || null;
-    const componentSignals: Map<number, Signal<any>> = new Map(); // Isolated per instance
-
-    // Generate a unique ID for this component instance
-    const instanceId = Math.random().toString(36).substr(2, 9);
-
-    // Track if this component instance has been initialized
-    let isInitialized = false;
-
-    const renderComponent = () => {
-      // Set up component context for useState and signal()
-      const prevComponent = currentComponent;
-      const componentContext = {
-        signals: componentSignals,
-        stateIndex: 0,
-        instanceId,
-        parentContainer: container,
-      };
-      currentComponent = componentContext;
-
-      // Set the context in signals module so signal() can detect it
-      setCurrentComponentContext(componentContext);
-
-      try {
-        // Always execute the component function to track dependencies
-        const element = component(
-          currentProps || ({ children: undefined } as P & { children?: any }),
-        );
-
-        return element;
-      } finally {
-        // Restore previous component context
-        currentComponent = prevComponent;
-        setCurrentComponentContext(prevComponent);
-      }
-    };
-
-    // Set up effect to track dependencies and trigger re-renders
-    const setupEffect = () => {
-      if (effectCleanup) {
-        effectCleanup();
-      }
-
-      // Create an effect that will track all signal dependencies
-      effectCleanup = effect(() => {
-        if (!container) return;
-
-        // Always re-render to track new dependencies, but preserve child component instances
-        const newElement = renderComponent();
-
-        // Update the DOM
-        if (currentElement && container.contains(currentElement)) {
-          container.replaceChild(newElement, currentElement);
-        } else {
-          container.innerHTML = '';
-          container.appendChild(newElement);
-        }
-
-        currentElement = newElement;
-        isInitialized = true;
-      });
-    };
-
-    // Set up the effect immediately
-    setupEffect();
+    return container;
   };
 
   return reactiveComponent;
+}
+
+/**
+ * Hook for creating component-scoped signals that persist across re-renders.
+ * Similar to React's useState but with signal reactivity.
+ *
+ * @param initialValue - The initial value for the signal
+ * @returns A signal that will trigger re-renders when changed
+ *
+ * @example
+ * ```typescript
+ * const Counter = createReactiveComponent(() => {
+ *   const count = useSignal(0);
+ *   return div(
+ *     button({ onclick: () => count.set(count.get() + 1) }, `Count: ${count.get()}`)
+ *   );
+ * });
+ * ```
+ */
+export function useSignal<T>(initialValue: T): Signal<T> {
+  if (!currentComponent) {
+    throw new Error('useSignal can only be called inside a reactive component');
+  }
+
+  const index = currentComponent.stateIndex++;
+  if (!currentComponent.signals.has(index)) {
+    currentComponent.signals.set(index, signal(initialValue));
+  }
+  return currentComponent.signals.get(index) as Signal<T>;
 }
 
 /**

@@ -151,7 +151,7 @@ export type {
 } from './dom';
 
 // Primary component export - this is the main way to create reactive components
-export { createReactiveComponent as component } from './dom';
+export { createReactiveComponent as component, useSignal } from './dom';
 
 // Legacy export for backward compatibility (deprecated)
 export { createReactiveComponent } from './dom';
