@@ -17,7 +17,6 @@ import {
   REACTIVE_MARKER_SUFFIX,
   setCurrentComponentContext,
   Signal,
-  signal,
 } from './signals';
 
 // DOM types for event handling
@@ -1695,95 +1694,184 @@ export type Component<P = {}> = ((
 export function createReactiveComponent<P = {}>(
   component: (props: P & { children?: any }) => HTMLElement,
 ): Component<P> {
-  let container: HTMLElement | null = null;
-  let effectCleanup: (() => void) | null = null;
-  let currentElement: HTMLElement | null = null;
-  let currentProps: (P & { children?: any }) | null = null;
-  const componentSignals: Map<number, Signal<any>> = new Map();
-
+  // Return a function that creates isolated component instances
   const reactiveComponent = (props?: P & { children?: any }) => {
-    // Store props for effect usage
-    if (props) {
-      currentProps = props;
-    }
+    // Each call creates a completely isolated component instance
+    let container: HTMLElement | null = null;
+    let effectCleanup: (() => void) | null = null;
+    let currentElement: HTMLElement | null = null;
+    let currentProps: (P & { children?: any }) | null = props || null;
+    const componentSignals: Map<number, Signal<any>> = new Map(); // Isolated per instance
 
-    // Set up component context for useState and signal()
-    const prevComponent = currentComponent;
-    const componentContext = { signals: componentSignals, stateIndex: 0 };
-    currentComponent = componentContext;
+    const renderComponent = () => {
+      // Set up component context for useState and signal()
+      const prevComponent = currentComponent;
+      const componentContext = { signals: componentSignals, stateIndex: 0 };
+      currentComponent = componentContext;
 
-    // Set the context in signals module so signal() can detect it
-    setCurrentComponentContext(componentContext);
+      // Set the context in signals module so signal() can detect it
+      setCurrentComponentContext(componentContext);
 
-    try {
-      // Always execute the component function to track dependencies
-      const element = component(
-        props ||
-          currentProps ||
-          ({ children: undefined } as P & { children?: any }),
-      );
+      try {
+        // Always execute the component function to track dependencies
+        const element = component(
+          currentProps || ({ children: undefined } as P & { children?: any }),
+        );
 
-      // If we have a container, store the element for updates
-      if (container) {
+        return element;
+      } finally {
+        // Restore previous component context
+        currentComponent = prevComponent;
+        setCurrentComponentContext(prevComponent);
+      }
+    };
+
+    // Set up effect to track dependencies and trigger re-renders
+    const setupEffect = () => {
+      if (effectCleanup) {
+        effectCleanup();
+      }
+
+      // Create an effect that will track all signal dependencies
+      effectCleanup = effect(() => {
+        if (!container) return;
+
+        // Execute the component function to track dependencies and trigger re-render
+        const newElement = renderComponent();
+
+        // Update the DOM
+        if (currentElement && container.contains(currentElement)) {
+          container.replaceChild(newElement, currentElement);
+        } else {
+          container.innerHTML = '';
+          container.appendChild(newElement);
+        }
+
+        currentElement = newElement;
+      });
+    };
+
+    // Render the component immediately for static content
+    // The signal isolation is achieved by each instance having its own componentSignals map
+    const element = renderComponent();
+
+    // Store reactive state for this instance
+    (element as any)._reactiveSetup = {
+      setContainer: (cont: HTMLElement, newProps?: P & { children?: any }) => {
+        container = cont;
+        // Ensure the first effect run replaces this initial element in-place
         currentElement = element;
-      }
+        if (newProps) {
+          currentProps = newProps;
+        }
+        setupEffect();
+      },
+      isReactiveInstance: true,
+      hasSetupEffect: false,
+    };
 
-      return element;
-    } finally {
-      // Restore previous component context
-      currentComponent = prevComponent;
-      setCurrentComponentContext(prevComponent);
-    }
-  };
+    // Attach the _setContainer method for render() compatibility
+    (element as any)._setContainer = (
+      element as any
+    )._reactiveSetup.setContainer;
 
-  // Set up effect to track dependencies and trigger re-renders
-  const setupEffect = () => {
-    if (effectCleanup) {
-      effectCleanup();
-    }
-
-    // Create an effect that will track all signal dependencies
-    effectCleanup = effect(() => {
-      if (!container) return;
-
-      // Execute the component function to track dependencies and trigger re-render
-      // This will automatically track any signals that are read during render
-      const newElement = reactiveComponent(
-        currentProps ||
-          ({ children: undefined } as P & {
-            children?: any;
-          }),
-      );
-
-      // Update the DOM
-      if (currentElement && container.contains(currentElement)) {
-        container.replaceChild(newElement, currentElement);
-      } else {
-        container.innerHTML = '';
-        container.appendChild(newElement);
-      }
-
-      currentElement = newElement;
+    // Set up auto-detection of when this element is added to the DOM
+    // Use a MutationObserver to detect when the element gets a parent
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (
+            node === element &&
+            element.parentElement &&
+            !(element as any)._reactiveSetup.hasSetupEffect
+          ) {
+            // Element was added to DOM, automatically set up reactive behavior
+            container = element.parentElement;
+            // Ensure the first effect run replaces this initial element in-place
+            currentElement = element;
+            (element as any)._reactiveSetup.hasSetupEffect = true;
+            setupEffect();
+            observer.disconnect(); // Stop observing once set up
+          }
+        });
+      });
     });
+
+    // Start observing the document for changes
+    // Use a timeout to defer the observer setup to avoid immediate triggering
+    setTimeout(() => {
+      if (!(element as any)._reactiveSetup.hasSetupEffect) {
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+      }
+    }, 0);
+
+    return element;
   };
 
-  // Override the toString to mark this as a reactive component
-  const originalToString = reactiveComponent.toString;
-  reactiveComponent.toString = (): string => {
-    return `[ReactiveComponent: ${originalToString.call(reactiveComponent)}]`;
-  };
-
-  // Store the container reference and set up effect
+  // For direct render() calls on the component function itself
   reactiveComponent._setContainer = (
     cont: HTMLElement,
     props?: P & { children?: any },
   ) => {
-    container = cont;
-    // Store initial props
-    if (props) {
-      currentProps = props;
-    }
-    // Set up effect immediately to ensure proper dependency tracking
+    // Set up a special instance that only renders via effects
+    const container: HTMLElement | null = cont;
+    let effectCleanup: (() => void) | null = null;
+    let currentElement: HTMLElement | null = null;
+    const currentProps: (P & { children?: any }) | null = props || null;
+    const componentSignals: Map<number, Signal<any>> = new Map(); // Isolated per instance
+
+    const renderComponent = () => {
+      // Set up component context for useState and signal()
+      const prevComponent = currentComponent;
+      const componentContext = { signals: componentSignals, stateIndex: 0 };
+      currentComponent = componentContext;
+
+      // Set the context in signals module so signal() can detect it
+      setCurrentComponentContext(componentContext);
+
+      try {
+        // Always execute the component function to track dependencies
+        const element = component(
+          currentProps || ({ children: undefined } as P & { children?: any }),
+        );
+
+        return element;
+      } finally {
+        // Restore previous component context
+        currentComponent = prevComponent;
+        setCurrentComponentContext(prevComponent);
+      }
+    };
+
+    // Set up effect to track dependencies and trigger re-renders
+    const setupEffect = () => {
+      if (effectCleanup) {
+        effectCleanup();
+      }
+
+      // Create an effect that will track all signal dependencies
+      effectCleanup = effect(() => {
+        if (!container) return;
+
+        // Execute the component function to track dependencies and trigger re-render
+        const newElement = renderComponent();
+
+        // Update the DOM
+        if (currentElement && container.contains(currentElement)) {
+          container.replaceChild(newElement, currentElement);
+        } else {
+          container.innerHTML = '';
+          container.appendChild(newElement);
+        }
+
+        currentElement = newElement;
+      });
+    };
+
+    // Set up the effect immediately
     setupEffect();
   };
 
