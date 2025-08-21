@@ -78,7 +78,7 @@ const app = component(() => {
           div({ className: 'h6 mb-2' }, 'How it works'),
           div(
             { className: 'small text-muted' },
-            'The global counter persists across component re-renders, while the local counter resets each time. ' +
+            'The global counter persists across component re-renders and automatically decrements every second, while the local counter resets each time. ' +
               'Both automatically update the UI when their values change!',
           ),
         ),

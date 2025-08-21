@@ -383,19 +383,122 @@ describe('Signals', () => {
 
     test('effect can return cleanup function', () => {
       const s = signal(0);
+      let cleanupCalled = false;
 
       const cleanup = effect(() => {
         s.get();
-        // Note: The current implementation of effect() doesn't support returning cleanup functions
-        // The Subscriber type only allows void | Promise<void>
-        // This test documents the current behavior
+        // Return a cleanup function
+        return () => {
+          cleanupCalled = true;
+        };
       });
 
-      // The effect cleanup function is not automatically called when the effect is cleaned up
-      cleanup();
+      // The cleanup function should not be called until the effect is re-run or disposed
+      expect(cleanupCalled).toBe(false);
 
-      // The returned cleanup function from the effect is not stored or called by the system
-      // This test documents the current behavior
+      // Trigger effect re-run - should call cleanup function
+      s.set(1);
+      expect(cleanupCalled).toBe(true);
+
+      // Reset for testing disposal
+      cleanupCalled = false;
+
+      // Dispose the effect - should call cleanup function
+      cleanup();
+      expect(cleanupCalled).toBe(true);
+    });
+
+    test('effect cleanup function handles errors gracefully', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const s = signal(0);
+
+      const cleanup = effect(() => {
+        s.get();
+        // Return a cleanup function that throws
+        return () => {
+          throw new Error('Cleanup error');
+        };
+      });
+
+      // Trigger effect re-run - should handle cleanup error gracefully
+      s.set(1);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Cleanup function for effect anonymous failed:',
+        expect.any(Error),
+      );
+
+      cleanup();
+      consoleSpy.mockRestore();
+    });
+
+    test('effect with multiple cleanup calls', () => {
+      const s = signal(0);
+      let cleanupCallCount = 0;
+
+      const cleanup = effect(() => {
+        s.get();
+        return () => {
+          cleanupCallCount++;
+        };
+      });
+
+      // Initial state
+      expect(cleanupCallCount).toBe(0);
+
+      // First trigger - calls cleanup from first run
+      s.set(1);
+      expect(cleanupCallCount).toBe(1);
+
+      // Second trigger - calls cleanup from second run
+      s.set(2);
+      expect(cleanupCallCount).toBe(2);
+
+      // Dispose effect - calls cleanup from third run
+      cleanup();
+      expect(cleanupCallCount).toBe(3);
+    });
+
+    test('effect cleanup with setTimeout example', () => {
+      jest.useFakeTimers();
+      const s = signal(0);
+      let timeoutExecuted = false;
+      let timeoutFromFirstRun = false;
+      let timeoutFromSecondRun = false;
+
+      const cleanup = effect(() => {
+        const currentValue = s.get();
+        const timeout = setTimeout(() => {
+          timeoutExecuted = true;
+          if (currentValue === 0) {
+            timeoutFromFirstRun = true;
+          } else {
+            timeoutFromSecondRun = true;
+          }
+        }, 1000);
+
+        return () => clearTimeout(timeout);
+      });
+
+      // Timeout should not have executed yet
+      expect(timeoutExecuted).toBe(false);
+
+      // Trigger effect re-run - should cancel previous timeout
+      s.set(1);
+
+      // Fast-forward time by 500ms - not enough for either timeout
+      jest.advanceTimersByTime(500);
+      expect(timeoutExecuted).toBe(false);
+
+      // Fast-forward more time - only second timeout should be able to execute
+      jest.advanceTimersByTime(600);
+
+      // The first timeout should have been cancelled, only second should execute
+      expect(timeoutFromFirstRun).toBe(false);
+      expect(timeoutFromSecondRun).toBe(true);
+
+      cleanup();
+      jest.useRealTimers();
     });
 
     test('effect with maxRuns option is created correctly', () => {
