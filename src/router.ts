@@ -360,7 +360,7 @@ export class Router {
       {
         href: this.basePath + to,
         className,
-        onclick: (e: Event) => {
+        onClick: (e: Event) => {
           e.preventDefault();
           this.navigate(to);
         },
@@ -454,7 +454,7 @@ export function link(props: {
       {
         href: to,
         className,
-        onclick: (e: Event) => {
+        onClick: (e: Event) => {
           e.preventDefault();
           // Try to use the router if it exists now, otherwise use window.history
           if (globalRouter) {
