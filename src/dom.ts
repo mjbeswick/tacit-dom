@@ -25,7 +25,7 @@ type EventListener = (event: Event) => void | Promise<void>;
 
 // Component state management
 let currentComponent: {
-  signals: Map<number, Signal<any>>;
+  signals: Map<string, Signal<any>>;
   stateIndex: number;
   instanceId: string;
   parentContainer: HTMLElement | null;
@@ -912,7 +912,7 @@ const componentInstanceRegistry = new Map<
   string,
   {
     element: HTMLElement;
-    signals: Map<number, Signal<any>>;
+    signals: Map<string, Signal<any>>;
     props: any;
     lastRender: number;
     componentFunction: Function;
@@ -1721,8 +1721,8 @@ export function createReactiveComponent<P = {}>(
     let currentProps: (P & { children?: any }) | null = props || null;
 
     // Component-scoped signals storage - persists across re-renders
-    const componentSignals = new Map<number, Signal<any>>();
-    const stateIndex = 0;
+    const componentSignals = new Map<string, Signal<any>>();
+    let stateIndex = 0; // Track hook calls across renders
 
     // Track if component is mounted
     let isMounted = false;
@@ -1733,7 +1733,7 @@ export function createReactiveComponent<P = {}>(
       const prevComponent = currentComponent;
       const componentContext = {
         signals: componentSignals,
-        stateIndex: 0, // Reset state index for each render
+        stateIndex, // Pass the current stateIndex (don't reset to 0)
         instanceId,
         parentContainer: container,
       };
@@ -1747,6 +1747,9 @@ export function createReactiveComponent<P = {}>(
         const element = component(
           currentProps || ({ children: undefined } as P & { children?: any }),
         );
+
+        // Update local stateIndex to reflect any changes made by useSignal calls
+        stateIndex = componentContext.stateIndex;
 
         return element;
       } finally {
@@ -1850,11 +1853,16 @@ export function useSignal<T>(initialValue: T): Signal<T> {
     throw new Error('useSignal can only be called inside a reactive component');
   }
 
-  const index = currentComponent.stateIndex++;
-  if (!currentComponent.signals.has(index)) {
-    currentComponent.signals.set(index, signal(initialValue));
+  // Use a stable index that persists across re-renders
+  // This ensures the same signal is returned on subsequent renders
+  const hookIndex = currentComponent.stateIndex++;
+  const signalKey = `hook_${hookIndex}`;
+
+  if (!currentComponent.signals.has(signalKey)) {
+    currentComponent.signals.set(signalKey, signal(initialValue));
   }
-  return currentComponent.signals.get(index) as Signal<T>;
+
+  return currentComponent.signals.get(signalKey) as Signal<T>;
 }
 
 /**

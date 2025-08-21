@@ -415,7 +415,7 @@ function batch(fn: () => void): void {
  * Component context interface for sharing state between dom.ts and signals.ts
  */
 type ComponentContext = {
-  signals: Map<number, Signal<any>>;
+  signals: Map<string, Signal<any>>;
   stateIndex: number;
   instanceId: string;
   parentContainer: HTMLElement | null;

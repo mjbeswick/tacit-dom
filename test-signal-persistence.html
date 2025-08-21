@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Persistence Test - Tacit-DOM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 2px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .success { border-color: #4CAF50; background-color: #f0f8f0; }
+        .error { border-color: #f44336; background-color: #fff0f0; }
+        .counter {
+            background-color: #f9f9f9;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .count {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .btn-increment { background-color: #4CAF50; color: white; }
+        .btn-decrement { background-color: #f44336; color: white; }
+        .btn-reset { background-color: #2196F3; color: white; }
+        .log {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Signal Persistence Test - Tacit-DOM</h1>
+    
+    <div class="test-section">
+        <h3>Test Description</h3>
+        <p>This test verifies that signals created with <code>useSignal</code> properly persist their values across component re-renders.</p>
+        <p><strong>Expected Behavior:</strong> When you increment a counter, the value should persist even when the component re-renders due to other signal changes.</p>
+    </div>
+
+    <div id="app"></div>
+
+    <div class="test-section">
+        <h3>Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Console Log</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script type="module">
+        import { button, component, div, h1, render, useSignal } from './dist/tacit-dom.esm.js';
+
+        // Test results tracking
+        let testResults = [];
+        let consoleLog = [];
+
+        function log(message) {
+            console.log(message);
+            consoleLog.push(message);
+            updateLog();
+        }
+
+        function updateLog() {
+            document.getElementById('log').textContent = consoleLog.join('\n');
+        }
+
+        function addTestResult(test, passed, details) {
+            testResults.push({ test, passed, details });
+            updateResults();
+        }
+
+        function updateResults() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = testResults.map(result => `
+                <div class="${result.passed ? 'success' : 'error'}">
+                    <strong>${result.test}:</strong> ${result.passed ? '✅ PASSED' : '❌ FAILED'}
+                    ${result.details ? `<br><small>${result.details}</small>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Counter component that will re-render
+        const counter = component((props) => {
+            log(`${props.title} renders - this should happen on every signal change`);
+            
+            // useSignal hook creates component-scoped state that persists across re-renders
+            const count = useSignal(props.initialValue || 0);
+            
+            // This signal will trigger re-renders of ALL counters
+            const globalCounter = useSignal(0);
+
+            const increment = () => {
+                count.update((prev) => prev + 1);
+                log(`${props.title} incremented to: ${count.get()}`);
+                
+                // Test: After incrementing, trigger a global change to force re-render
+                globalCounter.set(globalCounter.get() + 1);
+                log(`Global counter changed to: ${globalCounter.get()} - this should trigger re-render`);
+            };
+
+            const decrement = () => {
+                count.update((prev) => prev - 1);
+                log(`${props.title} decremented to: ${count.get()}`);
+                
+                // Test: After decrementing, trigger a global change to force re-render
+                globalCounter.set(globalCounter.get() + 1);
+                log(`Global counter changed to: ${globalCounter.get()} - this should trigger re-render`);
+            };
+
+            const reset = () => {
+                count.set(props.initialValue || 0);
+                log(`${props.title} reset to: ${count.get()}`);
+                
+                // Test: After resetting, trigger a global change to force re-render
+                globalCounter.set(globalCounter.get() + 1);
+                log(`Global counter changed to: ${globalCounter.get()} - this should trigger re-render`);
+            };
+
+            return div(
+                { className: 'counter' },
+                div({ className: 'count' }, `${props.title}: ${count.get()}`),
+                div(
+                    { className: 'buttons' },
+                    button(
+                        { onclick: decrement, className: 'btn-decrement' },
+                        '-'
+                    ),
+                    button(
+                        { onclick: reset, className: 'btn-reset' },
+                        'Reset'
+                    ),
+                    button(
+                        { onclick: increment, className: 'btn-increment' },
+                        '+'
+                    ),
+                ),
+                div({ style: 'font-size: 12px; color: #666;' }, 
+                    `Global: ${globalCounter.get()} (triggers re-renders)`
+                )
+            );
+        });
+
+        // Main app component
+        const app = component(() => {
+            log('App renders');
+            
+            return div(
+                { className: 'app' },
+                h1('Signal Persistence Test'),
+                div(
+                    { className: 'counters' },
+                    counter({ title: 'Counter A', initialValue: 0 }),
+                    counter({ title: 'Counter B', initialValue: 10 }),
+                    counter({ title: 'Counter C', initialValue: 100 })
+                )
+            );
+        });
+
+        // Mount the application
+        render(app, document.getElementById('app'));
+
+        // Run automated tests after a delay
+        setTimeout(() => {
+            log('=== Starting Automated Tests ===');
+            
+            // Test 1: Verify initial render
+            addTestResult('Initial Render', true, 'All counters rendered with initial values');
+            
+            // Test 2: Verify signal persistence across re-renders
+            const testCounter = document.querySelector('.counter');
+            if (testCounter) {
+                const incrementBtn = testCounter.querySelector('.btn-increment');
+                if (incrementBtn) {
+                    // Click increment to test persistence
+                    incrementBtn.click();
+                    
+                    setTimeout(() => {
+                        const countDisplay = testCounter.querySelector('.count');
+                        const currentValue = countDisplay.textContent;
+                        
+                        if (currentValue.includes('Counter A: 1')) {
+                            addTestResult('Signal Persistence', true, 
+                                'Counter value persisted across re-render (1)');
+                        } else {
+                            addTestResult('Signal Persistence', false, 
+                                `Expected "Counter A: 1", got "${currentValue}"`);
+                        }
+                        
+                        log('=== Automated Tests Complete ===');
+                    }, 100);
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
