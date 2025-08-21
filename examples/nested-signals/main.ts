@@ -72,8 +72,8 @@ const app = component(() => {
       h1({ className: styles.appTitle }, 'Counters with Local Signals'),
       div(
         { className: styles.countersRow },
+        counter({ title: 'Counter A', initialValue: 0 })
         counter({ title: 'Counter A', initialValue: 0 }),
-        counter({ title: 'Counter B', initialValue: 10 }),
       ),
       div(
         { className: styles.footer },

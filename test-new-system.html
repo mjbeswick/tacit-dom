@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Tacit-DOM System Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .counter {
+            border: 2px solid #ccc;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .count {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+        .btn-increment { background-color: #4CAF50; color: white; }
+        .btn-decrement { background-color: #f44336; color: white; }
+        .btn-reset { background-color: #2196F3; color: white; }
+        .info {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .log {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 New Tacit-DOM System Test</h1>
+    
+    <div class="info">
+        <h3>What This Tests:</h3>
+        <ul>
+            <li>Clean, Preact-like component system</li>
+            <li>Automatic re-rendering when signals change</li>
+            <li>Signal persistence across re-renders</li>
+            <li>No complex instance management</li>
+        </ul>
+    </div>
+
+    <div id="app"></div>
+
+    <div class="info">
+        <h3>Console Log</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script type="module">
+        // Import the new, clean system
+        import { component, useSignal, div, button, h1, render } from './src/index-new.ts';
+
+        // Test logging
+        function log(message) {
+            console.log(message);
+            const logDiv = document.getElementById('log');
+            logDiv.textContent += message + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Counter component using the new system
+        const counter = component((props) => {
+            log(`${props.title} renders`);
+            
+            // useSignal hook creates component-scoped state
+            const count = useSignal(props.initialValue || 0);
+            
+            const increment = () => {
+                count.update((prev) => prev + 1);
+                log(`${props.title} incremented to: ${count.get()}`);
+            };
+
+            const decrement = () => {
+                count.update((prev) => prev - 1);
+                log(`${props.title} decremented to: ${count.get()}`);
+            };
+
+            const reset = () => {
+                count.set(props.initialValue || 0);
+                log(`${props.title} reset to: ${count.get()}`);
+            };
+
+            return div(
+                { className: 'counter' },
+                div({ className: 'count' }, `${props.title}: ${count.get()}`),
+                div(
+                    { className: 'buttons' },
+                    button(
+                        { onclick: decrement, className: 'btn-decrement' },
+                        '-'
+                    ),
+                    button(
+                        { onclick: reset, className: 'btn-reset' },
+                        'Reset'
+                    ),
+                    button(
+                        { onclick: increment, className: 'btn-increment' },
+                        '+'
+                    ),
+                )
+            );
+        });
+
+        // Main app component
+        const app = component(() => {
+            log('App renders');
+            
+            return div(
+                { className: 'app' },
+                h1('New Tacit-DOM System Demo'),
+                div(
+                    { className: 'counters' },
+                    counter({ title: 'Counter A', initialValue: 0 }),
+                    counter({ title: 'Counter B', initialValue: 10 })
+                )
+            );
+        });
+
+        // Mount the application
+        render(app, document.getElementById('app'));
+        
+        log('=== System Loaded ===');
+        log('Expected: Single render per component on load');
+        log('Expected: Signal values persist across re-renders');
+    </script>
+</body>
+</html>

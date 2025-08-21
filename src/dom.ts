@@ -1710,11 +1710,28 @@ export type Component<P = {}> = ((
 export function createReactiveComponent<P = {}>(
   component: (props: P & { children?: any }) => HTMLElement,
 ): Component<P> {
+  // Track component instances to ensure stable IDs
+  const componentInstances = new Map<string, string>();
+  let nextInstanceId = 1;
+
+  // Create a stable hash for component + props combination
+  const createComponentHash = (componentFn: Function, props: any): string => {
+    const componentName = componentFn.name || 'Anonymous';
+    const propsHash = props ? JSON.stringify(props) : 'no-props';
+    return `${componentName}_${propsHash}`;
+  };
+
   // Return a function that creates component instances that re-render
   const reactiveComponent = (props?: P & { children?: any }) => {
-    // Create a stable instance ID that persists for this component instance
-    // Use a WeakMap to store instance IDs based on the props object
-    const instanceId = `${component.name || 'Anonymous'}_${Math.random().toString(36).substr(2, 9)}`;
+    // Create a stable instance ID based on component function and props hash
+    // This ensures the same component call always gets the same instance ID
+    const componentHash = createComponentHash(component, props);
+
+    let instanceId = componentInstances.get(componentHash);
+    if (!instanceId) {
+      instanceId = `${component.name || 'Anonymous'}_${nextInstanceId++}`;
+      componentInstances.set(componentHash, instanceId);
+    }
 
     // Create container for this component instance
     const container = document.createElement('div');
