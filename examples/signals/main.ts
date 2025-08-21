@@ -1,10 +1,12 @@
-import { button, component, div, render, signal } from '../../src/index';
+import { button, component, div, render, useSignal } from '../../src/index';
 import { globalCounter, incrementGlobal } from './store';
 
 // Main app component
 const app = component(() => {
   // Local signal - only accessible within this component
-  const localCounter = signal(0);
+  const localCounter = useSignal(0);
+
+  console.log('localCounter', localCounter.get());
 
   const incrementLocal = () => {
     localCounter.update((prev) => prev + 1);

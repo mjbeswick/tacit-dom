@@ -7,7 +7,7 @@
   "module": "dist/tacit-dom.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c && node scripts/build-size.js",
     "build:tsc": "tsc",
     "build:prod": "tsc --project tsconfig.prod.json",
     "dev": "rollup -c --watch",
@@ -21,6 +21,7 @@
     "security-audit": "npm audit --audit-level moderate",
     "i18n:extract": "tsx scripts/i18n-extract.ts",
     "i18n:extract:watch": "tsx scripts/i18n-extract.ts --watch",
+    "size": "node scripts/build-size.js",
     "prepublishOnly": "npm run build",
     "prepare": "husky",
     "pre-commit": "npm run format:fix && npm run type-check && npm test",

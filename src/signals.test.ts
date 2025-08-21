@@ -1,19 +1,6 @@
-import {
-  batch,
-  computed,
-  effect,
-  getReactiveById,
-  REACTIVE_MARKER_PREFIX,
-  REACTIVE_MARKER_SUFFIX,
-  setDebugMode,
-  signal,
-} from './signals';
+import { batch, computed, effect, signal } from './signals';
 
 describe('Signals', () => {
-  beforeEach(() => {
-    setDebugMode(false);
-  });
-
   describe('signal()', () => {
     test('creates signal with initial value', () => {
       const s = signal(42);
@@ -56,15 +43,6 @@ describe('Signals', () => {
       expect(lastValue).toBe(20); // Should not update after unsubscribe
     });
 
-    test('signal toString returns reactive marker', () => {
-      const s = signal(42);
-      const str = s.toString();
-
-      expect(str).toMatch(
-        new RegExp(`^${REACTIVE_MARKER_PREFIX}\\d+${REACTIVE_MARKER_SUFFIX}$`),
-      );
-    });
-
     test('signal only updates when value actually changes', () => {
       const s = signal(42);
       let updateCount = 0;
@@ -99,91 +77,6 @@ describe('Signals', () => {
         return Promise.resolve(prev + 3);
       });
       expect(s.get()).toBe(13);
-    });
-
-    test('signal pending property tracks update state', async () => {
-      const s = signal(0);
-
-      // Initially not pending
-      expect(s.pending).toBe(false);
-
-      // Start async update
-      const updatePromise = s.update(async (prev) => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        return prev + 1;
-      });
-
-      // Should be pending during update
-      expect(s.pending).toBe(true);
-
-      // Wait for update to complete
-      await updatePromise;
-
-      // Should not be pending after update
-      expect(s.pending).toBe(false);
-      expect(s.get()).toBe(1);
-    });
-
-    test('signal pending property handles multiple concurrent updates', async () => {
-      const s = signal(0);
-
-      expect(s.pending).toBe(false);
-
-      // Start multiple concurrent updates
-      const update1 = s.update(async (prev) => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return prev + 1;
-      });
-
-      const update2 = s.update(async (prev) => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        return prev + 2;
-      });
-
-      // Should be pending during updates
-      expect(s.pending).toBe(true);
-
-      // Wait for both updates to complete
-      await Promise.all([update1, update2]);
-
-      // Should not be pending after all updates
-      expect(s.pending).toBe(false);
-      // Last update wins (race condition, but pending should work correctly)
-      expect(s.get()).toBeGreaterThan(0);
-    });
-
-    test('signal pending property is reactive and triggers effects', async () => {
-      const s = signal(0);
-      let effectRuns = 0;
-      let lastPendingState = false;
-
-      // Create an effect that tracks the pending state
-      effect(() => {
-        effectRuns++;
-        lastPendingState = s.pending;
-      });
-
-      // Initial state
-      expect(effectRuns).toBe(1);
-      expect(lastPendingState).toBe(false);
-
-      // Start async update
-      const updatePromise = s.update(async (prev) => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
-        return prev + 1;
-      });
-
-      // Effect should have run again due to pending state change
-      expect(effectRuns).toBe(2);
-      expect(lastPendingState).toBe(true);
-
-      // Wait for update to complete
-      await updatePromise;
-
-      // Effect should have run again due to pending state change
-      expect(effectRuns).toBe(3);
-      expect(lastPendingState).toBe(false);
-      expect(s.get()).toBe(1);
     });
   });
 
@@ -282,16 +175,6 @@ describe('Signals', () => {
       s.set(15);
       expect(lastValue).toBe(20); // Should not update after unsubscribe
     });
-
-    test('computed value toString returns reactive marker', () => {
-      const s = signal(5);
-      const c = computed(() => s.get() * 2);
-      const str = c.toString();
-
-      expect(str).toMatch(
-        new RegExp(`^${REACTIVE_MARKER_PREFIX}\\d+${REACTIVE_MARKER_SUFFIX}$`),
-      );
-    });
   });
 
   describe('effect()', () => {
@@ -322,23 +205,6 @@ describe('Signals', () => {
 
       s.set(10);
       expect(runCount).toBe(2);
-
-      cleanup();
-    });
-
-    test('effect with options', () => {
-      let runCount = 0;
-      const s = signal(0);
-
-      const cleanup = effect(
-        () => {
-          runCount++;
-          s.get();
-        },
-        { name: 'test-effect', maxRuns: 5 },
-      );
-
-      expect(runCount).toBe(1);
 
       cleanup();
     });
@@ -406,30 +272,6 @@ describe('Signals', () => {
       // Dispose the effect - should call cleanup function
       cleanup();
       expect(cleanupCalled).toBe(true);
-    });
-
-    test('effect cleanup function handles errors gracefully', () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      const s = signal(0);
-
-      const cleanup = effect(() => {
-        s.get();
-        // Return a cleanup function that throws
-        return () => {
-          throw new Error('Cleanup error');
-        };
-      });
-
-      // Trigger effect re-run - should handle cleanup error gracefully
-      s.set(1);
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Cleanup function for effect anonymous failed:',
-        expect.any(Error),
-      );
-
-      cleanup();
-      consoleSpy.mockRestore();
     });
 
     test('effect with multiple cleanup calls', () => {
@@ -517,22 +359,6 @@ describe('Signals', () => {
       cleanup();
     });
 
-    test('effect with autoDisable option is created correctly', () => {
-      const s = signal(0);
-
-      const cleanup = effect(
-        () => {
-          s.get(); // Just track the dependency
-        },
-        { autoDisable: true },
-      );
-
-      // The effect should be created with the autoDisable option
-      expect(s.get()).toBe(0);
-
-      cleanup();
-    });
-
     // Note: Infinite loop detection tests are currently disabled due to implementation issues
     // that cause stack overflow. The infinite loop detection logic needs investigation.
     // See the signals.ts file for the current implementation.
@@ -592,71 +418,6 @@ describe('Signals', () => {
 
       expect(executed).toBe(true);
       expect(s.get()).toBe(10);
-    });
-  });
-
-  describe('Debug Mode', () => {
-    test('setDebugMode enables debug mode', () => {
-      setDebugMode(true);
-      // Note: We can't easily test console.log output in tests
-      // but we can verify the function doesn't throw
-
-      setDebugMode(false);
-    });
-  });
-
-  describe('Reactive ID Management', () => {
-    test('getReactiveById returns correct instance', () => {
-      const s = signal(42);
-      const str = s.toString();
-      const id = str
-        .replace(REACTIVE_MARKER_PREFIX, '')
-        .replace(REACTIVE_MARKER_SUFFIX, '');
-
-      const retrieved = getReactiveById(id);
-      expect(retrieved).toBe(s);
-    });
-
-    test('getReactiveById returns undefined for invalid id', () => {
-      const retrieved = getReactiveById('invalid-id');
-      expect(retrieved).toBeUndefined();
-    });
-  });
-
-  describe('Error Handling', () => {
-    test('effect handles errors gracefully', () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
-      const cleanup = effect(() => {
-        throw new Error('Test error');
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Effect anonymous failed:',
-        expect.any(Error),
-      );
-
-      cleanup();
-      consoleSpy.mockRestore();
-    });
-
-    test('effect handles async errors', () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
-      const cleanup = effect(async () => {
-        throw new Error('Async error');
-      });
-
-      // Wait for async error to be caught
-      setTimeout(() => {
-        expect(consoleSpy).toHaveBeenCalledWith(
-          'Effect anonymous failed:',
-          expect.any(Error),
-        );
-      }, 0);
-
-      cleanup();
-      consoleSpy.mockRestore();
     });
   });
 

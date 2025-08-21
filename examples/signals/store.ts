@@ -23,7 +23,7 @@ effect(() => {
     if (globalCounter.get() > 0) {
       decramentGlobal();
     }
-  }, 1000);
+  }, 5000);
 
   return () => {
     console.log('clearing timeout');
