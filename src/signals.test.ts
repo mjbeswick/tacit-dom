@@ -61,22 +61,56 @@ describe('Signals', () => {
     test('signal update supports async callbacks', async () => {
       const s = signal(0);
 
-      // Test sync callback
-      await s.update((prev) => prev + 5);
-      expect(s.get()).toBe(5);
+      expect(s.pending).toBe(false);
 
-      // Test async callback
-      await s.update(async (prev) => {
+      const updatePromise = s.update(async (prev) => {
         await new Promise((resolve) => setTimeout(resolve, 10));
-        return prev * 2;
+        return prev + 1;
       });
-      expect(s.get()).toBe(10);
 
-      // Test async callback with Promise.resolve
-      await s.update(async (prev) => {
-        return Promise.resolve(prev + 3);
+      expect(s.pending).toBe(true);
+
+      await updatePromise;
+
+      expect(s.pending).toBe(false);
+      expect(s.get()).toBe(1);
+    });
+
+    test('signal update with sync callback sets pending to false immediately', () => {
+      const s = signal(0);
+
+      expect(s.pending).toBe(false);
+
+      s.update((prev) => prev + 1);
+
+      expect(s.pending).toBe(false);
+      expect(s.get()).toBe(1);
+    });
+
+    test('multiple async updates handle pending state correctly', async () => {
+      const s = signal(0);
+
+      expect(s.pending).toBe(false);
+
+      const update1 = s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        return prev + 1;
       });
-      expect(s.get()).toBe(13);
+
+      const update2 = s.update(async (prev) => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return prev + 2;
+      });
+
+      expect(s.pending).toBe(true);
+
+      await Promise.all([update1, update2]);
+
+      expect(s.pending).toBe(false);
+      // The last update to complete should have set the final value
+      // Since update2 has shorter delay (10ms), it completes first and sets value to 2
+      // Then update1 completes later (50ms) and sets value to 1 (0 + 1 from when it started)
+      expect(s.get()).toBe(1);
     });
   });
 

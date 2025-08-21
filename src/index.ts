@@ -25,6 +25,12 @@ export {
   div,
   button,
   h1,
+  p,
+  span,
   render,
+  cleanup,
   type Component,
 } from './dom';
+
+// Export utility types
+export type { ClassValue } from './classes';
