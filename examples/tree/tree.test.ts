@@ -56,12 +56,18 @@ describe('Tree Example Signal Tests', () => {
   let app: HTMLElement;
 
   beforeEach(() => {
+    // Ensure the app element exists
+    if (!document.getElementById('app')) {
+      document.body.innerHTML = '<div id="app"></div>';
+    }
     app = document.getElementById('app')!;
     app.innerHTML = '';
   });
 
   afterEach(() => {
-    cleanup(app);
+    if (app) {
+      cleanup(app);
+    }
   });
 
   describe('Basic Signal Operations', () => {
