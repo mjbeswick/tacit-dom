@@ -16,10 +16,33 @@ import {
   REACTIVE_MARKER_PREFIX,
   REACTIVE_MARKER_SUFFIX,
   Signal,
+  signal,
 } from './signals';
 
 // DOM types for event handling
 type EventListener = (event: Event) => void | Promise<void>;
+
+// Component state management
+let currentComponent: {
+  signals: Map<number, Signal<any>>;
+  stateIndex: number;
+} | null = null;
+
+/**
+ * Creates a stateful signal that persists between component re-renders.
+ * This should be used instead of signal() inside reactive components.
+ */
+export function useState<T>(initialValue: T): Signal<T> {
+  if (!currentComponent) {
+    throw new Error('useState can only be called inside a reactive component');
+  }
+
+  const index = currentComponent.stateIndex++;
+  if (!currentComponent.signals.has(index)) {
+    currentComponent.signals.set(index, signal(initialValue));
+  }
+  return currentComponent.signals.get(index) as Signal<T>;
+}
 
 // Inline classNames function to avoid circular dependency
 function classNames(
@@ -1529,21 +1552,33 @@ export function render<P = {}>(
   container.innerHTML = '';
 
   try {
-    // Set container reference for reactive components
-    if (
-      '_setContainer' in component &&
-      typeof component._setContainer === 'function'
-    ) {
-      component._setContainer(container);
-    }
-
     // Default props to { children: undefined } if not provided
     const defaultProps = { children: undefined, ...props } as P & {
       children?: any;
     };
 
-    const element = component(defaultProps);
-    container.appendChild(element);
+    // Set container reference for reactive components BEFORE initial render
+    // This ensures the effect is set up and can track dependencies during the first render
+    if (
+      '_setContainer' in component &&
+      typeof component._setContainer === 'function'
+    ) {
+      component._setContainer(container, defaultProps);
+    }
+
+    // For reactive components, the effect will handle the initial render
+    // For non-reactive components, perform the initial render normally
+    if (
+      '_setContainer' in component &&
+      typeof component._setContainer === 'function'
+    ) {
+      // The effect is already set up and will render the component
+      // No need to render again here
+    } else {
+      // Non-reactive component, render normally
+      const element = component(defaultProps);
+      container.appendChild(element);
+    }
   } catch (error) {
     console.error('Error rendering component:', error);
   }
@@ -1675,68 +1710,70 @@ export type Component<P = {}> = ((
 export function createReactiveComponent<P = {}>(
   component: (props: P & { children?: any }) => HTMLElement,
 ): Component<P> {
-  let currentElement: HTMLElement | null = null;
-  let isRendering = false;
   let container: HTMLElement | null = null;
   let effectCleanup: (() => void) | null = null;
-  let hasInitialized = false;
+  let currentElement: HTMLElement | null = null;
+  let currentProps: (P & { children?: any }) | null = null;
+  const componentSignals: Map<number, Signal<any>> = new Map();
 
   const reactiveComponent = (props?: P & { children?: any }) => {
-    if (isRendering) {
-      // Prevent infinite loops during rendering
-      return currentElement!;
+    // Store props for effect usage
+    if (props) {
+      currentProps = props;
     }
 
-    isRendering = true;
-    try {
-      // Default props to { children: undefined } if not provided
-      const defaultProps = { children: undefined, ...props } as P & {
-        children?: any;
-      };
-      const element = component(defaultProps);
-      currentElement = element;
+    // Set up component context for useState
+    const prevComponent = currentComponent;
+    currentComponent = { signals: componentSignals, stateIndex: 0 };
 
-      // Set up the effect after the first render to track dependencies
-      if (!hasInitialized && container) {
-        hasInitialized = true;
-        // Use setTimeout to ensure the effect runs after the render cycle is complete
-        setTimeout(() => {
-          setupEffect();
-        }, 0);
+    try {
+      // Always execute the component function to track dependencies
+      const element = component(
+        props ||
+          currentProps ||
+          ({ children: undefined } as P & { children?: any }),
+      );
+
+      // If we have a container, store the element for updates
+      if (container) {
+        currentElement = element;
       }
 
       return element;
     } finally {
-      isRendering = false;
+      // Restore previous component context
+      currentComponent = prevComponent;
     }
   };
 
   // Set up effect to track dependencies and trigger re-renders
-  // This effect will run whenever any signals used in the component change
   const setupEffect = () => {
     if (effectCleanup) {
       effectCleanup();
     }
 
+    // Create an effect that will track all signal dependencies
     effectCleanup = effect(() => {
-      // Only proceed if we have a container and we're not currently rendering
-      if (container && !isRendering) {
-        // Execute the component to establish signal tracking
-        // This ensures the effect tracks all signal dependencies
-        component({ children: undefined } as P & { children?: any });
+      if (!container) return;
 
-        // Schedule a re-render when dependencies change
-        requestAnimationFrame(() => {
-          if (container && !isRendering) {
-            // Clear container and render new content
-            container.innerHTML = '';
-            const newElement = reactiveComponent({
-              children: undefined,
-            } as P & { children?: any });
-            container.appendChild(newElement);
-          }
-        });
+      // Execute the component function to track dependencies and trigger re-render
+      // This will automatically track any signals that are read during render
+      const newElement = reactiveComponent(
+        currentProps ||
+          ({ children: undefined } as P & {
+            children?: any;
+          }),
+      );
+
+      // Update the DOM
+      if (currentElement && container.contains(currentElement)) {
+        container.replaceChild(newElement, currentElement);
+      } else {
+        container.innerHTML = '';
+        container.appendChild(newElement);
       }
+
+      currentElement = newElement;
     });
   };
 
@@ -1746,11 +1783,197 @@ export function createReactiveComponent<P = {}>(
     return `[ReactiveComponent: ${originalToString.call(reactiveComponent)}]`;
   };
 
-  // Store the container reference for re-rendering
-  reactiveComponent._setContainer = (cont: HTMLElement) => {
+  // Store the container reference and set up effect
+  reactiveComponent._setContainer = (
+    cont: HTMLElement,
+    props?: P & { children?: any },
+  ) => {
     container = cont;
-    // Don't set up effect here - wait for first render
+    // Store initial props
+    if (props) {
+      currentProps = props;
+    }
+    // Set up effect immediately to ensure proper dependency tracking
+    setupEffect();
   };
 
   return reactiveComponent;
+}
+
+/**
+ * Error boundary configuration options.
+ */
+export type ErrorBoundaryOptions = {
+  /** Function called when an error occurs */
+  onError?: (error: Error, errorInfo: { componentStack?: string }) => void;
+  /** Fallback UI to render when an error occurs */
+  fallback?: (error: Error) => HTMLElement;
+  /** Whether to log errors to console (default: true) */
+  logToConsole?: boolean;
+};
+
+/**
+ * Error boundary component that catches errors in child components.
+ *
+ * This function wraps a component and provides error handling capabilities.
+ * When an error occurs in the wrapped component, it renders a fallback UI
+ * instead of crashing the entire application.
+ *
+ * @param component - The component to wrap with error boundary
+ * @param options - Configuration options for error handling
+ * @returns A component wrapped with error boundary functionality
+ *
+ * @example
+ * ```typescript
+ * const SafeComponent = errorBoundary(
+ *   () => div('This might throw an error'),
+ *   {
+ *     fallback: (error) => div(
+ *       { className: 'error-boundary' },
+ *       h2('Something went wrong'),
+ *       p(error.message),
+ *       button({ onclick: () => window.location.reload() }, 'Reload')
+ *     ),
+ *     onError: (error) => console.error('Component error:', error)
+ *   }
+ * );
+ *
+ * render(SafeComponent, document.getElementById('app'));
+ * ```
+ */
+export function errorBoundary<P = {}>(
+  component: (props: P & { children?: any }) => HTMLElement,
+  options: ErrorBoundaryOptions = {},
+): Component<P> {
+  const { onError, fallback, logToConsole = true } = options;
+
+  let hasError = false;
+  let error: Error | null = null;
+  let errorInfo: { componentStack?: string } = {};
+
+  const errorBoundaryComponent = (props?: P): HTMLElement => {
+    // If we have an error, render fallback UI
+    if (hasError && error) {
+      let fallbackElement: HTMLElement;
+
+      if (fallback) {
+        fallbackElement = fallback(error);
+      } else {
+        // Default fallback UI
+        fallbackElement = div(
+          { className: 'error-boundary' },
+          h2('Something went wrong'),
+          p(error.message),
+          button(
+            {
+              onclick: () => {
+                hasError = false;
+                error = null;
+                errorInfo = {};
+                // Force re-render by updating a signal or similar mechanism
+                // For now, we'll use a simple approach
+                const container = document.querySelector(
+                  '[data-error-boundary]',
+                );
+                if (container) {
+                  container.innerHTML = '';
+                  const newElement = errorBoundaryComponent(props);
+                  container.appendChild(newElement);
+                }
+              },
+            },
+            'Try again',
+          ),
+        );
+      }
+
+      // Always mark fallback elements with error boundary attribute
+      if (fallbackElement instanceof HTMLElement) {
+        fallbackElement.setAttribute('data-error-boundary', 'true');
+      }
+
+      return fallbackElement;
+    }
+
+    try {
+      // Attempt to render the wrapped component
+      // Default props to { children: undefined } if not provided
+      const defaultProps = { children: undefined, ...props } as P & {
+        children?: any;
+      };
+      const element = component(defaultProps);
+
+      // Add error boundary marker for potential re-renders
+      if (element instanceof HTMLElement) {
+        element.setAttribute('data-error-boundary', 'true');
+      } else if (
+        element &&
+        typeof (element as any).setAttribute === 'function'
+      ) {
+        (element as any).setAttribute('data-error-boundary', 'true');
+      }
+
+      return element;
+    } catch (err) {
+      // Catch synchronous errors
+      hasError = true;
+      error = err instanceof Error ? err : new Error(String(err));
+      errorInfo.componentStack = error.stack;
+
+      if (logToConsole) {
+        console.error('Error boundary caught an error:', error);
+      }
+
+      if (onError) {
+        onError(error, errorInfo);
+      }
+
+      // Return fallback UI
+      return errorBoundaryComponent(props);
+    }
+  };
+
+  // Override the toString to mark this as an error boundary component
+  const originalToString = errorBoundaryComponent.toString;
+  errorBoundaryComponent.toString = (): string => {
+    return `[ErrorBoundary: ${originalToString.call(errorBoundaryComponent)}]`;
+  };
+
+  // Add error boundary specific methods
+  errorBoundaryComponent._setContainer = (container: HTMLElement) => {
+    // Mark container for error boundary
+    container.setAttribute('data-error-boundary', 'true');
+
+    // If the wrapped component has _setContainer, call it
+    if ((component as any)._setContainer) {
+      (component as any)._setContainer(container);
+    }
+  };
+
+  // Method to manually trigger error boundary
+  errorBoundaryComponent._triggerError = (
+    err: Error,
+    info?: { componentStack?: string },
+  ) => {
+    hasError = true;
+    error = err;
+    errorInfo = info || {};
+
+    if (logToConsole) {
+      console.error('Error boundary manually triggered:', error);
+    }
+
+    if (onError) {
+      onError(error, errorInfo);
+    }
+  };
+
+  // Method to reset error state
+  errorBoundaryComponent._reset = () => {
+    hasError = false;
+    error = null;
+    errorInfo = {};
+  };
+
+  return errorBoundaryComponent;
 }

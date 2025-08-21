@@ -22,11 +22,11 @@ export {
   canvas,
   cleanup,
   createElement,
-  createReactiveComponent,
   createReactiveList,
   details,
   dialog,
   div,
+  errorBoundary,
   footer,
   form,
   h1,
@@ -61,6 +61,7 @@ export {
   th,
   tr,
   ul,
+  useState,
   video,
 } from './dom';
 
@@ -121,6 +122,7 @@ export type {
   DetailsProps,
   DialogProps,
   DivProps,
+  ErrorBoundaryOptions,
   FooterProps,
   FormProps,
   HeaderProps,
@@ -149,5 +151,8 @@ export type {
   VideoProps,
 } from './dom';
 
-// Convenience aliases
+// Primary component export - this is the main way to create reactive components
 export { createReactiveComponent as component } from './dom';
+
+// Legacy export for backward compatibility (deprecated)
+export { createReactiveComponent } from './dom';

@@ -1148,7 +1148,7 @@ describe('createReactiveComponent', () => {
 
     // Initial render
     render(TestComponent, container);
-    expect(renderCount).toBe(1);
+    expect(renderCount).toBe(1); // Single render within effect
     expect(container.querySelector('.test-component')?.textContent).toBe(
       'Value: 0',
     );
@@ -1158,7 +1158,7 @@ describe('createReactiveComponent', () => {
 
     // Wait for next tick to allow effect to run
     return new Promise((resolve) => setTimeout(resolve, 50)).then(() => {
-      expect(renderCount).toBe(3);
+      expect(renderCount).toBe(2);
       expect(container.querySelector('.test-component')?.textContent).toBe(
         'Value: 42',
       );
@@ -1256,7 +1256,7 @@ describe('createReactiveComponent', () => {
       value: 0,
       onUpdate: () => testSignal.set(42),
     });
-    expect(renderCount).toBe(1);
+    expect(renderCount).toBe(1); // Single render within effect
     expect(container.querySelector('.title')?.textContent).toBe('Test Title');
     expect(container.querySelector('.value')?.textContent).toBe('Value: 0');
 
@@ -1265,7 +1265,7 @@ describe('createReactiveComponent', () => {
 
     // Wait for next tick to allow effect to run
     return new Promise((resolve) => setTimeout(resolve, 50)).then(() => {
-      expect(renderCount).toBe(3);
+      expect(renderCount).toBe(2);
       expect(container.querySelector('.value')?.textContent).toBe('Value: 42');
     });
   });
@@ -1298,7 +1298,7 @@ describe('createReactiveComponent', () => {
     render(TestComponent, container);
 
     // Initial render
-    expect(renderCount).toBe(1);
+    expect(renderCount).toBe(1); // Single render within effect
     expect(container.querySelector('.signal-value')?.textContent).toBe(
       'Signal: 0',
     );
@@ -1306,21 +1306,18 @@ describe('createReactiveComponent', () => {
       'Counter: 100',
     );
 
-    // Wait for the effect to be set up (this calls the component again to track dependencies)
-    return new Promise((resolve) => setTimeout(resolve, 10))
-      .then(() => {
-        // After effect setup, renderCount should be 2 (initial + effect setup)
-        expect(renderCount).toBe(2);
+    // Effect is already set up during render, so no need to wait
+    // renderCount should already be 1 (single render within effect)
+    expect(renderCount).toBe(1);
 
-        // Update external signal - should trigger re-render
-        externalSignal.set(42);
+    // Update external signal - should trigger re-render
+    externalSignal.set(42);
 
-        // Wait for effect to run
-        return new Promise((resolve) => setTimeout(resolve, 50));
-      })
+    // Wait for effect to run
+    return new Promise((resolve) => setTimeout(resolve, 50))
       .then(() => {
         // After signal update, renderCount should be greater than before
-        expect(renderCount).toBeGreaterThanOrEqual(3);
+        expect(renderCount).toBeGreaterThanOrEqual(2);
         expect(container.querySelector('.signal-value')?.textContent).toBe(
           'Signal: 42',
         );
@@ -1335,7 +1332,7 @@ describe('createReactiveComponent', () => {
       })
       .then(() => {
         // After counter update, renderCount should be greater than before
-        expect(renderCount).toBeGreaterThanOrEqual(4);
+        expect(renderCount).toBeGreaterThanOrEqual(3);
         expect(container.querySelector('.signal-value')?.textContent).toBe(
           'Signal: 42',
         );
@@ -1370,7 +1367,7 @@ describe('createReactiveComponent', () => {
     render(TestComponent, container);
 
     // Initial render
-    expect(renderCount).toBe(1);
+    expect(renderCount).toBe(1); // Single render within effect
     expect(container.querySelector('.internal-value')?.textContent).toBe(
       'Internal: 0',
     );
