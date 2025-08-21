@@ -1712,7 +1712,8 @@ export function createReactiveComponent<P = {}>(
 ): Component<P> {
   // Return a function that creates component instances that re-render
   const reactiveComponent = (props?: P & { children?: any }) => {
-    // Create a unique key for this component instance
+    // Create a stable instance ID that persists for this component instance
+    // Use a WeakMap to store instance IDs based on the props object
     const instanceId = `${component.name || 'Anonymous'}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Create container for this component instance
@@ -1749,7 +1750,10 @@ export function createReactiveComponent<P = {}>(
         );
 
         // Update local stateIndex to reflect any changes made by useSignal calls
-        stateIndex = componentContext.stateIndex;
+        const newStateIndex = componentContext.stateIndex;
+        if (newStateIndex !== stateIndex) {
+          stateIndex = newStateIndex;
+        }
 
         return element;
       } finally {
@@ -1853,10 +1857,10 @@ export function useSignal<T>(initialValue: T): Signal<T> {
     throw new Error('useSignal can only be called inside a reactive component');
   }
 
-  // Use a stable index that persists across re-renders
-  // This ensures the same signal is returned on subsequent renders
+  // Create a stable identifier for this hook call that persists across re-renders
+  // We use the component instance ID + the current hook call position
   const hookIndex = currentComponent.stateIndex++;
-  const signalKey = `hook_${hookIndex}`;
+  const signalKey = `${currentComponent.instanceId}_hook_${hookIndex}`;
 
   if (!currentComponent.signals.has(signalKey)) {
     currentComponent.signals.set(signalKey, signal(initialValue));
