@@ -26,6 +26,8 @@ type EventListener = (event: Event) => void | Promise<void>;
 let currentComponent: {
   signals: Map<number, Signal<any>>;
   stateIndex: number;
+  instanceId: string;
+  parentContainer: HTMLElement | null;
 } | null = null;
 
 // Inline classNames function to avoid circular dependency
@@ -900,6 +902,23 @@ const reactiveListNodes = new WeakMap<
 >();
 
 /**
+ * Map to track component instances for reuse and signal isolation.
+ *
+ * Maps component keys to component instance metadata including
+ * the rendered element, signals map, and component function.
+ */
+const componentInstanceRegistry = new Map<
+  string,
+  {
+    element: HTMLElement;
+    signals: Map<number, Signal<any>>;
+    props: any;
+    lastRender: number;
+    componentFunction: Function;
+  }
+>();
+
+/**
  * Creates a factory function for HTML elements.
  *
  * This function returns an element creator that can create HTML elements
@@ -1696,17 +1715,57 @@ export function createReactiveComponent<P = {}>(
 ): Component<P> {
   // Return a function that creates isolated component instances
   const reactiveComponent = (props?: P & { children?: any }) => {
-    // Each call creates a completely isolated component instance
+    // Create a stable key for this component instance based on component identity
+    // We use the component function name or a hash of the function itself
+    const componentKey = component.name || component.toString().slice(0, 50);
+
+    // Check if we already have an instance for this component
+    const existingInstance = componentInstanceRegistry.get(componentKey);
+
+    if (existingInstance && existingInstance.componentFunction === component) {
+      // Reuse existing instance - this prevents signal recreation
+      console.log(`Reusing component instance: ${componentKey}`);
+
+      // Set up the component context for this instance
+      const prevComponent = currentComponent;
+      const componentContext = {
+        signals: existingInstance.signals,
+        stateIndex: 0,
+        instanceId: componentKey,
+        parentContainer: null,
+      };
+      currentComponent = componentContext;
+      setCurrentComponentContext(componentContext);
+
+      // Restore context
+      currentComponent = prevComponent;
+      setCurrentComponentContext(prevComponent);
+
+      return existingInstance.element;
+    }
+
+    // Create new instance
     let container: HTMLElement | null = null;
     let effectCleanup: (() => void) | null = null;
     let currentElement: HTMLElement | null = null;
     let currentProps: (P & { children?: any }) | null = props || null;
     const componentSignals: Map<number, Signal<any>> = new Map(); // Isolated per instance
 
+    // Generate a unique ID for this component instance
+    const instanceId = componentKey;
+
+    // Track if this component instance has been initialized
+    let isInitialized = false;
+
     const renderComponent = () => {
       // Set up component context for useState and signal()
       const prevComponent = currentComponent;
-      const componentContext = { signals: componentSignals, stateIndex: 0 };
+      const componentContext = {
+        signals: componentSignals,
+        stateIndex: 0,
+        instanceId,
+        parentContainer: container,
+      };
       currentComponent = componentContext;
 
       // Set the context in signals module so signal() can detect it
@@ -1736,7 +1795,7 @@ export function createReactiveComponent<P = {}>(
       effectCleanup = effect(() => {
         if (!container) return;
 
-        // Execute the component function to track dependencies and trigger re-render
+        // Always re-render to track new dependencies, but preserve child component instances
         const newElement = renderComponent();
 
         // Update the DOM
@@ -1748,12 +1807,31 @@ export function createReactiveComponent<P = {}>(
         }
 
         currentElement = newElement;
+        isInitialized = true;
+
+        // Update the registry with the new element
+        componentInstanceRegistry.set(componentKey, {
+          element: newElement,
+          signals: componentSignals,
+          props: currentProps,
+          lastRender: Date.now(),
+          componentFunction: component,
+        });
       });
     };
 
     // Render the component immediately for static content
     // The signal isolation is achieved by each instance having its own componentSignals map
     const element = renderComponent();
+
+    // Register this instance
+    componentInstanceRegistry.set(componentKey, {
+      element,
+      signals: componentSignals,
+      props: currentProps,
+      lastRender: Date.now(),
+      componentFunction: component,
+    });
 
     // Store reactive state for this instance
     (element as any)._reactiveSetup = {
@@ -1768,6 +1846,7 @@ export function createReactiveComponent<P = {}>(
       },
       isReactiveInstance: true,
       hasSetupEffect: false,
+      instanceId,
     };
 
     // Attach the _setContainer method for render() compatibility
@@ -1823,10 +1902,21 @@ export function createReactiveComponent<P = {}>(
     const currentProps: (P & { children?: any }) | null = props || null;
     const componentSignals: Map<number, Signal<any>> = new Map(); // Isolated per instance
 
+    // Generate a unique ID for this component instance
+    const instanceId = Math.random().toString(36).substr(2, 9);
+
+    // Track if this component instance has been initialized
+    let isInitialized = false;
+
     const renderComponent = () => {
       // Set up component context for useState and signal()
       const prevComponent = currentComponent;
-      const componentContext = { signals: componentSignals, stateIndex: 0 };
+      const componentContext = {
+        signals: componentSignals,
+        stateIndex: 0,
+        instanceId,
+        parentContainer: container,
+      };
       currentComponent = componentContext;
 
       // Set the context in signals module so signal() can detect it
@@ -1856,7 +1946,7 @@ export function createReactiveComponent<P = {}>(
       effectCleanup = effect(() => {
         if (!container) return;
 
-        // Execute the component function to track dependencies and trigger re-render
+        // Always re-render to track new dependencies, but preserve child component instances
         const newElement = renderComponent();
 
         // Update the DOM
@@ -1868,6 +1958,7 @@ export function createReactiveComponent<P = {}>(
         }
 
         currentElement = newElement;
+        isInitialized = true;
       });
     };
 

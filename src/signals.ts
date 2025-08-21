@@ -417,6 +417,8 @@ function batch(fn: () => void): void {
 type ComponentContext = {
   signals: Map<number, Signal<any>>;
   stateIndex: number;
+  instanceId: string;
+  parentContainer: HTMLElement | null;
 };
 
 /**

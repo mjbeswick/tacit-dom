@@ -11,21 +11,21 @@
  */
 
 import {
-  div,
   button,
+  div,
+  footer,
   h1,
   h2,
   h3,
-  p,
-  nav,
   header,
-  footer,
-  main,
-  link,
-  router,
   history,
-  ul,
   li,
+  link,
+  main,
+  nav,
+  p,
+  router,
+  ul,
 } from '../../src/index';
 
 const app = () => {

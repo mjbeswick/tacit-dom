@@ -1,0 +1,127 @@
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stopwatchContainer {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.timeDisplay {
+  font-size: 3.5rem;
+  font-weight: 300;
+  font-family: 'Courier New', monospace;
+  color: #333;
+  margin: 24px 0;
+}
+
+.controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 24px 0;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.startBtn {
+  background: #4caf50;
+  color: white;
+}
+
+.startBtn:hover {
+  background: #45a049;
+}
+
+.stopBtn {
+  background: #f44336;
+  color: white;
+}
+
+.stopBtn:hover {
+  background: #da190b;
+}
+
+.resetBtn {
+  background: #2196f3;
+  color: white;
+}
+
+.resetBtn:hover {
+  background: #1976d2;
+}
+
+.lapBtn {
+  background: #ff9800;
+  color: white;
+}
+
+.lapBtn:hover {
+  background: #f57c00;
+}
+
+button:disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.laps {
+  margin-top: 24px;
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.lapItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-family: 'Courier New', monospace;
+}
+
+.lapNumber {
+  color: #666;
+  font-weight: 500;
+}
+
+.lapTime {
+  color: #333;
+  font-weight: 500;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 8px;
+  font-size: 1.75rem;
+}
+
+.subtitle {
+  color: #666;
+  margin-bottom: 24px;
+  font-size: 0.9rem;
+}
