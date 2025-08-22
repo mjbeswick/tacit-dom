@@ -10,26 +10,27 @@
 
 // Export the new signals system
 export {
-  signal,
+  batch,
   computed,
   effect,
-  batch,
-  type Signal,
+  signal,
   type Computed,
+  type Signal,
 } from './signals';
 
 // Export the new DOM system
 export {
-  component,
-  useSignal,
-  div,
   button,
+  cleanup,
+  component,
+  div,
   h1,
   p,
-  span,
   render,
-  cleanup,
+  span,
+  useSignal,
   type Component,
+  type ComponentUtils,
 } from './dom';
 
 // Export utility types

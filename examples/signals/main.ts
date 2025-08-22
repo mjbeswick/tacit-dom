@@ -1,11 +1,20 @@
-import { button, component, div, render, useSignal } from '../../src/index';
+import { button, component, div, render } from '../../src/index';
 import { globalCounter, incrementGlobal } from './store';
 import styles from './styles.module.css';
 
 // Main app component
-const app = component(() => {
+const app = component((_props, utils) => {
   // Local signal - only accessible within this component
-  const localCounter = useSignal(0);
+  const localCounter = utils.signal(0);
+
+  // Computed value that depends on the local counter
+  const doubledCounter = utils.computed(() => localCounter.get() * 2);
+
+  // Effect that logs when the counter changes
+  utils.effect(() => {
+    console.log(`Counter changed to: ${localCounter.get()}`);
+    console.log(`Doubled value: ${doubledCounter.get()}`);
+  });
 
   console.log('localCounter', localCounter.get());
 
@@ -70,6 +79,20 @@ const app = component(() => {
             ),
           ),
         ),
+        // Doubled counter display
+        div(
+          {
+            classNames: [styles.counterSection, styles.localCounter],
+          },
+          div(
+            { classNames: styles.counterHeader },
+            div({ classNames: styles.counterLabel }, 'Doubled Counter'),
+            div(
+              { classNames: [styles.counterValue, styles.localValue] },
+              doubledCounter.get(),
+            ),
+          ),
+        ),
         // Info section
         div(
           {
@@ -79,7 +102,7 @@ const app = component(() => {
           div(
             { classNames: styles.infoText },
             'The global counter persists across component re-renders and automatically decrements every second, while the local counter resets each time. ' +
-              'Both automatically update the UI when their values change!',
+              'Both automatically update the UI when their values change! The doubled counter is computed from the local counter.',
           ),
         ),
       ),
