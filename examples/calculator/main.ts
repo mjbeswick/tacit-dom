@@ -1,27 +1,19 @@
 import { button, computed, div, effect, render, signal } from 'tacit-dom';
 import styles from './styles.module.css';
 
-// Calculator state
-type CalculatorState = {
-  currentValue: string;
-  previousValue: string | null;
-  operation: string | null;
-  waitingForOperand: boolean;
-};
-
-const calculatorState = signal<CalculatorState>({
-  currentValue: '0',
-  previousValue: null,
-  operation: null,
-  waitingForOperand: false,
-});
+// Calculator state - using atomic signals
+const currentValue = signal<string>('0');
+const previousValue = signal<string | null>(null);
+const operation = signal<string | null>(null);
+const waitingForOperand = signal<boolean>(false);
 
 // Computed values
-const displayValue = computed(() => calculatorState.get().currentValue);
+const displayValue = computed(() => currentValue.get());
 const expression = computed(() => {
-  const state = calculatorState.get();
-  if (state.previousValue && state.operation) {
-    return `${state.previousValue} ${state.operation}`;
+  const prev = previousValue.get();
+  const op = operation.get();
+  if (prev && op) {
+    return `${prev} ${op}`;
   }
   return '';
 });
@@ -29,172 +21,163 @@ const expression = computed(() => {
 // Calculator functions
 function inputDigit(digit: string) {
   console.log('Input digit called with:', digit);
-  const state = calculatorState.get();
+  const state = {
+    currentValue: currentValue.get(),
+    previousValue: previousValue.get(),
+    operation: operation.get(),
+    waitingForOperand: waitingForOperand.get(),
+  };
 
   // Allow bigger numbers - limit to 16 digits
   const maxDigits = 16;
 
   if (state.waitingForOperand) {
-    calculatorState.set({
-      ...state,
-      currentValue: digit,
-      waitingForOperand: false,
-    });
+    currentValue.set(digit);
+    waitingForOperand.set(false);
   } else {
     // Check if adding this digit would exceed the limit
     if (state.currentValue === '0') {
       // If current value is 0, replace it with the new digit
-      calculatorState.set({
-        ...state,
-        currentValue: digit,
-      });
+      currentValue.set(digit);
     } else if (state.currentValue.length < maxDigits) {
       // Only add digit if we haven't reached the limit
-      calculatorState.set({
-        ...state,
-        currentValue: state.currentValue + digit,
-      });
+      currentValue.set(state.currentValue + digit);
     } else {
       // Optionally show some feedback that limit is reached
       console.log('Maximum digits reached');
     }
   }
-  console.log('New state:', calculatorState.get());
+  console.log('New state:', {
+    currentValue: currentValue.get(),
+    previousValue: previousValue.get(),
+    operation: operation.get(),
+    waitingForOperand: waitingForOperand.get(),
+  });
 }
 
 function inputDecimal() {
-  const state = calculatorState.get();
+  const state = {
+    currentValue: currentValue.get(),
+    previousValue: previousValue.get(),
+    operation: operation.get(),
+    waitingForOperand: waitingForOperand.get(),
+  };
 
   if (state.waitingForOperand) {
-    calculatorState.set({
-      ...state,
-      currentValue: '0.',
-      waitingForOperand: false,
-    });
+    currentValue.set('0.');
+    waitingForOperand.set(false);
   } else if (state.currentValue.indexOf('.') === -1) {
-    calculatorState.set({
-      ...state,
-      currentValue: state.currentValue + '.',
-    });
+    currentValue.set(state.currentValue + '.');
   }
 }
 
 function clear() {
-  calculatorState.set({
-    currentValue: '0',
-    previousValue: null,
-    operation: null,
-    waitingForOperand: false,
-  });
+  currentValue.set('0');
+  previousValue.set(null);
+  operation.set(null);
+  waitingForOperand.set(false);
 }
 
 function deleteLastDigit() {
-  const state = calculatorState.get();
+  const state = {
+    currentValue: currentValue.get(),
+    previousValue: previousValue.get(),
+    operation: operation.get(),
+    waitingForOperand: waitingForOperand.get(),
+  };
 
   if (state.waitingForOperand) {
     return;
   }
 
   if (state.currentValue.length === 1) {
-    calculatorState.set({
-      ...state,
-      currentValue: '0',
-    });
+    currentValue.set('0');
   } else {
-    calculatorState.set({
-      ...state,
-      currentValue: state.currentValue.slice(0, -1),
-    });
+    currentValue.set(state.currentValue.slice(0, -1));
   }
 }
 
 function performOperation(nextOperation: string) {
-  const state = calculatorState.get();
-  const inputValue = parseFloat(state.currentValue);
+  const currentVal = currentValue.get();
+  const prevVal = previousValue.get();
+  const currentOp = operation.get();
+  const waiting = waitingForOperand.get();
+  const inputValue = parseFloat(currentVal);
 
-  if (state.previousValue === null) {
-    calculatorState.set({
-      ...state,
-      previousValue: state.currentValue,
-      operation: nextOperation,
-      waitingForOperand: true,
-    });
-  } else if (state.operation) {
-    const previousValue = parseFloat(state.previousValue);
+  if (prevVal === null) {
+    previousValue.set(currentVal);
+    operation.set(nextOperation);
+    waitingForOperand.set(true);
+  } else if (currentOp) {
+    const prevValue = parseFloat(prevVal);
     let newValue: number;
 
-    switch (state.operation) {
+    switch (currentOp) {
       case '+':
-        newValue = previousValue + inputValue;
+        newValue = prevValue + inputValue;
         break;
       case '-':
-        newValue = previousValue - inputValue;
+        newValue = prevValue - inputValue;
         break;
       case '×':
-        newValue = previousValue * inputValue;
+        newValue = prevValue * inputValue;
         break;
       case '÷':
-        newValue = previousValue / inputValue;
+        newValue = prevValue / inputValue;
         break;
       default:
         return;
     }
 
-    calculatorState.set({
-      ...state,
-      currentValue: String(newValue),
-      previousValue: String(newValue),
-      operation: nextOperation,
-      waitingForOperand: true,
-    });
+    currentValue.set(String(newValue));
+    previousValue.set(String(newValue));
+    operation.set(nextOperation);
+    waitingForOperand.set(true);
   }
 }
 
 function calculate() {
-  const state = calculatorState.get();
+  const currentVal = currentValue.get();
+  const prevVal = previousValue.get();
+  const currentOp = operation.get();
 
-  if (!state.previousValue || !state.operation) {
+  if (!prevVal || !currentOp) {
     return;
   }
 
-  const inputValue = parseFloat(state.currentValue);
-  const previousValue = parseFloat(state.previousValue);
+  const inputValue = parseFloat(currentVal);
+  const prevValue = parseFloat(prevVal);
   let newValue: number;
 
-  switch (state.operation) {
+  switch (currentOp) {
     case '+':
-      newValue = previousValue + inputValue;
+      newValue = prevValue + inputValue;
       break;
     case '-':
-      newValue = previousValue - inputValue;
+      newValue = prevValue - inputValue;
       break;
     case '×':
-      newValue = previousValue * inputValue;
+      newValue = prevValue * inputValue;
       break;
     case '÷':
-      newValue = previousValue / inputValue;
+      newValue = prevValue / inputValue;
       break;
     default:
       return;
   }
 
-  calculatorState.set({
-    currentValue: String(newValue),
-    previousValue: null,
-    operation: null,
-    waitingForOperand: false,
-  });
+  currentValue.set(String(newValue));
+  previousValue.set(null);
+  operation.set(null);
+  waitingForOperand.set(false);
 }
 
 function percentage() {
-  const state = calculatorState.get();
-  const currentValue = parseFloat(state.currentValue);
-  const newValue = currentValue / 100;
+  const currentVal = currentValue.get();
+  const currentValNum = parseFloat(currentVal);
+  const newValue = currentValNum / 100;
 
-  calculatorState.set({
-    ...state,
-    currentValue: String(newValue),
-  });
+  currentValue.set(String(newValue));
 }
 
 // Calculator component
@@ -212,7 +195,12 @@ function Calculator() {
     div(
       { className: styles.display },
       div({ className: styles.expression }, currentExpression),
-      div({ className: styles.result }, currentDisplayValue),
+      div(
+        {
+          className: `${styles.result} ${styles[`digits-${currentDisplayValue.length}`] || ''}`.trim(),
+        },
+        currentDisplayValue,
+      ),
     ),
 
     // Buttons
@@ -263,11 +251,11 @@ if (app) {
     // Set up reactive re-rendering
     effect(() => {
       // Access the signals to trigger re-renders
-      const currentValue = calculatorState.get().currentValue;
-      const previousValue = calculatorState.get().previousValue;
-      const operation = calculatorState.get().operation;
+      const currentVal = currentValue.get();
+      const prevVal = previousValue.get();
+      const currentOp = operation.get();
 
-      console.log('State changed, re-rendering...', { currentValue, previousValue, operation });
+      console.log('State changed, re-rendering...', { currentVal, prevVal, currentOp });
 
       // Re-render the calculator
       render(Calculator(), app);
