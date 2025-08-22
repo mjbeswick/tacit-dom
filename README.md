@@ -180,8 +180,7 @@ With React hooks, you need to remember:
 
 **With Tacit-DOM signals:**
 
-- ✅ Just use the signal
-- ✅ That's it
+- Just use the signal 😎
 
 #### The Re-render Roulette 🎰
 
