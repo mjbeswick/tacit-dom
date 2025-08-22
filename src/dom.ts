@@ -94,6 +94,16 @@ export type ElementProps = {
    * This is the recommended way to handle CSS classes.
    */
   className?: string | string[] | { [key: string]: any } | (string | { [key: string]: any })[];
+  /**
+   * CSS styles that can be applied to the element.
+   * Accepts either a string of CSS rules or a React-like style object.
+   * Can also be reactive when using signals or computed values.
+   */
+  style?:
+    | string
+    | { [key: string]: string | number | Signal<string | number> | Computed<string | number> }
+    | Signal<string | { [key: string]: string | number | Signal<string | number> | Computed<string | number> }>
+    | Computed<string | { [key: string]: string | number | Signal<string | number> | Computed<string | number> }>;
   // Mouse events
   onClick?: EventHandler;
   onDoubleClick?: EventHandler;
@@ -174,6 +184,71 @@ function setupElement(element: HTMLElement, props: ElementProps, children: (stri
   if (props.className) {
     // Use the className utility for flexible class handling
     element.className = className(props.className);
+  }
+
+  // Handle styles
+  if (props.style) {
+    if (typeof props.style === 'string') {
+      element.style.cssText = props.style;
+    } else if (typeof props.style === 'object' && !('get' in props.style)) {
+      // Handle static style object (may contain signals as values)
+      const applyStyles = (styleObj: {
+        [key: string]: string | number | Signal<string | number> | Computed<string | number>;
+      }) => {
+        Object.entries(styleObj).forEach(([property, value]) => {
+          if (typeof value === 'string' || typeof value === 'number') {
+            // Convert camelCase to kebab-case and handle units
+            const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+            const cssValue = typeof value === 'number' ? `${value}px` : String(value);
+            element.style.setProperty(cssProperty, cssValue);
+          } else if ('get' in value) {
+            // Handle signal/computed value
+            const updateProperty = () => {
+              const signalValue = value.get();
+              const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+              const cssValue = typeof signalValue === 'number' ? `${signalValue}px` : String(signalValue);
+              element.style.setProperty(cssProperty, cssValue);
+            };
+            updateProperty();
+            value.subscribe(updateProperty);
+          }
+        });
+      };
+
+      applyStyles(props.style);
+    } else {
+      // Handle reactive styles (Signal or Computed)
+      const updateStyle = () => {
+        const styleValue = (
+          props.style as
+            | Signal<string | { [key: string]: string | number }>
+            | Computed<string | { [key: string]: string | number }>
+        ).get();
+        if (typeof styleValue === 'string') {
+          element.style.cssText = styleValue;
+        } else if (typeof styleValue === 'object') {
+          // Clear existing styles first
+          element.style.cssText = '';
+          // Apply new styles
+          Object.entries(styleValue).forEach(([property, value]) => {
+            // Convert camelCase to kebab-case and handle units
+            const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
+            const cssValue = typeof value === 'number' ? `${value}px` : String(value);
+            element.style.setProperty(cssProperty, cssValue);
+          });
+        }
+      };
+
+      // Set initial style
+      updateStyle();
+
+      // Subscribe to changes
+      (
+        props.style as
+          | Signal<string | { [key: string]: string | number }>
+          | Computed<string | { [key: string]: string | number }>
+      ).subscribe(updateStyle);
+    }
   }
 
   // Handle children

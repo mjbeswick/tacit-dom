@@ -64,6 +64,7 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 - **📋 List Rendering**: Powerful `map` function with optional filtering for dynamic lists
 - **🧩 Fragment Support**: `fragment` function for returning multiple elements without wrappers
 - **🎯 Event Handling**: Built-in support for DOM events
+- **🎨 Style Support**: React-like style props with reactive updates
 
 ### 🛠️ Developer Experience
 
@@ -610,6 +611,48 @@ const element = div(
 );
 ```
 
+### Styling
+
+Tacit-DOM supports React-like style props with both static and reactive styles:
+
+```typescript
+// String-based styles
+div({ style: 'background-color: red; color: white;' }, 'Content');
+
+// Object-based styles (React-like)
+div(
+  {
+    style: {
+      backgroundColor: 'red',
+      color: 'white',
+      fontSize: 16,
+      padding: 15,
+    },
+  },
+  'Content',
+);
+
+// Reactive styles
+const colorSignal = signal('red');
+div({ style: { backgroundColor: colorSignal } }, 'Content');
+
+// Computed styles
+const dynamicStyle = computed(() => ({
+  backgroundColor: colorSignal.get(),
+  fontSize: sizeSignal.get(),
+}));
+div({ style: dynamicStyle }, 'Content');
+```
+
+**Style Features:**
+
+- **CamelCase to kebab-case**: Properties like `backgroundColor` automatically convert to `background-color`
+- **Automatic units**: Numeric values for properties like `fontSize` automatically get `px` units
+- **Mixed types**: Support for both string and numeric values
+- **Reactive updates**: Styles automatically update when signals change
+
+````
+
 ### Conditional and List Rendering
 
 Tacit-DOM provides powerful utilities for conditional rendering and list management:
@@ -626,7 +669,7 @@ const element = when(isVisible, () => div('This is visible'));
 const count = signal(0);
 const isPositive = computed(() => count.get() > 0);
 const element = when(isPositive, () => div(`Count is positive: ${count.get()}`));
-```
+````
 
 #### `map<T>(arraySignal: Signal<T[]> | Computed<T[]> | T[], renderFn: (item: T, index: number) => HTMLElement, selector?: (item: T, index: number) => boolean): HTMLElement`
 

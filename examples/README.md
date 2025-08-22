@@ -84,6 +84,16 @@ npm install
 npm run dev
 ```
 
+### Style Demo (`/style-demo`)
+
+A comprehensive example demonstrating the new style functionality in Tacit-DOM, including static styles, reactive styles, and mixed styles with signals.
+
+```bash
+cd style-demo
+npm install
+npm run dev
+```
+
 ## Running Examples
 
 Each example is self-contained with its own `package.json`, `vite.config.ts`, and `tsconfig.json`. To run any example:

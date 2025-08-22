@@ -89,6 +89,41 @@ describe('DOM Element Creation', () => {
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class2');
     });
+
+    it('should create div element with string style', () => {
+      const element = div({ style: 'background-color: red; color: white;' });
+      expect(element.tagName).toBe('DIV');
+      expect(element.style.backgroundColor).toBe('red');
+      expect(element.style.color).toBe('white');
+    });
+
+    it('should create div element with object style', () => {
+      const element = div({ style: { backgroundColor: 'red', color: 'white', fontSize: 16 } });
+      expect(element.tagName).toBe('DIV');
+      expect(element.style.backgroundColor).toBe('red');
+      expect(element.style.color).toBe('white');
+      expect(element.style.fontSize).toBe('16px');
+    });
+
+    it('should create div element with reactive style', () => {
+      const colorSignal = signal('red');
+      const element = div({ style: { color: colorSignal } });
+      expect(element.style.color).toBe('red');
+
+      colorSignal.set('blue');
+      expect(element.style.color).toBe('blue');
+    });
+
+    it('should create div element with reactive style string', () => {
+      const styleSignal = signal('background-color: red; color: white;');
+      const element = div({ style: styleSignal });
+      expect(element.style.backgroundColor).toBe('red');
+      expect(element.style.color).toBe('white');
+
+      styleSignal.set('background-color: blue; color: yellow;');
+      expect(element.style.backgroundColor).toBe('blue');
+      expect(element.style.color).toBe('yellow');
+    });
   });
 
   describe('Button Element Creation', () => {
