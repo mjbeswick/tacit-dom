@@ -4,6 +4,7 @@
   "description": "Example demonstrating Tacit-DOM reactive signals",
   "type": "module",
   "scripts": {
+    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"

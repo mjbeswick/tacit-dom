@@ -4,6 +4,7 @@
   "description": "Tacit-DOM i18n (Internationalization) Demo",
   "type": "module",
   "scripts": {
+    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",

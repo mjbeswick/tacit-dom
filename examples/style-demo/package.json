@@ -4,6 +4,7 @@
   "description": "Demo of Tacit-DOM style functionality",
   "type": "module",
   "scripts": {
+    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"

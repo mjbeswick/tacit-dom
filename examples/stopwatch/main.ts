@@ -1,15 +1,4 @@
-import {
-  button,
-  component,
-  computed,
-  div,
-  effect,
-  h1,
-  p,
-  render,
-  signal,
-  span,
-} from '../../src/index.js';
+import { button, component, computed, div, effect, h1, h2, p, render, signal, span } from '../../src/index.js';
 import styles from './main.module.css';
 
 // Stopwatch state
@@ -18,7 +7,7 @@ const startTime = signal<number | null>(null);
 const elapsedTime = signal(0);
 const lapTimes = signal<number[]>([]);
 
-// Computed values
+// Computed values for time formatting
 const displayTime = computed(() => {
   const totalMs = elapsedTime.get();
   const hours = Math.floor(totalMs / 3600000);
@@ -46,10 +35,8 @@ const formattedLapTimes = computed(() => {
   });
 });
 
-// Timer logic
-
+// Timer control functions
 const startTimer = () => {
-  console.log('startTimer');
   if (!isRunning.get()) {
     isRunning.set(true);
     startTime.set(Date.now() - elapsedTime.get());
@@ -76,34 +63,38 @@ const recordLap = () => {
   }
 };
 
+// Timer effect - updates elapsed time when running
 effect(() => {
-  console.log('effect running', isRunning.get());
   if (isRunning.get()) {
-    const elapsed = Date.now() - startTime.get()!;
+    const interval = setInterval(() => {
+      if (startTime.get() !== null) {
+        const elapsed = Date.now() - startTime.get()!;
+        elapsedTime.set(elapsed);
+      }
+    }, 10); // Update every 10ms for smooth display
 
-    elapsedTime.set(elapsed);
+    return () => clearInterval(interval);
   }
 });
 
 // Stopwatch component
 const stopwatchComponent = component(() => {
   return div(
-    { classNames: styles.stopwatchContainer },
+    { className: styles.stopwatchContainer },
+
+    // Header
     h1('Stopwatch'),
-    p(
-      { classNames: styles.subtitle },
-      'A reactive stopwatch built with Tacit-DOM',
-    ),
+    p({ className: styles.subtitle }, 'A reactive stopwatch built with Tacit-DOM'),
 
-    // Time display
-    div({ classNames: styles.timeDisplay }, displayTime),
+    // Time display - reactive
+    div({ className: styles.timeDisplay }, displayTime.get()),
 
-    // Control buttons
+    // Control buttons - reactive states
     div(
-      { classNames: styles.controls },
+      { className: styles.controls },
       button(
         {
-          classNames: styles.startBtn,
+          className: styles.startBtn,
           onClick: startTimer,
           disabled: isRunning.get(),
         },
@@ -111,7 +102,7 @@ const stopwatchComponent = component(() => {
       ),
       button(
         {
-          classNames: styles.stopBtn,
+          className: styles.stopBtn,
           onClick: stopTimer,
           disabled: !isRunning.get(),
         },
@@ -119,14 +110,14 @@ const stopwatchComponent = component(() => {
       ),
       button(
         {
-          classNames: styles.resetBtn,
+          className: styles.resetBtn,
           onClick: resetTimer,
         },
         'Reset',
       ),
       button(
         {
-          classNames: styles.lapBtn,
+          className: styles.lapBtn,
           onClick: recordLap,
           disabled: !isRunning.get(),
         },
@@ -134,21 +125,25 @@ const stopwatchComponent = component(() => {
       ),
     ),
 
-    // Lap times
-    lapTimes.get().length > 0
-      ? div(
-          { classNames: styles.laps },
-          ...formattedLapTimes
-            .get()
-            .map((lap) =>
-              div(
-                { classNames: styles.lapItem },
-                span({ classNames: styles.lapNumber }, `Lap ${lap.number}`),
-                span({ classNames: styles.lapTime }, lap.time),
-              ),
+    // Lap times - fully reactive
+    (() => {
+      const laps = lapTimes.get();
+      if (laps.length === 0) return null;
+
+      return div(
+        { className: styles.laps },
+        h2('Lap Times'),
+        ...formattedLapTimes
+          .get()
+          .map((lap) =>
+            div(
+              { className: styles.lapItem },
+              span({ className: styles.lapNumber }, `Lap ${lap.number}`),
+              span({ className: styles.lapTime }, lap.time),
             ),
-        )
-      : null,
+          ),
+      );
+    })(),
   );
 });
 

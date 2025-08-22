@@ -4,6 +4,7 @@
   "description": "Example demonstrating nested components with local signals in Tacit-DOM",
   "type": "module",
   "scripts": {
+    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"

@@ -4,6 +4,7 @@
   "description": "Error Boundary Demo for Tacit-DOM",
   "main": "main.ts",
   "scripts": {
+    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"

@@ -5,6 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
