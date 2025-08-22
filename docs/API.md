@@ -104,18 +104,12 @@ const Counter = component(() => {
 
 // Component with typed props
 const Greeting = component<{ name: string; greeting?: string }>((props) => {
-  return div(
-    { className: 'greeting' },
-    h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`),
-  );
+  return div({ className: 'greeting' }, h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`));
 });
 
 // Usage
 render(Counter, document.getElementById('app'));
-render(
-  Greeting({ name: 'Alice', greeting: 'Welcome' }),
-  document.getElementById('greeting'),
-);
+render(Greeting({ name: 'Alice', greeting: 'Welcome' }), document.getElementById('greeting'));
 ```
 
 ### `useSignal<T>(initialValue: T): Signal<T>`
@@ -293,9 +287,7 @@ const element = when(isVisible, () => div('This is visible'));
 // With computed values
 const count = signal(0);
 const isPositive = computed(() => count.get() > 0);
-const element = when(isPositive, () =>
-  div(`Count is positive: ${count.get()}`),
-);
+const element = when(isPositive, () => div(`Count is positive: ${count.get()}`));
 ```
 
 ### `map<T>(arraySignal: Signal<T[]> | Computed<T[]> | T[], renderFn: (item: T, index: number) => HTMLElement, selector?: (item: T, index: number) => boolean): HTMLElement`
@@ -348,11 +340,7 @@ Creates a fragment that renders multiple elements without a wrapper container. U
 import { fragment, div, h1, p } from 'tacit-dom';
 
 // Basic fragment usage
-const elements = fragment(
-  div('First element'),
-  div('Second element'),
-  div('Third element'),
-);
+const elements = fragment(div('First element'), div('Second element'), div('Third element'));
 
 // In a component that needs to return multiple elements
 const MyComponent = component(() => {
@@ -381,11 +369,7 @@ type ElementProps = {
    * Flexible CSS class names prop that accepts strings, arrays, objects, and more.
    * This is the recommended way to handle CSS classes.
    */
-  classNames?:
-    | string
-    | string[]
-    | { [key: string]: any }
-    | (string | { [key: string]: any })[];
+  classNames?: string | string[] | { [key: string]: any } | (string | { [key: string]: any })[];
 
   // Mouse events
   onClick?: EventHandler;
@@ -673,10 +657,7 @@ import { component, useSignal, div, ul, li } from 'tacit-dom';
 const TodoList = component(() => {
   const todos = useSignal(['Learn Tacit-DOM', 'Build app', 'Deploy']);
 
-  return div(
-    h1('Todo List'),
-    ul(...todos.get().map((todo, index) => li({ key: index }, todo))),
-  );
+  return div(h1('Todo List'), ul(...todos.get().map((todo, index) => li({ key: index }, todo))));
 });
 ```
 
@@ -801,10 +782,7 @@ const UserProfile = component(() => {
   const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
   const initials = computed(() => `${firstName.get()[0]}${lastName.get()[0]}`);
 
-  return div(
-    div(`Full Name: ${fullName.get()}`),
-    div(`Initials: ${initials.get()}`),
-  );
+  return div(div(`Full Name: ${fullName.get()}`), div(`Initials: ${initials.get()}`));
 });
 ```
 
@@ -828,22 +806,19 @@ const UserProfile = component(() => {
 
 ### Key Changes
 
-1. **Component System**: Use `component()` instead of `createReactiveComponent()`
+1. **Component System**: Use `component()` for creating reactive components
 2. **State Management**: Use `useSignal()` hook instead of creating signals in components
 3. **Event Handling**: Use camelCase event names (`onClick` instead of `onclick`)
 4. **Reactivity**: Components automatically re-render when signals change
-5. **No More**: `reactiveText`, `createReactiveComponent`, manual subscriptions
+5. **No More**: `reactiveText`, manual subscriptions
 
 ### Before (Old API)
 
 ```typescript
-// Old way
-const Counter = createReactiveComponent(() => {
+// Old way (deprecated)
+const Counter = component(() => {
   const count = signal(0);
-  return div(
-    span(`Count: ${count.get()}`),
-    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
-  );
+  return div(span(`Count: ${count.get()}`), button({ onclick: () => count.set(count.get() + 1) }, 'Increment'));
 });
 ```
 
@@ -853,10 +828,7 @@ const Counter = createReactiveComponent(() => {
 // New way
 const Counter = component(() => {
   const count = useSignal(0);
-  return div(
-    div(`Count: ${count.get()}`),
-    button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
-  );
+  return div(div(`Count: ${count.get()}`), button({ onClick: () => count.set(count.get() + 1) }, 'Increment'));
 });
 ```
 

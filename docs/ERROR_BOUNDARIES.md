@@ -131,19 +131,15 @@ const ConditionalErrorBoundary = (shouldWrap: boolean) => {
 ### Nested Error Boundaries
 
 ```typescript
-const OuterErrorBoundary = errorBoundary(() =>
-  div(h1('Outer Component'), InnerErrorBoundary()),
-);
+const OuterErrorBoundary = errorBoundary(() => div(h1('Outer Component'), InnerErrorBoundary()));
 
-const InnerErrorBoundary = errorBoundary(() =>
-  div(h2('Inner Component'), BuggyComponent()),
-);
+const InnerErrorBoundary = errorBoundary(() => div(h2('Inner Component'), BuggyComponent()));
 ```
 
 ### Error Boundary with Recovery
 
 ```typescript
-const RecoverableComponent = createReactiveComponent(() => {
+const RecoverableComponent = component(() => {
   const hasError = signal(false);
 
   if (hasError.get()) {
@@ -162,15 +158,13 @@ const SafeComponent = errorBoundary(RecoverableComponent);
 ### Error Boundary with Props
 
 ```typescript
-const BuggyComponent = createReactiveComponent<{ mode: 'normal' | 'error' }>(
-  (props) => {
-    if (props?.mode === 'error') {
-      throw new Error('Error mode activated');
-    }
+const BuggyComponent = component<{ mode: 'normal' | 'error' }>((props) => {
+  if (props?.mode === 'error') {
+    throw new Error('Error mode activated');
+  }
 
-    return div(`Mode: ${props?.mode || 'normal'}`);
-  },
-);
+  return div(`Mode: ${props?.mode || 'normal'}`);
+});
 
 const SafeComponent = errorBoundary(BuggyComponent);
 
@@ -202,7 +196,7 @@ const SafeFeature = errorBoundary(FeatureComponent);
 ### Retry Mechanisms
 
 ```typescript
-const RetryableComponent = createReactiveComponent(() => {
+const RetryableComponent = component(() => {
   const retryCount = signal(0);
   const maxRetries = 3;
 
@@ -261,14 +255,9 @@ const UserFriendlyFallback = (error: Error) =>
     { className: 'error-boundary user-friendly' },
     h2('We encountered a problem'),
     p('Sorry, something went wrong while loading this content.'),
-    p(
-      'Please try refreshing the page or contact support if the problem persists.',
-    ),
+    p('Please try refreshing the page or contact support if the problem persists.'),
     button({ onclick: () => window.location.reload() }, 'Refresh Page'),
-    button(
-      { onclick: () => window.open('/support', '_blank') },
-      'Contact Support',
-    ),
+    button({ onclick: () => window.open('/support', '_blank') }, 'Contact Support'),
   );
 ```
 
@@ -343,7 +332,7 @@ describe('Error Boundary', () => {
 
 ```typescript
 it('should recover from errors', () => {
-  const TestComponent = createReactiveComponent(() => div('Normal'));
+  const TestComponent = component(() => div('Normal'));
   const SafeComponent = errorBoundary(TestComponent);
 
   // Normal render

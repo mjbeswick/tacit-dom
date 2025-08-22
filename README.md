@@ -535,10 +535,10 @@ Tacit-DOM provides comprehensive documentation covering all aspects of the libra
 
 Tacit-DOM uses a clean, intuitive naming convention:
 
-| Function               | Type               | Description                                                      |
-| ---------------------- | ------------------ | ---------------------------------------------------------------- |
-| **`component<P>`**     | `Component<P>`     | Create reactive components (alias for `createReactiveComponent`) |
-| **`errorBoundary<P>`** | `ErrorBoundary<P>` | Wrap components with error handling ⚠️ **Experimental**          |
+| Function               | Type               | Description                                             |
+| ---------------------- | ------------------ | ------------------------------------------------------- |
+| **`component<P>`**     | `Component<P>`     | Create reactive components                              |
+| **`errorBoundary<P>`** | `ErrorBoundary<P>` | Wrap components with error handling ⚠️ **Experimental** |
 
 ```typescript
 import { component, Component, div } from 'tacit-dom';

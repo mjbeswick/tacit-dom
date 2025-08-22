@@ -115,9 +115,7 @@ const lastName = signal('Doe');
 
 // Computed value that automatically updates
 const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
-const initials = computed(() => 
-  `${firstName.get()[0]}${lastName.get()[0]}`
-);
+const initials = computed(() => `${firstName.get()[0]}${lastName.get()[0]}`);
 
 console.log(fullName.get()); // "John Doe"
 console.log(initials.get()); // "JD"
@@ -161,19 +159,20 @@ import { component, useSignal, computed, div, button } from 'tacit-dom';
 const UserProfile = component(() => {
   const firstName = useSignal('John');
   const lastName = useSignal('Doe');
-  
+
   // These computed values will automatically update the UI
   const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
-  const initials = computed(() => 
-    `${firstName.get()[0]}${lastName.get()[0]}`
-  );
-  
+  const initials = computed(() => `${firstName.get()[0]}${lastName.get()[0]}`);
+
   return div(
     div(`Full Name: ${fullName.get()}`),
     div(`Initials: ${initials.get()}`),
-    button({ 
-      onClick: () => firstName.set('Jane') 
-    }, 'Change First Name'),
+    button(
+      {
+        onClick: () => firstName.set('Jane'),
+      },
+      'Change First Name',
+    ),
   );
 });
 ```
@@ -192,7 +191,7 @@ const count = signal(0);
 // Effect that runs whenever count changes
 const cleanup = effect(() => {
   console.log('Count changed to:', count.get());
-  
+
   // Return cleanup function (optional)
   return () => {
     console.log('Cleaning up effect');
@@ -212,12 +211,12 @@ const count = signal(0);
 
 const cleanup = effect(() => {
   console.log('Setting up effect for count:', count.get());
-  
+
   // Set up an interval
   const interval = setInterval(() => {
     console.log('Current count:', count.get());
   }, 1000);
-  
+
   // Return cleanup function
   return () => {
     console.log('Cleaning up effect');
@@ -241,22 +240,25 @@ import { component, useSignal, effect, div, button } from 'tacit-dom';
 
 const Timer = component(() => {
   const count = useSignal(0);
-  
+
   // Effect that sets up a timer
   effect(() => {
     const interval = setInterval(() => {
       count.set(count.get() + 1);
     }, 1000);
-    
+
     // Cleanup runs when component unmounts or effect re-runs
     return () => clearInterval(interval);
   });
-  
+
   return div(
     div(`Timer: ${count.get()}`),
-    button({ 
-      onClick: () => count.set(0) 
-    }, 'Reset'),
+    button(
+      {
+        onClick: () => count.set(0),
+      },
+      'Reset',
+    ),
   );
 });
 ```
@@ -302,7 +304,7 @@ const UserForm = component(() => {
   const firstName = useSignal('');
   const lastName = useSignal('');
   const email = useSignal('');
-  
+
   const resetForm = () => {
     // Batch all updates together
     batch(() => {
@@ -311,7 +313,7 @@ const UserForm = component(() => {
       email.set('');
     });
   };
-  
+
   const fillSampleData = () => {
     // Batch all updates together
     batch(() => {
@@ -320,7 +322,7 @@ const UserForm = component(() => {
       email.set('john.doe@example.com');
     });
   };
-  
+
   return div(
     div(`Name: ${firstName.get()} ${lastName.get()}`),
     div(`Email: ${email.get()}`),
@@ -342,12 +344,15 @@ import { component, useSignal, div, button } from 'tacit-dom';
 const Counter = component(() => {
   // This signal persists across re-renders
   const count = useSignal(0);
-  
+
   return div(
     div(`Count: ${count.get()}`),
-    button({ 
-      onClick: () => count.set(count.get() + 1) 
-    }, 'Increment'),
+    button(
+      {
+        onClick: () => count.set(count.get() + 1),
+      },
+      'Increment',
+    ),
   );
 });
 ```
@@ -361,18 +366,21 @@ const UserForm = component(() => {
   const name = useSignal('');
   const email = useSignal('');
   const age = useSignal(0);
-  
+
   return div(
     div(`Name: ${name.get()}`),
     div(`Email: ${email.get()}`),
     div(`Age: ${age.get()}`),
-    button({ 
-      onClick: () => {
-        name.set('John Doe');
-        email.set('john@example.com');
-        age.set(30);
-      }
-    }, 'Fill Sample Data'),
+    button(
+      {
+        onClick: () => {
+          name.set('John Doe');
+          email.set('john@example.com');
+          age.set(30);
+        },
+      },
+      'Fill Sample Data',
+    ),
   );
 });
 ```
@@ -389,16 +397,22 @@ const globalCounter = signal(0);
 const ComponentA = component(() => {
   // Local signal - only accessible within this component
   const localCounter = useSignal(0);
-  
+
   return div(
     div(`Global: ${globalCounter.get()}`),
     div(`Local: ${localCounter.get()}`),
-    button({ 
-      onClick: () => globalCounter.set(globalCounter.get() + 1) 
-    }, 'Increment Global'),
-    button({ 
-      onClick: () => localCounter.set(localCounter.get() + 1) 
-    }, 'Increment Local'),
+    button(
+      {
+        onClick: () => globalCounter.set(globalCounter.get() + 1),
+      },
+      'Increment Global',
+    ),
+    button(
+      {
+        onClick: () => localCounter.set(localCounter.get() + 1),
+      },
+      'Increment Local',
+    ),
   );
 });
 
@@ -416,24 +430,18 @@ const ComponentB = component(() => {
 ```typescript
 const ShoppingCart = component(() => {
   const items = useSignal([
-    { name: 'Apple', price: 1.00, quantity: 2 },
-    { name: 'Banana', price: 0.50, quantity: 3 },
+    { name: 'Apple', price: 1.0, quantity: 2 },
+    { name: 'Banana', price: 0.5, quantity: 3 },
     { name: 'Orange', price: 1.25, quantity: 1 },
   ]);
-  
+
   // Computed values for derived state
-  const totalItems = computed(() => 
-    items.get().reduce((sum, item) => sum + item.quantity, 0)
-  );
-  
-  const totalPrice = computed(() => 
-    items.get().reduce((sum, item) => sum + (item.price * item.quantity), 0)
-  );
-  
-  const averagePrice = computed(() => 
-    totalPrice.get() / totalItems.get()
-  );
-  
+  const totalItems = computed(() => items.get().reduce((sum, item) => sum + item.quantity, 0));
+
+  const totalPrice = computed(() => items.get().reduce((sum, item) => sum + item.price * item.quantity, 0));
+
+  const averagePrice = computed(() => totalPrice.get() / totalItems.get());
+
   return div(
     div(`Total Items: ${totalItems.get()}`),
     div(`Total Price: $${totalPrice.get().toFixed(2)}`),
@@ -448,7 +456,7 @@ const ShoppingCart = component(() => {
 const UserProfile = component(() => {
   const user = useSignal(null);
   const isLoading = useSignal(false);
-  
+
   // Effect that only runs when user changes
   effect(() => {
     const currentUser = user.get();
@@ -457,7 +465,7 @@ const UserProfile = component(() => {
       document.title = `${currentUser.name}'s Profile`;
     }
   });
-  
+
   // Effect that only runs when loading state changes
   effect(() => {
     if (isLoading.get()) {
@@ -466,10 +474,8 @@ const UserProfile = component(() => {
       console.log('User data loaded');
     }
   });
-  
-  return div(
-    isLoading.get() ? div('Loading...') : div('User profile loaded'),
-  );
+
+  return div(isLoading.get() ? div('Loading...') : div('User profile loaded'));
 });
 ```
 
@@ -479,7 +485,7 @@ const UserProfile = component(() => {
 const App = component(() => {
   const theme = useSignal('light');
   const language = useSignal('en');
-  
+
   // Computed value that depends on multiple signals
   const settings = computed(() => ({
     theme: theme.get(),
@@ -487,28 +493,34 @@ const App = component(() => {
     isDark: theme.get() === 'dark',
     isEnglish: language.get() === 'en',
   }));
-  
+
   // Effect that runs when settings change
   effect(() => {
     const currentSettings = settings.get();
     console.log('Settings changed:', currentSettings);
-    
+
     // Apply theme
     document.body.className = currentSettings.isDark ? 'dark' : 'light';
-    
+
     // Apply language
     document.documentElement.lang = currentSettings.language;
   });
-  
+
   return div(
     div(`Theme: ${settings.get().theme}`),
     div(`Language: ${settings.get().language}`),
-    button({ 
-      onClick: () => theme.set(theme.get() === 'light' ? 'dark' : 'light') 
-    }, 'Toggle Theme'),
-    button({ 
-      onClick: () => language.set(language.get() === 'en' ? 'es' : 'en') 
-    }, 'Toggle Language'),
+    button(
+      {
+        onClick: () => theme.set(theme.get() === 'light' ? 'dark' : 'light'),
+      },
+      'Toggle Theme',
+    ),
+    button(
+      {
+        onClick: () => language.set(language.get() === 'en' ? 'es' : 'en'),
+      },
+      'Toggle Language',
+    ),
   );
 });
 ```
@@ -534,19 +546,19 @@ const App = component(() => {
 ```typescript
 const ComponentWithManualSubscription = component(() => {
   const count = useSignal(0);
-  
+
   // Manual subscription (usually not needed in components)
   const unsubscribe = count.subscribe(() => {
     console.log('Count changed');
   });
-  
+
   // Clean up when component unmounts
   effect(() => {
     return () => {
       unsubscribe();
     };
   });
-  
+
   return div(`Count: ${count.get()}`);
 });
 ```
@@ -577,7 +589,7 @@ const UserProfile = component(() => {
   const firstName = useSignal('John');
   const lastName = useSignal('Doe');
   const fullName = computed(() => `${firstName.get()} ${lastName.get()}`);
-  
+
   return div(`Name: ${fullName.get()}`);
 });
 
@@ -585,7 +597,7 @@ const UserProfile = component(() => {
 const UserProfile = component(() => {
   const firstName = useSignal('John');
   const lastName = useSignal('Doe');
-  
+
   return div(`Name: ${firstName.get()} ${lastName.get()}`); // This recalculates on every render
 });
 ```
@@ -604,8 +616,8 @@ const updateUser = () => {
 
 // ❌ Bad - separate updates trigger multiple effects
 const updateUser = () => {
-  firstName.set('Jane');     // Effect runs
-  lastName.set('Smith');     // Effect runs again
+  firstName.set('Jane'); // Effect runs
+  lastName.set('Smith'); // Effect runs again
   email.set('jane@example.com'); // Effect runs again
 };
 ```
@@ -626,11 +638,11 @@ const submitForm = async () => {
 
 // Use pending state in UI
 return button(
-  { 
+  {
     disabled: formData.pending,
-    onClick: submitForm 
+    onClick: submitForm,
   },
-  formData.pending ? 'Submitting...' : 'Submit'
+  formData.pending ? 'Submitting...' : 'Submit',
 );
 ```
 
@@ -642,7 +654,7 @@ effect(() => {
   const interval = setInterval(() => {
     count.set(count.get() + 1);
   }, 1000);
-  
+
   return () => clearInterval(interval);
 });
 
@@ -650,7 +662,7 @@ effect(() => {
 effect(() => {
   // Component mounted
   console.log('Component mounted');
-  
+
   return () => {
     // Component will unmount
     console.log('Component unmounting');
@@ -690,20 +702,17 @@ effect(() => {
 
 1. **No more manual subscriptions**: Effects automatically track dependencies
 2. **No more signal keys**: `useSignal()` handles component-scoped signals automatically
-3. **Simplified API**: No more `createReactiveComponent`, `reactiveText`, etc.
+3. **Simplified API**: No more `reactiveText`, etc.
 4. **Automatic re-rendering**: Components automatically re-render when signals change
 5. **Preact-like syntax**: Use `component()` and `useSignal()` like React hooks
 
 ### Before (Old API)
 
 ```typescript
-// Old way
-const Counter = createReactiveComponent(() => {
+// Old way (deprecated)
+const Counter = component(() => {
   const count = signal(0, 'counter');
-  return div(
-    span(`Count: ${count.get()}`),
-    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
-  );
+  return div(span(`Count: ${count.get()}`), button({ onclick: () => count.set(count.get() + 1) }, 'Increment'));
 });
 ```
 
@@ -713,10 +722,7 @@ const Counter = createReactiveComponent(() => {
 // New way
 const Counter = component(() => {
   const count = useSignal(0);
-  return div(
-    div(`Count: ${count.get()}`),
-    button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
-  );
+  return div(div(`Count: ${count.get()}`), button({ onClick: () => count.set(count.get() + 1) }, 'Increment'));
 });
 ```
 
