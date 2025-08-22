@@ -90,6 +90,25 @@ describe('DOM Element Creation', () => {
       expect(element.className).toBe('class1 class2');
     });
 
+    it('should filter out falsy children', () => {
+      const element = div('Hello', null, undefined, false, 0, '', 'World');
+      expect(element.tagName).toBe('DIV');
+      expect(element.textContent).toBe('HelloWorld');
+    });
+
+    it('should filter out falsy children with props', () => {
+      const element = div({ className: 'test' }, 'Hello', null, undefined, false, 0, '', 'World');
+      expect(element.tagName).toBe('DIV');
+      expect(element.className).toBe('test');
+      expect(element.textContent).toBe('HelloWorld');
+    });
+
+    it('should handle conditional rendering with falsy values', () => {
+      const showExtra = false;
+      const element = div('Hello', showExtra && 'Extra', null, undefined, 'World');
+      expect(element.textContent).toBe('HelloWorld');
+    });
+
     it('should create div element with string style', () => {
       const element = div({ style: 'background-color: red; color: white;' });
       expect(element.tagName).toBe('DIV');

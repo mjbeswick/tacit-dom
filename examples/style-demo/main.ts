@@ -1,4 +1,4 @@
-import { button, computed, div, render, signal, span } from '../../src/index';
+import { button, computed, div, p, render, signal, span } from '../../src/index';
 
 // Static styles
 function createStaticStyles() {
@@ -174,7 +174,52 @@ function input(props: any) {
   return element;
 }
 
+// Demo of conditional rendering with falsy values
+function createConditionalRendering() {
+  const showExtra = signal(false);
+  const showDetails = signal(true);
+  const count = signal(0);
+
+  return div(
+    { className: 'demo-item' },
+    h3('Conditional Rendering with Falsy Values'),
+    div(
+      { style: { padding: 20, border: '2px solid #007acc', borderRadius: 10, marginBottom: 20 } },
+      p('This demonstrates how falsy values are automatically filtered out:'),
+      p('Hello', null, undefined, false, 0, '', 'World'), // Only "HelloWorld" will render
+      p('Conditional content:', showExtra.get() && 'Extra content here'),
+      p('Details:', showDetails.get() ? 'Visible' : null),
+      p('Count:', count.get() || 'No count yet'),
+    ),
+    div(
+      { style: { marginTop: 15 } },
+      button(
+        {
+          onClick: () => showExtra.set(!showExtra.get()),
+          style: { margin: 5, padding: '8px 16px' },
+        },
+        showExtra.get() ? 'Hide Extra' : 'Show Extra',
+      ),
+      button(
+        {
+          onClick: () => showDetails.set(!showDetails.get()),
+          style: { margin: 5, padding: '8px 16px' },
+        },
+        showDetails.get() ? 'Hide Details' : 'Show Details',
+      ),
+      button(
+        {
+          onClick: () => count.set(count.get() + 1),
+          style: { margin: 5, padding: '8px 16px' },
+        },
+        'Increment Count',
+      ),
+    ),
+  );
+}
+
 // Render the demo
 render(createStaticStyles(), document.getElementById('static-styles')!);
 render(createReactiveStyles(), document.getElementById('reactive-styles')!);
 render(createMixedStyles(), document.getElementById('mixed-styles')!);
+render(createConditionalRendering(), document.getElementById('conditional-rendering')!);

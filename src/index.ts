@@ -38,4 +38,4 @@ export {
 // Export utility types
 export { className } from './classes';
 export type { ClassValue } from './classes';
-export type { ElementProps } from './dom';
+export type { ElementProps, ElementChildren } from './dom';

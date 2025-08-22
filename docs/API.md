@@ -203,26 +203,40 @@ Creates a div element with optional props and children.
 
 **Parameters:**
 
-- `props?: ElementProps` - Optional element properties (className, event handlers, etc.)
+- `props?: ElementProps` - Optional element properties (styles, classes, event handlers, etc.)
 - `...children: ElementChildren` - Child elements, text, or signals
 
-**Returns:**
+**Returns:** An HTMLElement representing the div
 
-- `HTMLElement` - A div element
+**Features:**
 
-**Example:**
+- **Falsy Value Filtering**: Falsy values (`null`, `undefined`, `false`, `0`, `''`) are automatically filtered out and not rendered, enabling clean conditional rendering patterns
+- **Reactive Props**: Props can be signals or computed values that automatically update the element
+- **Event Handling**: Full event handler support with automatic cleanup
+- **Style Management**: Both string and object-based styles with reactive updates
+
+**Examples:**
 
 ```typescript
-import { div, signal } from 'tacit-dom';
+// Basic div with text
+const element = div('Hello World');
 
-const count = signal(0);
-
+// Div with conditional rendering (falsy values are filtered out)
+const showExtra = signal(false);
 const element = div(
-  { className: 'counter' },
-  'Count: ',
-  count, // Signals are automatically reactive
-  div({ className: 'nested' }, 'Nested content'),
+  'Hello',
+  showExtra.get() && 'Extra content', // Only renders when showExtra is true
+  null, // This will be filtered out
+  undefined, // This will be filtered out
+  'World',
 );
+
+// Div with props and children
+const element = div({ className: 'container', style: { padding: 20 } }, 'Content here');
+
+// Div with reactive content
+const message = signal('Loading...');
+const element = div({ className: 'status' }, message.get());
 ```
 
 ### `button(props?: ElementProps, ...children: ElementChildren): HTMLElement`
@@ -355,75 +369,51 @@ const MyComponent = component(() => {
 });
 ```
 
-## Element Properties
+## Types
 
 ### `ElementProps`
 
-Common properties that can be applied to any element:
+Common element properties that can be applied to any DOM element.
+
+**Properties:**
+
+- `className?: ClassValue` - CSS class names (string, array, object, or computed)
+- `style?: StyleValue` - CSS styles (string, object, or computed)
+- Event handlers: `onClick`, `onChange`, `onInput`, etc.
+
+### `ElementChildren`
+
+Type for valid DOM element children with automatic falsy value filtering.
+
+**Accepted Types:**
+
+- `string` - Text content
+- `number` - Numeric content (converted to string)
+- `HTMLElement` - DOM elements
+- `null` - Filtered out (not rendered)
+- `undefined` - Filtered out (not rendered)
+- `false` - Filtered out (not rendered)
+- `0` - Filtered out (not rendered)
+- `''` - Filtered out (not rendered)
+
+**Falsy Value Filtering:**
+Falsy values are automatically filtered out during rendering, enabling clean conditional rendering patterns:
 
 ```typescript
-type ElementProps = {
-  /** @deprecated Use classNames instead. className will be removed in a future version. */
-  className?: string;
-  /**
-   * Flexible CSS class names prop that accepts strings, arrays, objects, and more.
-   * This is the recommended way to handle CSS classes.
-   */
-  classNames?: string | string[] | { [key: string]: any } | (string | { [key: string]: any })[];
+const showExtra = signal(false);
+const showDetails = signal(true);
 
-  // Mouse events
-  onClick?: EventHandler;
-  onDoubleClick?: EventHandler;
-  onMouseDown?: EventHandler;
-  onMouseUp?: EventHandler;
-  onMouseMove?: EventHandler;
-  onMouseEnter?: EventHandler;
-  onMouseLeave?: EventHandler;
-  onMouseOver?: EventHandler;
-  onMouseOut?: EventHandler;
-  onWheel?: EventHandler<WheelEvent>;
-
-  // Keyboard events
-  onKeyDown?: EventHandler<KeyboardEvent>;
-  onKeyUp?: EventHandler<KeyboardEvent>;
-  onKeyPress?: EventHandler<KeyboardEvent>;
-
-  // Form events
-  onChange?: EventHandler;
-  onInput?: EventHandler;
-  onSubmit?: EventHandler;
-  onFocus?: EventHandler;
-  onBlur?: EventHandler;
-
-  // Drag and drop events
-  onDrag?: EventHandler;
-  onDragStart?: EventHandler;
-  onDragEnd?: EventHandler;
-  onDragEnter?: EventHandler;
-  onDragLeave?: EventHandler;
-  onDragOver?: EventHandler;
-  onDrop?: EventHandler;
-
-  // Touch events
-  onTouchStart?: EventHandler<TouchEvent>;
-  onTouchMove?: EventHandler<TouchEvent>;
-  onTouchEnd?: EventHandler<TouchEvent>;
-
-  // Other events
-  onScroll?: EventHandler;
-  onResize?: EventHandler;
-  onLoad?: EventHandler;
-  onError?: EventHandler;
-};
+// Only truthy values are rendered
+div(
+  'Hello',
+  showExtra.get() && 'Extra content', // Only renders when true
+  showDetails.get() ? 'Details' : null, // Only renders when true
+  'World',
+);
+// Result: "HelloWorld" (falsy values are filtered out)
 ```
 
-### `EventHandler<T = Event>`
-
-Type for event handlers:
-
-```typescript
-type EventHandler<T = Event> = (event: T) => void | boolean;
-```
+This behavior makes it easy to implement conditional rendering without complex ternary operators or manual filtering.
 
 ## Signal API
 

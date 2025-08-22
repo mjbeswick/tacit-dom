@@ -46,6 +46,14 @@ import { computed, effect, signal, type Computed, type Signal } from './signals'
 type EventHandler<T = Event> = (event: T) => void | boolean;
 
 /**
+ * Type for valid DOM element children.
+ *
+ * Falsy values (null, undefined, false, 0, '') are automatically filtered out
+ * and not rendered, allowing for conditional rendering patterns.
+ */
+export type ElementChildren = (string | number | HTMLElement | null | undefined | false | 0 | '')[];
+
+/**
  * Common element properties that can be applied to any DOM element.
  *
  * This interface provides a comprehensive set of event handlers and styling
@@ -145,7 +153,7 @@ export type ElementProps = {
 };
 
 // Helper function to handle common element setup
-function setupElement(element: HTMLElement, props: ElementProps, children: (string | number | HTMLElement)[]): void {
+function setupElement(element: HTMLElement, props: ElementProps, children: ElementChildren): void {
   // Handle event listeners
   if (props.onClick) element.addEventListener('click', props.onClick);
   if (props.onDoubleClick) element.addEventListener('dblclick', props.onDoubleClick);
@@ -251,28 +259,28 @@ function setupElement(element: HTMLElement, props: ElementProps, children: (stri
     }
   }
 
-  // Handle children
+  // Handle children - filter out falsy values
   children.forEach((child) => {
-    if (typeof child === 'string' || typeof child === 'number') {
-      element.appendChild(document.createTextNode(String(child)));
-    } else {
-      element.appendChild(child);
+    if (child !== null && child !== undefined && child !== false && child !== 0 && child !== '') {
+      if (typeof child === 'string' || typeof child === 'number') {
+        element.appendChild(document.createTextNode(String(child)));
+      } else {
+        element.appendChild(child);
+      }
     }
   });
 }
 
 // Helper function to handle text-only elements
-function setupTextElement(
-  element: HTMLElement,
-  textContent: string | number,
-  children: (string | number | HTMLElement)[],
-): void {
+function setupTextElement(element: HTMLElement, textContent: string | number, children: ElementChildren): void {
   element.textContent = String(textContent);
   children.forEach((child) => {
-    if (typeof child === 'string' || typeof child === 'number') {
-      element.appendChild(document.createTextNode(String(child)));
-    } else {
-      element.appendChild(child);
+    if (child !== null && child !== undefined && child !== false && child !== 0 && child !== '') {
+      if (typeof child === 'string' || typeof child === 'number') {
+        element.appendChild(document.createTextNode(String(child)));
+      } else {
+        element.appendChild(child);
+      }
     }
   });
 }
@@ -681,10 +689,7 @@ export function useSignal<T>(initialValue: T): Signal<T> {
  * );
  * ```
  */
-export function div(
-  props?: string | number | ElementProps,
-  ...children: (string | number | HTMLElement)[]
-): HTMLElement {
+export function div(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('div');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -760,7 +765,7 @@ export function div(
  */
 export function button(
   props?: string | number | (ElementProps & { disabled?: boolean }),
-  ...children: (string | number | HTMLElement)[]
+  ...children: ElementChildren
 ): HTMLElement {
   const element = document.createElement('button');
 
@@ -830,10 +835,7 @@ export function button(
  * );
  * ```
  */
-export function h1(
-  props?: string | number | ElementProps,
-  ...children: (string | number | HTMLElement)[]
-): HTMLElement {
+export function h1(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('h1');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -873,10 +875,7 @@ export function h1(
  * );
  * ```
  */
-export function h2(
-  props?: string | number | ElementProps,
-  ...children: (string | number | HTMLElement)[]
-): HTMLElement {
+export function h2(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('h2');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -916,10 +915,7 @@ export function h2(
  * );
  * ```
  */
-export function h3(
-  props?: string | number | ElementProps,
-  ...children: (string | number | HTMLElement)[]
-): HTMLElement {
+export function h3(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('h3');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -983,7 +979,7 @@ export function input(
     min?: number;
     max?: number;
   },
-  ...children: (string | number | HTMLElement)[]
+  ...children: ElementChildren
 ): HTMLElement {
   const element = document.createElement('input');
 
@@ -1008,12 +1004,14 @@ export function input(
     // Set up common element properties
     setupElement(element, props, children);
   } else {
-    // If no props, just add the children
+    // If no props, just add the children - filter out falsy values
     children.forEach((child) => {
-      if (typeof child === 'string' || typeof child === 'number') {
-        element.appendChild(document.createTextNode(String(child)));
-      } else {
-        element.appendChild(child);
+      if (child !== null && child !== undefined && child !== false && child !== 0 && child !== '') {
+        if (typeof child === 'string' || typeof child === 'number') {
+          element.appendChild(document.createTextNode(String(child)));
+        } else {
+          element.appendChild(child);
+        }
       }
     });
   }
@@ -1048,7 +1046,7 @@ export function input(
  */
 export function label(
   props?: string | number | (ElementProps & { for?: string }),
-  ...children: (string | number | HTMLElement)[]
+  ...children: ElementChildren
 ): HTMLElement {
   const element = document.createElement('label');
 
@@ -1061,12 +1059,14 @@ export function label(
     // Set up common element properties
     setupElement(element, props, children);
   } else {
-    // If no props, just add the children
+    // If no props, just add the children - filter out falsy values
     children.forEach((child) => {
-      if (typeof child === 'string' || typeof child === 'number') {
-        element.appendChild(document.createTextNode(String(child)));
-      } else {
-        element.appendChild(child);
+      if (child !== null && child !== undefined && child !== false && child !== 0 && child !== '') {
+        if (typeof child === 'string' || typeof child === 'number') {
+          element.appendChild(document.createTextNode(String(child)));
+        } else {
+          element.appendChild(child);
+        }
       }
     });
   }
@@ -1141,7 +1141,7 @@ export function label(
  */
 export function a(
   props?: string | number | (ElementProps & { href?: string; target?: string }),
-  ...children: (string | number | HTMLElement)[]
+  ...children: ElementChildren
 ): HTMLElement {
   const element = document.createElement('a');
 
@@ -1207,7 +1207,7 @@ export function a(
  * );
  * ```
  */
-export function p(props?: string | number | ElementProps, ...children: (string | number | HTMLElement)[]): HTMLElement {
+export function p(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('p');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -1275,10 +1275,7 @@ export function p(props?: string | number | ElementProps, ...children: (string |
  * );
  * ```
  */
-export function span(
-  props?: string | number | ElementProps,
-  ...children: (string | number | HTMLElement)[]
-): HTMLElement {
+export function span(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('span');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -1640,7 +1637,7 @@ export function map<T>(
  * });
  * ```
  */
-export function fragment(...children: (string | number | HTMLElement)[]): DocumentFragment {
+export function fragment(...children: ElementChildren): DocumentFragment {
   const fragment = document.createDocumentFragment();
 
   children.forEach((child) => {
