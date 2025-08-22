@@ -1,6 +1,6 @@
 {
   "name": "tacit-dom",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "A React-like library with reactive signals and computed values for building dynamic web applications—without the need for JSX",
   "type": "module",
   "main": "dist/tacit-dom.cjs.js",
