@@ -192,7 +192,7 @@ describe('Signals', () => {
       expect(c2.get()).toBe(7); // c2 remains cached (expected behavior)
     });
 
-    test('computed value methods work correctly', () => {
+    test('computed value methods work correctly', async () => {
       const s = signal(5);
       const c = computed(() => s.get() * 2);
 
@@ -207,10 +207,13 @@ describe('Signals', () => {
       });
 
       s.set(10);
+      // Wait for microtask to complete since notifications are now async
+      await Promise.resolve();
       expect(lastValue).toBe(1); // We were notified
 
       unsubscribe();
       s.set(15);
+      await Promise.resolve();
       expect(lastValue).toBe(1); // Should not update after unsubscribe
     });
   });

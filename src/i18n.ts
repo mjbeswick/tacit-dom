@@ -1,12 +1,9 @@
-import { computed, Computed, signal, Signal } from './signals';
+import { computed, signal, type ReadonlySignal, type Signal } from './signals';
 
 // Types for i18n
 type Locale = string;
 type TranslationKey = string;
-type TranslationValue =
-  | string
-  | ((params: Record<string, any>) => string)
-  | Record<string, any>;
+type TranslationValue = string | ((params: Record<string, any>) => string) | Record<string, any>;
 type Translations = Record<string, any>;
 type LocaleData = Record<Locale, Translations>;
 
@@ -42,9 +39,7 @@ class I18n {
     if (this.translations[locale]) {
       this.currentLocale.set(locale);
     } else if (this.fallbackLocale.get()) {
-      console.warn(
-        `Locale '${locale}' not found, falling back to '${this.fallbackLocale.get()}'`,
-      );
+      console.warn(`Locale '${locale}' not found, falling back to '${this.fallbackLocale.get()}'`);
       this.currentLocale.set(this.fallbackLocale.get()!);
     } else {
       console.warn(`Locale '${locale}' not found and no fallback specified`);
@@ -52,25 +47,15 @@ class I18n {
   }
 
   // Get translation as a computed value
-  t(
-    key: TranslationKey,
-    defaultMessage?: string,
-    params?: Record<string, any>,
-  ): Computed<string> {
+  t(key: TranslationKey, defaultMessage?: string, params?: Record<string, any>): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const fallback = this.fallbackLocale.get();
 
-      let translation = this.getNestedTranslation(
-        this.translations[locale],
-        key,
-      );
+      let translation = this.getNestedTranslation(this.translations[locale], key);
 
       if (!translation && fallback && locale !== fallback) {
-        translation = this.getNestedTranslation(
-          this.translations[fallback],
-          key,
-        );
+        translation = this.getNestedTranslation(this.translations[fallback], key);
       }
 
       if (!translation) {
@@ -124,12 +109,7 @@ class I18n {
   }
 
   // Pluralization support
-  n(
-    key: TranslationKey,
-    count: number,
-    defaultMessage?: string,
-    params?: Record<string, any>,
-  ): Computed<string> {
+  n(key: TranslationKey, count: number, defaultMessage?: string, params?: Record<string, any>): ReadonlySignal<string> {
     return computed(() => {
       const countKey = count === 1 ? 'one' : 'other';
       const pluralKey = `${key}.${countKey}`;
@@ -138,16 +118,10 @@ class I18n {
       const locale = this.currentLocale.get();
       const fallback = this.fallbackLocale.get();
 
-      let translation = this.getNestedTranslation(
-        this.translations[locale],
-        pluralKey,
-      );
+      let translation = this.getNestedTranslation(this.translations[locale], pluralKey);
 
       if (!translation && fallback && locale !== fallback) {
-        translation = this.getNestedTranslation(
-          this.translations[fallback],
-          pluralKey,
-        );
+        translation = this.getNestedTranslation(this.translations[fallback], pluralKey);
       }
 
       if (translation) {
@@ -184,10 +158,7 @@ class I18n {
   }
 
   // Date formatting
-  formatDate(
-    date: Date,
-    options?: Intl.DateTimeFormatOptions,
-  ): Computed<string> {
+  formatDate(date: Date, options?: Intl.DateTimeFormatOptions): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const formatOptions = options || this.config.dateTimeFormats?.[locale];
@@ -197,10 +168,7 @@ class I18n {
   }
 
   // Number formatting
-  formatNumber(
-    value: number,
-    options?: Intl.NumberFormatOptions,
-  ): Computed<string> {
+  formatNumber(value: number, options?: Intl.NumberFormatOptions): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const formatOptions = options || this.config.numberFormats?.[locale];

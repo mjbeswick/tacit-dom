@@ -279,17 +279,11 @@ class ReactiveEffect implements EffectContext {
       // Handle async effects
       if (result instanceof Promise) {
         result.catch((error) => {
-          console.error(
-            `Effect ${this.options?.name || 'anonymous'} failed:`,
-            error,
-          );
+          console.error(`Effect ${this.options?.name || 'anonymous'} failed:`, error);
         });
       }
     } catch (error) {
-      console.error(
-        `Effect ${this.options?.name || 'anonymous'} failed:`,
-        error,
-      );
+      console.error(`Effect ${this.options?.name || 'anonymous'} failed:`, error);
     } finally {
       activeEffect = null;
     }
@@ -428,9 +422,7 @@ function flushUpdates(): void {
               );
             }
           } else {
-            throw new Error(
-              `⚠️ Infinite loop detected in effect "${meta.options.name}" after ${count} runs.`,
-            );
+            throw new Error(`⚠️ Infinite loop detected in effect "${meta.options.name}" after ${count} runs.`);
           }
           continue;
         }
@@ -465,9 +457,7 @@ function flushUpdates(): void {
   }
 
   if (iterations >= maxIterations) {
-    throw new Error(
-      'Maximum update iterations reached - possible infinite loop',
-    );
+    throw new Error('Maximum update iterations reached - possible infinite loop');
   }
 }
 ```
@@ -669,6 +659,75 @@ function cleanupPreservedSignals(componentInstance: object): void {
 3. **Auto-disable Option**: Effects can automatically disable themselves
 4. **Global Iteration Limit**: Maximum 100 update iterations per flush cycle
 5. **Debug Mode**: Console warnings for suspicious patterns
+6. **Computed Value Protection**: Prevents infinite loops in computed value subscriptions
+
+### Computed Value Infinite Loop Prevention
+
+Computed values implement special protection against infinite loops that can occur when subscribers call methods on the computed value during notification:
+
+```typescript
+export function computed<T>(computeFn: () => T): ReadonlySignal<T> {
+  let cachedValue: T;
+  let dirty = true;
+  let isComputing = false;
+  const subscribers = new Set<() => void>();
+  const dependencies = new Set<() => void>();
+
+  const get = (): T => {
+    if (dirty && !isComputing) {
+      isComputing = true;
+
+      // Clear previous dependencies
+      dependencies.clear();
+
+      // Track dependencies by running the compute function
+      const prevEffect = activeEffect;
+      activeEffect = () => {
+        // Mark as dirty when dependencies change
+        dirty = true;
+        // Schedule notification of subscribers (don't notify immediately)
+        if (subscribers.size > 0) {
+          // Use a microtask to avoid recursive calls
+          Promise.resolve().then(() => {
+            if (dirty) {
+              subscribers.forEach((sub) => {
+                if (sub !== activeEffect) {
+                  sub();
+                }
+              });
+            }
+          });
+        }
+      };
+
+      try {
+        cachedValue = computeFn();
+      } finally {
+        activeEffect = prevEffect;
+        isComputing = false;
+      }
+
+      dirty = false;
+    }
+
+    return cachedValue;
+  };
+}
+```
+
+**Key Protection Mechanisms:**
+
+- **`isComputing` Flag**: Prevents the computed value from recomputing while already in the middle of computation
+- **Async Notifications**: Subscriber notifications are scheduled using microtasks (`Promise.resolve().then()`) to break recursive call chains
+- **Dirty State Management**: The computed value is marked as dirty when dependencies change, but notifications are deferred
+- **Safe Value Access**: The `.value` property returns the cached value without triggering any side effects
+
+**Why This Prevents Infinite Loops:**
+
+1. **Breaking Recursive Chains**: When a signal changes, it marks computed values as dirty
+2. **Deferred Notifications**: Instead of notifying subscribers immediately, notifications are scheduled for the next microtask
+3. **Safe Subscriber Access**: Subscribers can safely call `.value` or `.get()` without triggering recursive notifications
+4. **Clean State Management**: The computed value maintains a clean state during the notification process
 
 ### Configuration Options
 

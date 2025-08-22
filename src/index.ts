@@ -9,7 +9,7 @@
  */
 
 // Export the new signals system
-export { batch, computed, effect, signal, type Computed, type Signal } from './signals';
+export { batch, computed, effect, signal, type ReadonlySignal, type Signal } from './signals';
 
 // Export the new DOM system
 export {

@@ -35,7 +35,7 @@ Tacit-DOM is a React-like library with reactive signals and computed values for 
 function signal<T>(initialValue: T, key?: string): Signal<T>;
 
 // Computed values
-function computed<T>(computeFn: () => T): Computed<T>;
+function ReadonlySignal<T>(computeFn: () => T): ReadonlySignal<T>;
 
 // DOM element creators
 function div(props?: DivProps, ...children: ElementChildren): HTMLElement;
@@ -55,7 +55,7 @@ type EventHandler<T = Event> = (event: T) => void | boolean;
 
 ### Computed Values
 
-- Create computed values with `computed<T>(fn: () => T)`
+- Create computed values with `ReadonlySignal<T>(fn: () => T)`
 - Computed values automatically track dependencies
 - Use for derived state and calculations
 

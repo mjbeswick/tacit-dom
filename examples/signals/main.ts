@@ -1,9 +1,8 @@
-import { button, component, computed, div, render } from '../../src/index';
-import { globalCounter, globalEven, incrementGlobal } from './store';
+import { button, component, div, render } from '../../src/index';
+import { globalCounterComputed, globalEven, incrementGlobal } from './store';
 import styles from './styles.module.css';
 
-// this is a proxy to the global counter
-const globalCounterComputed = computed(() => globalCounter.get());
+//  is a proxy to the global counter
 
 // Main app component
 const app = component((_props, { signal, computed, effect }) => {
@@ -41,7 +40,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Global Counter'),
-            div({ className: [styles.counterValue, styles.globalValue] }, globalCounter.get()),
+            div({ className: [styles.counterValue, styles.globalValue] }, globalCounterComputed),
             button(
               {
                 onClick: incrementGlobal,
@@ -57,7 +56,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Local Counter'),
-            div({ className: [styles.counterValue, styles.localValue] }, localCounter.get()),
+            div({ className: [styles.counterValue, styles.localValue] }, localCounter),
             button(
               {
                 onClick: incrementLocal,
@@ -73,7 +72,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Doubled Counter'),
-            div({ className: [styles.counterValue, styles.localValue] }, doubledCounter.get()),
+            div({ className: [styles.counterValue, styles.localValue] }, doubledCounter),
           ),
         ),
         // Global even counter display
@@ -82,7 +81,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Global Even Counter'),
-            div({ className: [styles.counterValue, styles.globalValue] }, globalEven.get()),
+            div({ className: [styles.counterValue, styles.globalValue] }, globalEven),
           ),
         ),
         // Info section

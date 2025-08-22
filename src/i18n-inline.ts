@@ -1,4 +1,4 @@
-import { computed, Computed, signal, Signal } from './signals';
+import { computed, signal, type ReadonlySignal, type Signal } from './signals';
 
 // Types for inline i18n
 type Locale = string;
@@ -39,9 +39,7 @@ class InlineI18n {
     if (this.translations[locale]) {
       this.currentLocale.set(locale);
     } else if (this.fallbackLocale.get()) {
-      console.warn(
-        `Locale '${locale}' not found, falling back to '${this.fallbackLocale.get()}'`,
-      );
+      console.warn(`Locale '${locale}' not found, falling back to '${this.fallbackLocale.get()}'`);
       this.currentLocale.set(this.fallbackLocale.get()!);
     } else {
       console.warn(`Locale '${locale}' not found and no fallback specified`);
@@ -49,11 +47,7 @@ class InlineI18n {
   }
 
   // Main translation function - returns a computed value
-  t(
-    key: TranslationKey,
-    defaultMessage: string,
-    tokens?: TranslationTokens,
-  ): Computed<string> {
+  t(key: TranslationKey, defaultMessage: string, tokens?: TranslationTokens): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const fallback = this.fallbackLocale.get();
@@ -79,12 +73,7 @@ class InlineI18n {
   }
 
   // Pluralization support
-  n(
-    key: TranslationKey,
-    count: number,
-    defaultMessage: string,
-    tokens?: TranslationTokens,
-  ): Computed<string> {
+  n(key: TranslationKey, count: number, defaultMessage: string, tokens?: TranslationTokens): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const fallback = this.fallbackLocale.get();
@@ -112,10 +101,7 @@ class InlineI18n {
   }
 
   // Date formatting
-  formatDate(
-    date: Date,
-    options?: Intl.DateTimeFormatOptions,
-  ): Computed<string> {
+  formatDate(date: Date, options?: Intl.DateTimeFormatOptions): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const formatOptions = options || this.config.dateTimeFormats?.[locale];
@@ -125,10 +111,7 @@ class InlineI18n {
   }
 
   // Number formatting
-  formatNumber(
-    value: number,
-    options?: Intl.NumberFormatOptions,
-  ): Computed<string> {
+  formatNumber(value: number, options?: Intl.NumberFormatOptions): ReadonlySignal<string> {
     return computed(() => {
       const locale = this.currentLocale.get();
       const formatOptions = options || this.config.numberFormats?.[locale];
@@ -164,10 +147,7 @@ class InlineI18n {
 }
 
 // Factory function for inline i18n
-function createInlineI18n(
-  translations: LocaleData,
-  config: I18nConfig,
-): InlineI18n {
+function createInlineI18n(translations: LocaleData, config: I18nConfig): InlineI18n {
   return new InlineI18n(translations, config);
 }
 
@@ -180,9 +160,7 @@ function setGlobalInlineI18n(i18n: InlineI18n): void {
 
 function getGlobalInlineI18n(): InlineI18n {
   if (!globalInlineI18n) {
-    throw new Error(
-      'Global inline i18n not initialized. Call setGlobalInlineI18n() first.',
-    );
+    throw new Error('Global inline i18n not initialized. Call setGlobalInlineI18n() first.');
   }
   return globalInlineI18n;
 }

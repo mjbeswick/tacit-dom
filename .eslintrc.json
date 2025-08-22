@@ -11,13 +11,14 @@
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "tacit-dom"],
   "rules": {
     "no-unused-vars": ["warn"],
     "no-undef": "error",
     "no-debugger": "error",
     "prefer-const": "error",
-    "no-var": "error"
+    "no-var": "error",
+    "tacit-dom/prefer-value-in-subscribe": "warn"
   },
   "overrides": [
     {

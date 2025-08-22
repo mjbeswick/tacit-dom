@@ -9,7 +9,7 @@
  */
 
 import { className } from './classes';
-import { computed, effect, signal, type Computed, type Signal } from './signals';
+import { computed, effect, signal, type ReadonlySignal, type Signal } from './signals';
 
 /**
  * Generic event handler type for all DOM events.
@@ -110,9 +110,11 @@ export type ElementProps = {
    */
   style?:
     | string
-    | { [key: string]: string | number | Signal<string | number> | Computed<string | number> }
-    | Signal<string | { [key: string]: string | number | Signal<string | number> | Computed<string | number> }>
-    | Computed<string | { [key: string]: string | number | Signal<string | number> | Computed<string | number> }>;
+    | { [key: string]: string | number | Signal<string | number> | ReadonlySignal<string | number> }
+    | Signal<string | { [key: string]: string | number | Signal<string | number> | ReadonlySignal<string | number> }>
+    | ReadonlySignal<
+        string | { [key: string]: string | number | Signal<string | number> | ReadonlySignal<string | number> }
+      >;
   // Mouse events
   onClick?: EventHandler;
   onDoubleClick?: EventHandler;
@@ -202,7 +204,7 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
     } else if (typeof props.style === 'object' && !('get' in props.style)) {
       // Handle static style object (may contain signals as values)
       const applyStyles = (styleObj: {
-        [key: string]: string | number | Signal<string | number> | Computed<string | number>;
+        [key: string]: string | number | Signal<string | number> | ReadonlySignal<string | number>;
       }) => {
         Object.entries(styleObj).forEach(([property, value]) => {
           if (typeof value === 'string' || typeof value === 'number') {
@@ -238,7 +240,7 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
         const styleValue = (
           props.style as
             | Signal<string | { [key: string]: string | number }>
-            | Computed<string | { [key: string]: string | number }>
+            | ReadonlySignal<string | { [key: string]: string | number }>
         ).get();
         if (typeof styleValue === 'string') {
           element.style.cssText = styleValue;
@@ -262,7 +264,7 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
       (
         props.style as
           | Signal<string | { [key: string]: string | number }>
-          | Computed<string | { [key: string]: string | number }>
+          | ReadonlySignal<string | { [key: string]: string | number }>
       ).subscribe(updateStyle);
     }
   }
@@ -284,7 +286,7 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
         (child as any).constructor === Object // Only plain objects, not built-in types like Number
       ) {
         // Handle reactive children (signals or computed values)
-        const reactiveChild = child as Signal<any> | Computed<any>;
+        const reactiveChild = child as any; // Type assertion to avoid value property requirement
         const createReactiveTextNode = () => {
           const value = reactiveChild.get();
           const textNode = document.createTextNode(String(value));
@@ -323,7 +325,7 @@ function setupTextElement(element: HTMLElement, textContent: string | number, ch
         (child as any).constructor === Object // Only plain objects, not built-in types like Number
       ) {
         // Handle reactive children (signals or computed values)
-        const reactiveChild = child as Signal<any> | Computed<any>;
+        const reactiveChild = child as any; // Type assertion to avoid value property requirement
         const createReactiveTextNode = () => {
           const value = reactiveChild.get();
           const textNode = document.createTextNode(String(value));
@@ -453,7 +455,7 @@ export type ComponentUtils = {
   /** Creates a component-scoped signal */
   signal: <T>(initialValue: T) => Signal<T>;
   /** Creates a component-scoped computed value */
-  computed: <T>(computeFn: () => T) => Computed<T>;
+  computed: <T>(computeFn: () => T) => ReadonlySignal<T>;
   /** Creates a component-scoped effect */
   effect: (fn: () => void | (() => void), options?: { allowRecursion?: boolean }) => void;
 };
@@ -600,7 +602,7 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
 
           return currentComponentContext.signals.get(signalKey) as Signal<T>;
         },
-        computed: <T>(computeFn: () => T): Computed<T> => {
+        computed: <T>(computeFn: () => T): ReadonlySignal<T> => {
           if (!currentComponentContext) {
             throw new Error('computed can only be called inside a component');
           }
@@ -616,7 +618,7 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
             currentComponentContext.signals.set(computedKey, computedValue as any);
           }
 
-          return currentComponentContext.signals.get(computedKey) as Computed<T>;
+          return currentComponentContext.signals.get(computedKey) as ReadonlySignal<T>;
         },
         effect: (fn: () => void | (() => void)): void => {
           if (!currentComponentContext) {
@@ -655,6 +657,9 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
         // Reset the state index for this render cycle
         context.stateIndex = 0;
 
+        // The render function will be called within this effect context,
+        // so any signal accesses during rendering will automatically
+        // be tracked as dependencies of this effect
         const newElement = render();
 
         // Update the DOM
@@ -2576,7 +2581,7 @@ export function cleanup(element: HTMLElement): void {
  * });
  * ```
  */
-export function when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => HTMLElement): HTMLElement {
+export function when<T>(condition: Signal<T> | ReadonlySignal<T> | T, renderFn: () => HTMLElement): HTMLElement {
   // Create a container element that will hold the conditional content
   const container = document.createElement('div');
 
@@ -2602,7 +2607,7 @@ export function when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => 
 
     if (typeof condition === 'function' && 'get' in condition && 'subscribe' in condition) {
       // It's a signal or computed value
-      const signalOrComputed = condition as Signal<T> | Computed<T>;
+      const signalOrComputed = condition as any; // Type assertion to avoid value property requirement
       currentValue = signalOrComputed.get();
       shouldRender = isTruthy(currentValue);
     } else {
@@ -2627,7 +2632,7 @@ export function when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => 
     // It's a signal or computed value, so we need to track dependencies
     effect(() => {
       // Access the signal value to track dependencies
-      const signalOrComputed = condition as Signal<T> | Computed<T>;
+      const signalOrComputed = condition as any; // Type assertion to avoid value property requirement
       signalOrComputed.get();
       updateContent();
     });
@@ -2672,7 +2677,7 @@ export function when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => 
  * ```
  */
 export function map<T>(
-  arraySignal: Signal<T[]> | Computed<T[]> | T[],
+  arraySignal: Signal<T[]> | ReadonlySignal<T[]> | T[],
   renderFn: (item: T, index: number) => HTMLElement,
   selector?: (item: T, index: number) => boolean,
 ): HTMLElement {
@@ -2689,7 +2694,7 @@ export function map<T>(
 
     if (typeof arraySignal === 'function' && 'get' in arraySignal && 'subscribe' in arraySignal) {
       // It's a signal or computed value
-      const signalOrComputed = arraySignal as Signal<T[]> | Computed<T[]>;
+      const signalOrComputed = arraySignal as any; // Type assertion to avoid value property requirement
       currentArray = signalOrComputed.get();
     } else {
       // It's a static array
@@ -2721,7 +2726,7 @@ export function map<T>(
     // It's a signal or computed value, so we need to track changes
     effect(() => {
       // Access the signal value to track dependencies
-      const signalOrComputed = arraySignal as Signal<T[]> | Computed<T[]>;
+      const signalOrComputed = arraySignal as Signal<T[]> | ReadonlySignal<T[]>;
       signalOrComputed.get();
       updateContent();
     });
