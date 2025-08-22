@@ -321,6 +321,118 @@ const UserProfile = component(() => {
 });
 ```
 
+### Component with Conditional Rendering using `when`
+
+```typescript
+const ConditionalCounter = component(() => {
+  const count = signal(0);
+  const isPositive = computed(() => count.get() > 0);
+  const isEven = computed(() => count.get() % 2 === 0);
+
+  return div(
+    { className: 'conditional-counter' },
+    h1('Conditional Counter'),
+    p(`Count: ${count.get()}`),
+
+    // Use when() for conditional rendering
+    when(isPositive, () => div({ className: 'positive-message' }, '✅ Count is positive!')),
+
+    when(isEven, () => div({ className: 'even-message' }, '🔢 Count is even!')),
+
+    when(
+      computed(() => count.get() === 0),
+      () => div({ className: 'zero-message' }, '🎯 Count is zero!'),
+    ),
+
+    button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
+    button({ onclick: () => count.set(count.get() - 1) }, 'Decrement'),
+  );
+});
+```
+
+### Component using `fragment` for Multiple Elements
+
+```typescript
+const MultiElementComponent = component(() => {
+  const showHeader = signal(true);
+  const showContent = signal(true);
+  const showFooter = signal(true);
+
+  // Use fragment to return multiple elements without a wrapper div
+  return fragment(
+    // Conditional header
+    when(showHeader, () => header({ className: 'app-header' }, h1('My App'))),
+
+    // Conditional content
+    when(showContent, () =>
+      main({ className: 'app-content' }, p('This is the main content area'), p('You can have multiple elements here')),
+    ),
+
+    // Conditional footer
+    when(showFooter, () => footer({ className: 'app-footer' }, p('© 2024 My App'))),
+
+    // Always visible controls
+    div(
+      { className: 'controls' },
+      button({ onclick: () => showHeader.set(!showHeader.get()) }, 'Toggle Header'),
+      button({ onclick: () => showContent.set(!showContent.get()) }, 'Toggle Content'),
+      button({ onclick: () => showFooter.set(!showFooter.get()) }, 'Toggle Footer'),
+    ),
+  );
+});
+```
+
+### Complex Component with `when` and `fragment`
+
+```typescript
+const Dashboard = component(() => {
+  const user = signal({ name: 'Alice', role: 'admin', isOnline: true });
+  const notifications = signal([]);
+  const isLoading = signal(false);
+
+  const isAdmin = computed(() => user.get().role === 'admin');
+  const hasNotifications = computed(() => notifications.get().length > 0);
+
+  return fragment(
+    // Header section
+    header(
+      { className: 'dashboard-header' },
+      h1(`Welcome, ${user.get().name}`),
+      when(isOnline, () => span({ className: 'status online' }, '🟢 Online')),
+      when(!isOnline, () => span({ className: 'status offline' }, '🔴 Offline')),
+    ),
+
+    // Main content
+    main(
+      { className: 'dashboard-content' },
+      // Admin panel - only visible to admins
+      when(isAdmin, () =>
+        section(
+          { className: 'admin-panel' },
+          h2('Admin Panel'),
+          button({ onclick: () => console.log('Admin action') }, 'Admin Action'),
+        ),
+      ),
+
+      // Notifications - only visible when there are notifications
+      when(hasNotifications, () =>
+        section(
+          { className: 'notifications' },
+          h2('Notifications'),
+          ...notifications.get().map((notification) => div({ className: 'notification' }, notification.message)),
+        ),
+      ),
+
+      // Loading state
+      when(isLoading, () => div({ className: 'loading' }, 'Loading...')),
+    ),
+
+    // Footer
+    footer({ className: 'dashboard-footer' }, p('Dashboard v1.0')),
+  );
+});
+```
+
 ```typescript
 import { signal, computed, component, div, h1, p, button, render } from 'tacit-dom';
 
@@ -382,8 +494,9 @@ Tacit-DOM provides powerful utilities for conditional rendering and list managem
 ### Conditional Rendering with `when`
 
 ```typescript
-import { when, signal, div, h1 } from 'tacit-dom';
+import { when, signal, div, h1, computed, component } from 'tacit-dom';
 
+// Basic conditional rendering
 const isVisible = signal(true);
 const element = when(isVisible, () => div('This is visible'));
 
@@ -391,6 +504,30 @@ const element = when(isVisible, () => div('This is visible'));
 const count = signal(0);
 const isPositive = computed(() => count.get() > 0);
 const element = when(isPositive, () => div(`Count is positive: ${count.get()}`));
+
+// Inside components - perfect for conditional UI elements
+const StatusIndicator = component(() => {
+  const status = signal('loading');
+
+  return div(
+    when(status === 'loading', () => div('⏳ Loading...')),
+    when(status === 'success', () => div('✅ Success!')),
+    when(status === 'error', () => div('❌ Error occurred')),
+  );
+});
+
+// Complex conditions with computed values
+const UserCard = component(() => {
+  const user = signal({ name: 'John', age: 25, isVerified: true });
+  const isAdult = computed(() => user.get().age >= 18);
+  const showVerification = computed(() => user.get().isVerified && isAdult.get());
+
+  return div(
+    h1(user.get().name),
+    when(isAdult, () => p('Adult user')),
+    when(showVerification, () => div({ className: 'verified-badge' }, '✓ Verified')),
+  );
+});
 ```
 
 ### List Rendering with `map`
@@ -414,7 +551,7 @@ const evenNumbers = map(
 ### Multiple Elements with `fragment`
 
 ```typescript
-import { fragment, div, h1, p } from 'tacit-dom';
+import { fragment, div, h1, p, signal, when, component } from 'tacit-dom';
 
 // Return multiple elements without a wrapper
 const MyComponent = component(() => {
@@ -425,6 +562,27 @@ const MyComponent = component(() => {
     when(showHeader, () => h1('Header')),
     div('Main content'),
     when(showFooter, () => div('Footer')),
+  );
+});
+
+// Fragment is perfect for returning multiple top-level elements
+const Navigation = component(() => {
+  const isLoggedIn = signal(false);
+
+  return fragment(
+    nav(
+      { className: 'main-nav' },
+      a({ href: '/' }, 'Home'),
+      a({ href: '/about' }, 'About'),
+      when(isLoggedIn, () => a({ href: '/profile' }, 'Profile')),
+      when(
+        isLoggedIn,
+        () => a({ href: '/login' }, 'Login'),
+        (x) => !x,
+      ),
+    ),
+    // No wrapper div needed - elements are siblings
+    when(isLoggedIn, () => div({ className: 'user-info' }, 'Welcome back!')),
   );
 });
 ```
@@ -456,10 +614,10 @@ Tacit-DOM uses a clean, intuitive naming convention:
 
 - **`component<P>`** - Function to create reactive components (alias for `createReactiveComponent`)
 - **`Component<P>`** - Type for reactive components with props
-- **`errorBoundary<P>`** - Function to wrap components with error handling capabilities
+- **`errorBoundary<P>`** - Function to wrap components with error handling capabilities ⚠️ **Experimental**
 
 ```typescript
-import { component, Component } from 'tacit-dom';
+import { component, Component, div } from 'tacit-dom';
 
 // Component without props
 const SimpleCounter = component(() => {
@@ -467,7 +625,7 @@ const SimpleCounter = component(() => {
 });
 
 // Component with typed props
-const Greeting: Component<{ name: string }> = component((props) => {
+const Greeting = component<{ name: string }>((props) => {
   return div(`Hello, ${props?.name || 'World'}!`);
 });
 
@@ -475,7 +633,7 @@ const Greeting: Component<{ name: string }> = component((props) => {
 SimpleCounter();
 Greeting({ name: 'Alice' });
 
-// Error boundary example
+// Error boundary example (⚠️ Experimental)
 const SafeGreeting = errorBoundary(Greeting, {
   fallback: (error) => div('Error loading greeting'),
   onError: (error) => console.error('Greeting error:', error),
@@ -611,7 +769,9 @@ const MyComponent = component(() => {
 });
 ```
 
-### Error Boundaries
+### Error Boundaries ⚠️ **Experimental**
+
+> **Note**: Error boundaries are currently experimental and may have breaking changes in future releases. The API is subject to change based on community feedback and usage patterns.
 
 #### `errorBoundary<P>(Component: Component<P>, options: { fallback: (error: Error, errorInfo?: any) => HTMLElement; onError?: (error: Error, errorInfo?: any) => void }): Component<P>`
 
@@ -637,7 +797,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 - **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
 - **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
 - **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
-- **🚨 Error Boundary** (`/error-boundary`): Graceful error handling and recovery for components with error boundaries
+- **🚨 Error Boundary** (`/error-boundary`): Graceful error handling and recovery for components with error boundaries ⚠️ **Experimental**
 
 ### Example Features
 
