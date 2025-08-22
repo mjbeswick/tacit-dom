@@ -152,7 +152,7 @@ export function signal<T>(initialValue: T): Signal<T> {
         flushUpdates();
       }
 
-      const result = fn(value);
+      const result = fn(value); // value is the previous value
       if (result instanceof Promise) {
         const newValue = await result;
         // Update the signal with the resolved value

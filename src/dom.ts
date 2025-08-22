@@ -1572,7 +1572,7 @@ export function map<T>(
         const element = renderFn(item, index);
         container.appendChild(element);
       } catch (error) {
-        console.error(`Error rendering item at index ${index}:`, error);
+        console.error(`Error rendering item at index ${index}:`, error, item);
       }
     });
   };
@@ -1713,7 +1713,8 @@ export function errorBoundary<P = {}>(
     } catch (error) {
       // Log the error if onError handler is provided
       if (options.onError) {
-        options.onError(error as Error, { componentStack: Component.name || 'Unknown' });
+        const errorInfo = { componentStack: Component.name || 'Unknown' };
+        options.onError(error as Error, errorInfo);
       }
 
       // Render the fallback UI
