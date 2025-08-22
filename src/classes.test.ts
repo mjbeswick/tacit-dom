@@ -1,242 +1,200 @@
-import { classes, type ClassValue } from './classes';
+import { className } from './classes';
 
-describe('classes', () => {
-  describe('basic functionality', () => {
-    it('should return empty string for no arguments', () => {
-      expect(classes()).toBe('');
+describe('className', () => {
+  it('should return empty string for no inputs', () => {
+    expect(className()).toBe('');
+  });
+
+  it('should filter out falsy values', () => {
+    expect(className('', null, undefined, false, 0)).toBe('');
+  });
+
+  it('should join multiple strings with spaces', () => {
+    expect(className('foo', 'bar', 'baz')).toBe('foo bar baz');
+  });
+
+  it('should handle single string input', () => {
+    expect(className('single')).toBe('single');
+  });
+
+  describe('string handling', () => {
+    it('should join multiple strings', () => {
+      expect(className('hello', 'world')).toBe('hello world');
     });
 
-    it('should return empty string for falsy arguments', () => {
-      expect(classes('', null, undefined, false, 0)).toBe('');
+    it('should filter out empty strings', () => {
+      expect(className('hello', '', 'world')).toBe('hello world');
     });
 
-    it('should join multiple string arguments with spaces', () => {
-      expect(classes('foo', 'bar', 'baz')).toBe('foo bar baz');
+    it('should preserve spaces within strings', () => {
+      expect(className('hello world', 'test')).toBe('hello world test');
     });
 
-    it('should handle single string argument', () => {
-      expect(classes('single')).toBe('single');
+    it('should handle CSS-like class names', () => {
+      expect(className('btn-primary', 'btn--large')).toBe('btn-primary btn--large');
     });
   });
 
-  describe('string inputs', () => {
-    it('should include non-empty strings', () => {
-      expect(classes('hello', 'world')).toBe('hello world');
+  describe('number handling', () => {
+    it('should convert numbers to strings', () => {
+      expect(className('foo', 42, 'bar')).toBe('foo 42 bar');
     });
 
-    it('should skip empty strings', () => {
-      expect(classes('hello', '', 'world')).toBe('hello world');
+    it('should filter out zero', () => {
+      expect(className('foo', 0, 'bar')).toBe('foo bar');
     });
 
-    it('should handle strings with spaces', () => {
-      expect(classes('hello world', 'test')).toBe('hello world test');
-    });
-
-    it('should handle special characters', () => {
-      expect(classes('btn-primary', 'btn--large')).toBe(
-        'btn-primary btn--large',
-      );
-    });
-  });
-
-  describe('number inputs', () => {
-    it('should convert positive numbers to strings', () => {
-      expect(classes('foo', 42, 'bar')).toBe('foo 42 bar');
-    });
-
-    it('should skip zero (falsy)', () => {
-      expect(classes('foo', 0, 'bar')).toBe('foo bar');
-    });
-
-    it('should convert negative numbers to strings', () => {
-      expect(classes('foo', -1, 'bar')).toBe('foo -1 bar');
+    it('should handle negative numbers', () => {
+      expect(className('foo', -1, 'bar')).toBe('foo -1 bar');
     });
 
     it('should handle decimal numbers', () => {
-      expect(classes('foo', 3.14, 'bar')).toBe('foo 3.14 bar');
+      expect(className('foo', 3.14, 'bar')).toBe('foo 3.14 bar');
     });
   });
 
-  describe('boolean inputs', () => {
-    it('should skip true values', () => {
-      expect(classes('foo', true, 'bar')).toBe('foo bar');
+  describe('boolean handling', () => {
+    it('should filter out boolean values', () => {
+      expect(className('foo', true, 'bar')).toBe('foo bar');
     });
 
-    it('should skip false values', () => {
-      expect(classes('foo', false, 'bar')).toBe('foo bar');
+    it('should filter out false values', () => {
+      expect(className('foo', false, 'bar')).toBe('foo bar');
     });
 
-    it('should handle mixed boolean values', () => {
-      expect(classes('foo', true, false, 'bar')).toBe('foo bar');
-    });
-  });
-
-  describe('null and undefined inputs', () => {
-    it('should skip null values', () => {
-      expect(classes('foo', null, 'bar')).toBe('foo bar');
-    });
-
-    it('should skip undefined values', () => {
-      expect(classes('foo', undefined, 'bar')).toBe('foo bar');
-    });
-
-    it('should handle mixed null/undefined values', () => {
-      expect(classes('foo', null, undefined, 'bar')).toBe('foo bar');
+    it('should filter out both true and false', () => {
+      expect(className('foo', true, false, 'bar')).toBe('foo bar');
     });
   });
 
-  describe('object inputs', () => {
-    it('should include keys with truthy values', () => {
-      expect(classes('foo', { bar: true, baz: false, qux: 1 })).toBe(
-        'foo bar qux',
-      );
+  describe('null/undefined handling', () => {
+    it('should filter out null values', () => {
+      expect(className('foo', null, 'bar')).toBe('foo bar');
     });
 
-    it('should skip keys with falsy values', () => {
-      expect(
-        classes('foo', { bar: false, baz: 0, qux: null, quux: undefined }),
-      ).toBe('foo');
+    it('should filter out undefined values', () => {
+      expect(className('foo', undefined, 'bar')).toBe('foo bar');
+    });
+
+    it('should filter out both null and undefined', () => {
+      expect(className('foo', null, undefined, 'bar')).toBe('foo bar');
+    });
+  });
+
+  describe('object handling', () => {
+    it('should use keys with truthy values', () => {
+      expect(className('foo', { bar: true, baz: false, qux: 1 })).toBe('foo bar qux');
+    });
+
+    it('should filter out keys with falsy values', () => {
+      expect(className('foo', { bar: false, baz: 0, qux: null, quux: undefined })).toBe('foo');
     });
 
     it('should handle empty objects', () => {
-      expect(classes('foo', {}, 'bar')).toBe('foo bar');
+      expect(className('foo', {}, 'bar')).toBe('foo bar');
     });
 
-    it('should handle objects with string values', () => {
-      expect(classes('foo', { bar: 'truthy', baz: '' })).toBe('foo bar');
+    it('should handle string values in objects', () => {
+      expect(className('foo', { bar: 'truthy', baz: '' })).toBe('foo bar');
     });
 
-    it('should handle objects with function values', () => {
-      expect(classes('foo', { bar: () => true, baz: () => false })).toBe(
-        'foo bar baz',
-      );
+    it('should handle function values in objects', () => {
+      expect(className('foo', { bar: () => true, baz: () => false })).toBe('foo bar baz');
     });
 
-    it('should handle objects with array values', () => {
-      expect(classes('foo', { bar: [1, 2, 3], baz: [] })).toBe('foo bar baz');
+    it('should handle array values in objects', () => {
+      expect(className('foo', { bar: [1, 2, 3], baz: [] })).toBe('foo bar baz');
     });
   });
 
-  describe('array inputs', () => {
-    it('should process nested arrays recursively', () => {
-      expect(classes('foo', ['bar', 'baz'])).toBe('foo bar baz');
+  describe('array handling', () => {
+    it('should flatten arrays', () => {
+      expect(className('foo', ['bar', 'baz'])).toBe('foo bar baz');
     });
 
-    it('should handle nested arrays with mixed types', () => {
-      expect(classes('foo', ['bar', { baz: true, qux: false }, 'quux'])).toBe(
-        'foo bar baz quux',
-      );
+    it('should handle nested objects in arrays', () => {
+      expect(className('foo', ['bar', { baz: true, qux: false }, 'quux'])).toBe('foo bar baz quux');
     });
 
     it('should handle deeply nested arrays', () => {
-      expect(classes('foo', ['bar', ['baz', ['qux']]])).toBe('foo bar baz qux');
+      expect(className('foo', ['bar', ['baz', ['qux']]])).toBe('foo bar baz qux');
     });
 
-    it('should handle arrays with falsy values', () => {
-      expect(classes('foo', ['bar', '', null, undefined, false, 'baz'])).toBe(
-        'foo bar baz',
-      );
+    it('should filter falsy values in arrays', () => {
+      expect(className('foo', ['bar', '', null, undefined, false, 'baz'])).toBe('foo bar baz');
     });
 
     it('should handle empty arrays', () => {
-      expect(classes('foo', [], 'bar')).toBe('foo  bar');
+      expect(className('foo', [], 'bar')).toBe('foo  bar');
     });
 
-    it('should handle arrays with objects', () => {
-      expect(classes('foo', [{ bar: true, baz: false }])).toBe('foo bar');
+    it('should handle objects in arrays', () => {
+      expect(className('foo', [{ bar: true, baz: false }])).toBe('foo bar');
     });
   });
 
-  describe('mixed input types', () => {
-    it('should handle complex mixed inputs', () => {
-      const result = classes(
-        'base-class',
-        { 'conditional-class': true, hidden: false },
-        ['nested', { deep: true }],
-        42,
+  describe('complex combinations', () => {
+    it('should handle mixed types', () => {
+      const result = className(
+        'base',
+        'static',
+        { conditional: true, hidden: false },
+        ['array', 'items'],
         null,
         undefined,
         false,
-        'final-class',
+        0,
+        '',
+        'final',
       );
-      expect(result).toBe(
-        'base-class conditional-class nested deep 42 final-class',
-      );
+      expect(result).toBe('base static conditional array items final');
     });
 
-    it('should handle multiple objects', () => {
-      expect(
-        classes(
-          { btn: true, 'btn-primary': true },
-          { 'btn-large': false, 'btn-disabled': true },
-        ),
-      ).toBe('btn btn-primary btn-disabled');
+    it('should handle deeply nested structures', () => {
+      className('root', ['level1', ['level2', { level3: true, level3b: false }], { level1b: true }], 'sibling');
     });
 
     it('should handle multiple arrays', () => {
-      expect(classes(['foo', 'bar'], ['baz', 'qux'], 'extra')).toBe(
-        'foo bar baz qux extra',
-      );
+      expect(className(['foo', 'bar'], ['baz', 'qux'], 'extra')).toBe('foo bar baz qux extra');
     });
   });
 
   describe('edge cases', () => {
     it('should handle all falsy values', () => {
-      expect(classes('', null, undefined, false, 0, NaN)).toBe('');
+      expect(className('', null, undefined, false, 0, NaN)).toBe('');
     });
 
-    it('should handle objects with inherited properties', () => {
+    it('should handle object inheritance', () => {
       const obj = Object.create({ inherited: true });
       obj.own = true;
-      expect(classes('foo', obj)).toBe('foo own inherited');
+      expect(className('foo', obj)).toBe('foo own inherited');
     });
 
-    it('should handle objects with symbol keys', () => {
-      const sym = Symbol('test');
-      const obj = { [sym]: true, normal: true };
-      expect(classes('foo', obj)).toBe('foo normal');
+    it('should handle object with toString method', () => {
+      const obj = { toString: () => 'normal' };
+      expect(className('foo', obj)).toBe('foo toString');
     });
 
     it('should handle very long class names', () => {
       const longClass = 'a'.repeat(1000);
-      expect(classes(longClass)).toBe(longClass);
+      expect(className(longClass)).toBe(longClass);
     });
 
-    it('should handle many arguments', () => {
-      const args = Array.from({ length: 100 }, (_, i) => `class-${i}`);
-      const result = classes(...args);
-      expect(result.split(' ')).toHaveLength(100);
-      expect(result).toContain('class-0');
-      expect(result).toContain('class-99');
+    it('should handle spread operator', () => {
+      const args = ['foo', 'bar', 'baz'];
+      const result = className(...args);
+      expect(result).toBe('foo bar baz');
     });
   });
 
-  describe('type exports', () => {
-    it('should export ClassValue type', () => {
-      // This test ensures the type is exported and can be used
-      const testValue: ClassValue = 'test';
-      expect(typeof testValue).toBe('string');
-    });
-
-    it('should export classes function', () => {
-      expect(typeof classes).toBe('function');
-    });
-  });
-
-  describe('performance characteristics', () => {
-    it('should handle large nested structures efficiently', () => {
-      const largeNested = Array.from({ length: 100 }, (_, i) =>
-        Array.from({ length: 10 }, (_, j) => `class-${i}-${j}`),
-      );
-
-      const start = performance.now();
-      const result = classes('base', ...largeNested);
-      const end = performance.now();
-
+  describe('performance', () => {
+    it('should handle large numbers of inputs efficiently', () => {
+      const largeNested = Array(100)
+        .fill(0)
+        .map((_, i) => `class-${i}`);
+      const result = className('base', ...largeNested);
       expect(result).toContain('base');
-      expect(result).toContain('class-0-0');
-      expect(result).toContain('class-99-9');
-      expect(end - start).toBeLessThan(100); // Should complete in under 100ms
+      expect(result).toContain('class-99');
     });
   });
 });

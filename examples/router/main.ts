@@ -36,68 +36,65 @@ const app = () => {
   };
 
   return div(
-    { classNames: styles.app },
+    { className: styles.app },
 
     // Header section
     div(
-      { classNames: styles.header },
+      { className: styles.header },
       div(
-        { classNames: styles.container },
+        { className: styles.container },
         div(
-          { classNames: styles.headerContent },
-          div({ classNames: styles.title }, 'Router Example'),
-          p(
-            { classNames: styles.subtitle },
-            'A simple router with loaders, browser navigation, and reactive state.',
-          ),
+          { className: styles.headerContent },
+          div({ className: styles.title }, 'Router Example'),
+          p({ className: styles.subtitle }, 'A simple router with loaders, browser navigation, and reactive state.'),
         ),
       ),
     ),
 
     // Navigation section
     div(
-      { classNames: styles.nav },
+      { className: styles.nav },
       div(
-        { classNames: styles.container },
+        { className: styles.container },
         div(
-          { classNames: styles.navContent },
+          { className: styles.navContent },
           div(
-            { classNames: styles.navLinks },
+            { className: styles.navLinks },
             div(
               {
-                classNames: styles.navBtn,
+                className: styles.navBtn,
                 onClick: () => navigateTo('/'),
               },
               'Home',
             ),
             div(
               {
-                classNames: styles.navBtn,
+                className: styles.navBtn,
                 onClick: () => navigateTo('/users'),
               },
               'Users',
             ),
             div(
               {
-                classNames: styles.navBtn,
+                className: styles.navBtn,
                 onClick: () => navigateTo('/posts'),
               },
               'Posts',
             ),
           ),
           div(
-            { classNames: styles.navButtons },
+            { className: styles.navButtons },
             button(
               {
                 onClick: handleBack,
-                classNames: styles.navBtn,
+                className: styles.navBtn,
               },
               '← Back',
             ),
             button(
               {
                 onClick: handleForward,
-                classNames: styles.navBtn,
+                className: styles.navBtn,
               },
               'Forward →',
             ),
@@ -108,57 +105,36 @@ const app = () => {
 
     // Main content - flexible and growing
     div(
-      { classNames: styles.main },
+      { className: styles.main },
       div(
-        { classNames: styles.container },
+        { className: styles.container },
         router({
           routes: [
             {
               path: '/',
               component: () => {
                 return div(
-                  { classNames: styles.page },
+                  { className: styles.page },
                   div(
-                    { classNames: styles.card },
+                    { className: styles.card },
                     div(
-                      { classNames: styles.cardContent },
-                      div(
-                        { classNames: styles.cardTitle },
-                        'Welcome to the Router Example',
-                      ),
+                      { className: styles.cardContent },
+                      div({ className: styles.cardTitle }, 'Welcome to the Router Example'),
                       p(
-                        { classNames: styles.pageContent },
+                        { className: styles.pageContent },
                         'This is a simple router built with Reactive DOM. Click the navigation links above to explore different routes.',
                       ),
                       div(
-                        { classNames: styles.pageContent },
-                        div({ classNames: styles.cardTitle }, 'Features:'),
+                        { className: styles.pageContent },
+                        div({ className: styles.cardTitle }, 'Features:'),
                         div(
-                          { classNames: styles.pageContent },
-                          div(
-                            { classNames: styles.pageContent },
-                            'Route loaders with async data fetching',
-                          ),
-                          div(
-                            { classNames: styles.pageContent },
-                            'Browser back/forward navigation',
-                          ),
-                          div(
-                            { classNames: styles.pageContent },
-                            'URL parameter parsing',
-                          ),
-                          div(
-                            { classNames: styles.pageContent },
-                            'Search parameter handling',
-                          ),
-                          div(
-                            { classNames: styles.pageContent },
-                            'Error boundaries',
-                          ),
-                          div(
-                            { classNames: styles.pageContent },
-                            'Loading states',
-                          ),
+                          { className: styles.pageContent },
+                          div({ className: styles.pageContent }, 'Route loaders with async data fetching'),
+                          div({ className: styles.pageContent }, 'Browser back/forward navigation'),
+                          div({ className: styles.pageContent }, 'URL parameter parsing'),
+                          div({ className: styles.pageContent }, 'Search parameter handling'),
+                          div({ className: styles.pageContent }, 'Error boundaries'),
+                          div({ className: styles.pageContent }, 'Loading states'),
                         ),
                       ),
                     ),
@@ -176,23 +152,17 @@ const app = () => {
               component: (data: any) => {
                 console.log('Rendering users', data);
                 return div(
-                  { classNames: styles.page },
+                  { className: styles.page },
                   div(
-                    { classNames: styles.card },
+                    { className: styles.card },
                     div(
-                      { classNames: styles.cardContent },
-                      div({ classNames: styles.cardTitle }, 'Users'),
-                      p(
-                        { classNames: styles.pageContent },
-                        'Here are the users loaded from the server:',
-                      ),
+                      { className: styles.cardContent },
+                      div({ className: styles.cardTitle }, 'Users'),
+                      p({ className: styles.pageContent }, 'Here are the users loaded from the server:'),
                       div(
-                        { classNames: styles.userList },
+                        { className: styles.userList },
                         ...data.users.map((user: string) =>
-                          div(
-                            { classNames: styles.userItem },
-                            div({ classNames: styles.userName }, user),
-                          ),
+                          div({ className: styles.userItem }, div({ className: styles.userName }, user)),
                         ),
                       ),
                     ),
@@ -210,23 +180,17 @@ const app = () => {
               component: (data: any) => {
                 console.log('Rendering posts', data);
                 return div(
-                  { classNames: styles.page },
+                  { className: styles.page },
                   div(
-                    { classNames: styles.card },
+                    { className: styles.card },
                     div(
-                      { classNames: styles.cardContent },
-                      div({ classNames: styles.cardTitle }, 'Posts'),
-                      p(
-                        { classNames: styles.pageContent },
-                        'Here are the posts loaded from the server:',
-                      ),
+                      { className: styles.cardContent },
+                      div({ className: styles.cardTitle }, 'Posts'),
+                      p({ className: styles.pageContent }, 'Here are the posts loaded from the server:'),
                       div(
-                        { classNames: styles.postList },
+                        { className: styles.postList },
                         ...data.posts.map((post: string) =>
-                          div(
-                            { classNames: styles.postItem },
-                            div({ classNames: styles.postTitle }, post),
-                          ),
+                          div({ className: styles.postItem }, div({ className: styles.postTitle }, post)),
                         ),
                       ),
                     ),
@@ -241,12 +205,10 @@ const app = () => {
 
     // Footer section
     div(
-      { classNames: styles.footer },
+      { className: styles.footer },
       div(
-        { classNames: styles.container },
-        p(
-          'Reactive DOM Router Example - Built with reactive primitives and CSS modules',
-        ),
+        { className: styles.container },
+        p('Reactive DOM Router Example - Built with reactive primitives and CSS modules'),
       ),
     ),
   );

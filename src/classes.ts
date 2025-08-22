@@ -5,7 +5,7 @@
  * with support for conditional classes, arrays, and objects. It's similar to
  * the popular 'clsx' or 'classnames' libraries.
  *
- * @module classNames
+ * @module className
  */
 
 /**
@@ -19,14 +19,7 @@
  * - object: Keys are used as class names if values are truthy
  * - array: Recursively processed
  */
-type ClassValue =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | { [key: string]: any }
-  | ClassValue[];
+type ClassValue = string | number | boolean | null | undefined | { [key: string]: any } | ClassValue[];
 
 /**
  * Conditionally joins CSS class names together.
@@ -45,19 +38,19 @@ type ClassValue =
  * @example
  * ```typescript
  * // Basic usage
- * classes('foo', 'bar'); // 'foo bar'
+ * className('foo', 'bar'); // 'foo bar'
  *
  * // Conditional classes
- * classes('foo', { bar: true, baz: false }); // 'foo bar'
+ * className('foo', { bar: true, baz: false }); // 'foo bar'
  *
  * // Arrays
- * classes(['foo', 'bar'], 'baz'); // 'foo bar baz'
+ * className(['foo', 'bar'], 'baz'); // 'foo bar baz'
  *
  * // Mixed types
- * classes('foo', { bar: true }, ['baz', { qux: true }]); // 'foo bar baz qux'
+ * className('foo', { bar: true }, ['baz', { qux: true }]); // 'foo bar baz qux'
  * ```
  */
-function classes(...inputs: ClassValue[]): string {
+function className(...inputs: ClassValue[]): string {
   const result: string[] = [];
 
   for (const input of inputs) {
@@ -70,7 +63,7 @@ function classes(...inputs: ClassValue[]): string {
     } else if (typeof input === 'boolean') {
       // Skip boolean values
     } else if (Array.isArray(input)) {
-      result.push(classes(...input));
+      result.push(className(...input));
     } else if (typeof input === 'object') {
       for (const key in input) {
         if (input[key]) {
@@ -83,5 +76,5 @@ function classes(...inputs: ClassValue[]): string {
   return result.join(' ');
 }
 
-export { classes };
+export { className };
 export type { ClassValue };

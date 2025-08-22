@@ -48,14 +48,14 @@ jobs:
       - name: Test dynamic class names functionality
         run: |
           node -e "
-            const { classNames } = require('./dist/tacit-dom.cjs.js');
+            const { className } = require('./dist/tacit-dom.cjs.js');
 
-            console.log('Testing classNames...');
-            console.log('String:', classNames('foo'));
-            console.log('Multiple:', classNames('foo', 'bar'));
-            console.log('Array:', classNames(['foo', 'bar']));
-            console.log('Object:', classNames({ foo: true, bar: false, baz: true }));
-            console.log('Mixed:', classNames('foo', { bar: true, baz: false }, ['qux']));
+            console.log('Testing className...');
+            console.log('String:', className('foo'));
+            console.log('Multiple:', className('foo', 'bar'));
+            console.log('Array:', className(['foo', 'bar']));
+            console.log('Object:', className({ foo: true, bar: false, baz: true }));
+            console.log('Mixed:', className('foo', { bar: true, baz: false }, ['qux']));
             console.log('✅ Dynamic class names functionality works');
           "
 

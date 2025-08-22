@@ -516,9 +516,8 @@ Tacit-DOM provides comprehensive documentation covering all aspects of the libra
 ### 🎨 DOM & Components
 
 - **[🌐 DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
-- **[🔒 Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
-- **[🎨 ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management (recommended)
-- **[🔄 Migration Guide](docs/MIGRATION_GUIDE.md)**: Migrate from deprecated `className` to `classNames`
+
+- **[🎨 ClassName Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management (recommended)
 
 ### 🔧 Advanced Features
 
@@ -600,7 +599,7 @@ All HTML elements are available as factory functions:
 import { div, h1, h2, h3, p, button, input, label, span, a } from 'tacit-dom';
 
 const element = div(
-  { classNames: 'container' },
+  { className: 'container' },
   h1('Hello World'),
   h2('Subtitle'),
   h3('Section'),
@@ -686,7 +685,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 ### 🚀 Getting Started Examples
 
 - **📊 [Signals](/examples/signals)**: Basic reactive signals with automatic UI updates
-- **🎨 [ClassNames](/examples/classnames)**: Dynamic CSS class management utility
+- **🎨 [ClassName](/examples/classnames)**: Dynamic CSS class management utility
 - **🧩 [Component Props](/examples/props-demo)**: Strongly-typed components with props
 
 ### 🔧 Advanced Features

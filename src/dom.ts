@@ -8,7 +8,7 @@
  * - No complex instance management
  */
 
-import { classes } from './classes';
+import { className } from './classes';
 import { computed, effect, signal, type Computed, type Signal } from './signals';
 
 /**
@@ -89,13 +89,11 @@ type EventHandler<T = Event> = (event: T) => void | boolean;
  * ```
  */
 export type ElementProps = {
-  /** @deprecated Use classNames instead. className will be removed in a future version. */
-  className?: string;
   /**
    * Flexible CSS class names prop that accepts strings, arrays, objects, and more.
    * This is the recommended way to handle CSS classes.
    */
-  classNames?: string | string[] | { [key: string]: any } | (string | { [key: string]: any })[];
+  className?: string | string[] | { [key: string]: any } | (string | { [key: string]: any })[];
   // Mouse events
   onClick?: EventHandler;
   onDoubleClick?: EventHandler;
@@ -174,16 +172,8 @@ function setupElement(element: HTMLElement, props: ElementProps, children: (stri
 
   // Handle class names
   if (props.className) {
-    // Deprecated: className will be removed in a future version
-    console.warn(
-      'Tacit-DOM: The "className" prop is deprecated and will be removed in a future version. ' +
-        'Use "classNames" instead. See docs/MIGRATION_GUIDE.md for migration help.',
-    );
-    element.className = props.className;
-  }
-  if (props.classNames) {
-    // Use the classes utility for flexible class handling
-    element.className = classes(props.classNames);
+    // Use the className utility for flexible class handling
+    element.className = className(props.className);
   }
 
   // Handle children

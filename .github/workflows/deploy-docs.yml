@@ -67,7 +67,7 @@ jobs:
                   <a href="API.md">API Reference</a>
                   <a href="DEVELOPMENT.md">Development Guide</a>
                   <a href="SIGNALS.md">Signals Guide</a>
-                  <a href="CLASSNAMES.md">ClassNames Utility</a>
+                  <a href="CLASSNAMES.md">ClassName Utility</a>
                   <a href="ROUTER.md">Router Guide</a>
               </div>
               <p>Welcome to the Tacit-DOM documentation. Choose a link above to get started.</p>

@@ -38,7 +38,7 @@ const RecoverableComponent = component<{
       h2('Recoverable Component'),
       p(`Mode: ${mode.get()}`),
       button({ onClick: () => mode.set('normal') }, 'Set Normal'),
-      button({ onClick: () => mode.set('error'), classNames: 'danger' }, 'Trigger Error'),
+      button({ onClick: () => mode.set('error'), className: 'danger' }, 'Trigger Error'),
       button({ onClick: () => mode.set('recovered') }, 'Set Recovered'),
     ),
   );

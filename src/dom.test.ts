@@ -7,16 +7,7 @@ global.TextEncoder = require('util').TextEncoder;
 global.TextDecoder = require('util').TextDecoder;
 
 import { JSDOM } from 'jsdom';
-import {
-  a,
-  button,
-  cleanup,
-  component,
-  div,
-  h1,
-  render,
-  useSignal,
-} from './dom';
+import { a, button, cleanup, component, div, h1, render, useSignal } from './dom';
 import { signal } from './signals';
 
 // Set up JSDOM environment
@@ -69,43 +60,34 @@ describe('DOM Element Creation', () => {
       expect(element.className).toBe('test-class');
     });
 
-    it('should create div element with classNames array', () => {
-      const element = div({ classNames: ['class1', 'class2'] });
+    it('should create div element with className array', () => {
+      const element = div({ className: ['class1', 'class2'] });
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class2');
     });
 
-    it('should create div element with classNames string', () => {
-      const element = div({ classNames: 'class1 class2' });
+    it('should create div element with className string', () => {
+      const element = div({ className: 'class1 class2' });
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class2');
     });
 
-    it('should create div element with classNames object', () => {
-      const element = div({ classNames: { 'class1': true, 'class2': false, 'class3': true } });
+    it('should create div element with className object', () => {
+      const element = div({ className: { class1: true, class2: false, class3: true } });
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class3');
     });
 
-    it('should create div element with classNames mixed array', () => {
-      const element = div({ classNames: ['class1', { 'class2': true, 'class3': false }, 'class4'] });
+    it('should create div element with className mixed array', () => {
+      const element = div({ className: ['class1', { class2: true, class3: false }, 'class4'] });
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class2 class4');
     });
 
-    it('should handle classNames with falsy values', () => {
-      const element = div({ classNames: ['class1', '', null, undefined, false, 'class2'] });
+    it('should handle className with falsy values', () => {
+      const element = div({ className: ['class1', '', null, undefined, false, 'class2'] });
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('class1 class2');
-    });
-
-    it('should prioritize classNames over className when both are provided', () => {
-      const element = div({ 
-        className: 'old-class', 
-        classNames: 'new-class' 
-      });
-      expect(element.tagName).toBe('DIV');
-      expect(element.className).toBe('new-class');
     });
   });
 
@@ -165,20 +147,14 @@ describe('DOM Element Creation', () => {
     });
 
     it('should create anchor element with href', () => {
-      const element = a(
-        { href: 'https://example.com' },
-        'Click here',
-      ) as HTMLAnchorElement;
+      const element = a({ href: 'https://example.com' }, 'Click here') as HTMLAnchorElement;
       expect(element.tagName).toBe('A');
       expect(element.href).toBe('https://example.com/');
       expect(element.textContent).toBe('Click here');
     });
 
     it('should create anchor element with target', () => {
-      const element = a(
-        { target: '_blank' },
-        'Click here',
-      ) as HTMLAnchorElement;
+      const element = a({ target: '_blank' }, 'Click here') as HTMLAnchorElement;
       expect(element.tagName).toBe('A');
       expect(element.target).toBe('_blank');
       expect(element.textContent).toBe('Click here');
@@ -221,10 +197,7 @@ describe('DOM Element Creation', () => {
         return div(
           { className: 'test-component' },
           div({ className: 'local-value' }, `Local: ${localCounter.get()}`),
-          div(
-            { className: 'external-value' },
-            `External: ${externalSignal.get()}`,
-          ),
+          div({ className: 'external-value' }, `External: ${externalSignal.get()}`),
           button(
             {
               className: 'increment-local',
@@ -240,29 +213,19 @@ describe('DOM Element Creation', () => {
 
       // Initial render
       expect(renderCount).toBe(1);
-      expect(container.querySelector('.local-value')?.textContent).toBe(
-        'Local: 100',
-      );
-      expect(container.querySelector('.external-value')?.textContent).toBe(
-        'External: 0',
-      );
+      expect(container.querySelector('.local-value')?.textContent).toBe('Local: 100');
+      expect(container.querySelector('.external-value')?.textContent).toBe('External: 0');
 
       // Click increment button to update local signal
-      const incrementButton = container.querySelector(
-        '.increment-local',
-      ) as HTMLButtonElement;
+      const incrementButton = container.querySelector('.increment-local') as HTMLButtonElement;
       incrementButton.click();
 
       // Wait for effect to run
       return new Promise((resolve) => setTimeout(resolve, 50))
         .then(() => {
           // Local signal should be updated and preserved
-          expect(container.querySelector('.local-value')?.textContent).toBe(
-            'Local: 101',
-          );
-          expect(container.querySelector('.external-value')?.textContent).toBe(
-            'External: 0',
-          );
+          expect(container.querySelector('.local-value')?.textContent).toBe('Local: 101');
+          expect(container.querySelector('.external-value')?.textContent).toBe('External: 0');
 
           // Update external signal to trigger re-render
           externalSignal.set(42);
@@ -271,29 +234,19 @@ describe('DOM Element Creation', () => {
         })
         .then(() => {
           // After re-render, local signal value should still be preserved
-          expect(container.querySelector('.local-value')?.textContent).toBe(
-            'Local: 101',
-          );
-          expect(container.querySelector('.external-value')?.textContent).toBe(
-            'External: 42',
-          );
+          expect(container.querySelector('.local-value')?.textContent).toBe('Local: 101');
+          expect(container.querySelector('.external-value')?.textContent).toBe('External: 42');
 
           // Click increment again to verify local signal still works
-          const incrementButton = container.querySelector(
-            '.increment-local',
-          ) as HTMLButtonElement;
+          const incrementButton = container.querySelector('.increment-local') as HTMLButtonElement;
           incrementButton.click();
 
           return new Promise((resolve) => setTimeout(resolve, 50));
         })
         .then(() => {
           // Local signal should be incremented again
-          expect(container.querySelector('.local-value')?.textContent).toBe(
-            'Local: 102',
-          );
-          expect(container.querySelector('.external-value')?.textContent).toBe(
-            'External: 42',
-          );
+          expect(container.querySelector('.local-value')?.textContent).toBe('Local: 102');
+          expect(container.querySelector('.external-value')?.textContent).toBe('External: 42');
         });
     });
   });

@@ -24,31 +24,31 @@ const Counter = component<{ title: string; initialValue?: number }>((props, util
   };
 
   return div(
-    { classNames: styles.counter },
-    div({ classNames: styles.header }, h1({ classNames: styles.title }, props.title)),
+    { className: styles.counter },
+    div({ className: styles.header }, h1({ className: styles.title }, props.title)),
     div(
-      { classNames: styles.body },
-      div({ classNames: styles.count }, count.get()),
+      { className: styles.body },
+      div({ className: styles.count }, count.get()),
       div(
-        { classNames: styles.buttons },
+        { className: styles.buttons },
         button(
           {
             onClick: decrement,
-            classNames: [styles.btn, styles.btnDecrement],
+            className: [styles.btn, styles.btnDecrement],
           },
           '-',
         ),
         button(
           {
             onClick: reset,
-            classNames: [styles.btn, styles.btnReset],
+            className: [styles.btn, styles.btnReset],
           },
           'Reset',
         ),
         button(
           {
             onClick: increment,
-            classNames: [styles.btn, styles.btnIncrement],
+            className: [styles.btn, styles.btnIncrement],
           },
           '+',
         ),
@@ -62,26 +62,26 @@ const app = component((props, utils) => {
   console.log('app renders');
 
   return div(
-    { classNames: styles.app },
+    { className: styles.app },
     div(
-      { classNames: styles.container },
-      h1({ classNames: styles.appTitle }, 'Counters with Local Signals'),
+      { className: styles.container },
+      h1({ className: styles.appTitle }, 'Counters with Local Signals'),
       div(
-        { classNames: styles.countersRow },
+        { className: styles.countersRow },
         Counter({ title: 'Counter A', initialValue: 0 }),
         Counter({ title: 'Counter B', initialValue: 10 }),
       ),
       div(
-        { classNames: styles.footer },
+        { className: styles.footer },
         div(
-          { classNames: styles.infoBox },
-          h1({ classNames: styles.infoTitle }, '🔍 What to observe:'),
+          { className: styles.infoBox },
+          h1({ className: styles.infoTitle }, '🔍 What to observe:'),
           div(
-            { classNames: styles.infoList },
-            div({ classNames: styles.infoItem }, '• Each counter should maintain its own independent state'),
-            div({ classNames: styles.infoItem }, '• Clicking + or - on Counter A should only affect Counter A'),
-            div({ classNames: styles.infoItem }, '• Clicking + or - on Counter B should only affect Counter B'),
-            div({ classNames: styles.infoItem }, '• Check the browser console for state change logs!'),
+            { className: styles.infoList },
+            div({ className: styles.infoItem }, '• Each counter should maintain its own independent state'),
+            div({ className: styles.infoItem }, '• Clicking + or - on Counter A should only affect Counter A'),
+            div({ className: styles.infoItem }, '• Clicking + or - on Counter B should only affect Counter B'),
+            div({ className: styles.infoItem }, '• Check the browser console for state change logs!'),
           ),
         ),
       ),

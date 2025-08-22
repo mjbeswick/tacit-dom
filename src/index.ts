@@ -36,5 +36,6 @@ export {
 } from './dom';
 
 // Export utility types
+export { className } from './classes';
 export type { ClassValue } from './classes';
 export type { ElementProps } from './dom';

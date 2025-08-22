@@ -87,7 +87,7 @@ type EventHandler<T = Event> = (event: T) => void | boolean;
 ### Reactive Attributes
 
 - Attributes automatically update when signals change
-- Use `classNames()` utility for dynamic CSS classes
+- Use `className()` utility for dynamic CSS classes
 - Style can be string or reactive value
 
 ### Rendering

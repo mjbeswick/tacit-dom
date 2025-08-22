@@ -1,12 +1,5 @@
 import { button, component, div, render, signal } from '../../src/index';
-import {
-  computedC,
-  counterA,
-  counterB,
-  updateA,
-  updateB,
-  updateBAsync,
-} from './store';
+import { computedC, counterA, counterB, updateA, updateB, updateBAsync } from './store';
 import styles from './styles.module.css';
 
 // Button component with loading state
@@ -19,12 +12,12 @@ const Button = component<{
   return button(
     {
       onClick: props?.onclick,
-      classNames: [styles.btn, props?.className || ''],
+      className: [styles.btn, props?.className || ''],
       disabled: props?.loading,
     },
     div(
       {
-        classNames: styles.btnContent,
+        className: styles.btnContent,
       },
       props?.loading ? 'Loading...' : props?.children || 'Button',
     ),
@@ -32,10 +25,10 @@ const Button = component<{
       ? [
           div(
             {
-              classNames: styles.spinner,
+              className: styles.spinner,
             },
             div({
-              classNames: styles.spinnerInner,
+              className: styles.spinnerInner,
             }),
           ),
         ]
@@ -50,9 +43,9 @@ const CounterDisplay = component<{
   className?: string;
 }>((props) => {
   return div(
-    { classNames: [styles.counterDisplay, props?.className || ''] },
-    div({ classNames: styles.counterTitle }, props?.title || 'Counter'),
-    div({ classNames: styles.counterValue }, props?.value || 0),
+    { className: [styles.counterDisplay, props?.className || ''] },
+    div({ className: styles.counterTitle }, props?.title || 'Counter'),
+    div({ className: styles.counterValue }, props?.value || 0),
   );
 });
 
@@ -61,41 +54,35 @@ const ComputedDisplay = component(() => {
   const status = computedC.get();
 
   return div(
-    { classNames: styles.computedDisplay },
+    { className: styles.computedDisplay },
     div(
-      { classNames: styles.computedHeader },
-      div({ classNames: styles.computedTitle }, 'Combined Display'),
-      div({ classNames: styles.badge }, status.total + ' Total'),
+      { className: styles.computedHeader },
+      div({ className: styles.computedTitle }, 'Combined Display'),
+      div({ className: styles.badge }, status.total + ' Total'),
     ),
     div(
-      { classNames: styles.computedGrid },
+      { className: styles.computedGrid },
       div(
-        { classNames: styles.computedItem },
+        { className: styles.computedItem },
         div(
-          { classNames: styles.computedItem },
-          div(
-            { classNames: [styles.computedPercentage, styles.percentageA] },
-            status.percentageA + '%',
-          ),
-          div({ classNames: styles.computedLabel }, 'Counter A'),
+          { className: styles.computedItem },
+          div({ className: [styles.computedPercentage, styles.percentageA] }, status.percentageA + '%'),
+          div({ className: styles.computedLabel }, 'Counter A'),
         ),
       ),
       div(
-        { classNames: styles.computedItem },
+        { className: styles.computedItem },
         div(
-          { classNames: styles.computedItem },
-          div(
-            { classNames: [styles.computedPercentage, styles.percentageB] },
-            status.percentageB + '%',
-          ),
-          div({ classNames: styles.computedLabel }, 'Counter B'),
+          { className: styles.computedItem },
+          div({ className: [styles.computedPercentage, styles.percentageB] }, status.percentageB + '%'),
+          div({ className: styles.computedLabel }, 'Counter B'),
         ),
       ),
     ),
     div(
-      { classNames: styles.computedSummary },
-      div({ classNames: styles.summaryTitle }, status.summary),
-      div({ classNames: styles.summaryScore }, status.score),
+      { className: styles.computedSummary },
+      div({ className: styles.summaryTitle }, status.summary),
+      div({ className: styles.summaryScore }, status.score),
     ),
   );
 });
@@ -114,20 +101,17 @@ const app = component(() => {
 
   return div(
     {
-      classNames: styles.app,
+      className: styles.app,
     },
     div(
-      { classNames: styles.card },
+      { className: styles.card },
       div(
-        { classNames: styles.cardHeader },
-        div({ classNames: styles.title }, 'Reactive Counter Demo'),
-        div(
-          { classNames: styles.subtitle },
-          'Watch how counters automatically update the UI in real-time!',
-        ),
+        { className: styles.cardHeader },
+        div({ className: styles.title }, 'Reactive Counter Demo'),
+        div({ className: styles.subtitle }, 'Watch how counters automatically update the UI in real-time!'),
       ),
       div(
-        { classNames: styles.cardBody },
+        { className: styles.cardBody },
         CounterDisplay({
           title: 'Counter A',
           value: counterA.get(),
@@ -136,7 +120,7 @@ const app = component(() => {
         CounterDisplay({
           title: 'Counter B',
           value: counterB.get(),
-          className: styles.counterInfo,
+          className: styles.btnInfo,
         }),
         CounterDisplay({
           title: 'Local Counter',
@@ -145,9 +129,9 @@ const app = component(() => {
         }),
         ComputedDisplay(),
         div(
-          { classNames: styles.buttonGrid },
+          { className: styles.buttonGrid },
           div(
-            { classNames: styles.buttonGrid },
+            { className: styles.buttonGrid },
             Button({
               onclick: updateA,
               className: styles.btnSuccess,
@@ -155,7 +139,7 @@ const app = component(() => {
             }),
           ),
           div(
-            { classNames: styles.buttonGrid },
+            { className: styles.buttonGrid },
             Button({
               onclick: updateB,
               className: styles.btnInfo,
@@ -163,7 +147,7 @@ const app = component(() => {
             }),
           ),
           div(
-            { classNames: styles.buttonGrid },
+            { className: styles.buttonGrid },
             Button({
               onclick: updateBAsync,
               className: styles.btnWarning,
@@ -172,7 +156,7 @@ const app = component(() => {
             }),
           ),
           div(
-            { classNames: styles.buttonGrid },
+            { className: styles.buttonGrid },
             Button({
               onclick: incrementLocal,
               className: styles.btnSecondary,
