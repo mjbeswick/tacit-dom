@@ -1,0 +1,289 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  padding: 20px;
+}
+
+.app {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 20px 30px;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  margin-bottom: 8px;
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.header p {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.container {
+  padding: 0;
+  background: white;
+}
+
+.tree {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  background: white;
+}
+
+.node {
+  margin: 0;
+  position: relative;
+}
+
+.treeNode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+  border-bottom: 1px solid #f8f9fa;
+  min-height: 32px;
+}
+
+.treeNode:hover {
+  background-color: #f8f9fa;
+}
+
+.treeNode:active {
+  background-color: #e9ecef;
+}
+
+.toggle {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.toggle:hover {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
+.toggle.placeholder {
+  cursor: default;
+}
+
+.toggle.placeholder:hover {
+  background-color: transparent;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.icon.folder {
+  color: #ffc107;
+}
+
+.icon.file {
+  color: #6c757d;
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #212529;
+  font-weight: 400;
+}
+
+.treeNode.folder .name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.treeNode.file .name {
+  color: #495057;
+}
+
+.fileCount {
+  font-size: 11px;
+  color: #6c757d;
+  background: #f8f9fa;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 400;
+  margin-left: auto;
+  border: 1px solid #e9ecef;
+}
+
+.children {
+  margin-left: 20px;
+  border-left: 1px solid #e9ecef;
+  position: relative;
+}
+
+.children::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #e9ecef;
+}
+
+/* Depth-based styling */
+.treeNode.depth-0 {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 600;
+}
+
+.treeNode.depth-0 .name {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.treeNode.depth-1 {
+  background: white;
+}
+
+.treeNode.depth-2 {
+  background: #fafbfc;
+}
+
+.treeNode.depth-3 {
+  background: white;
+}
+
+.treeNode.depth-4 {
+  background: #fafbfc;
+}
+
+/* Enhanced folder styling */
+.treeNode.folder .name {
+  color: #2c3e50;
+}
+
+.treeNode.folder:hover .name {
+  color: #1a252f;
+}
+
+/* Enhanced file styling */
+.treeNode.file .name {
+  color: #495057;
+}
+
+.treeNode.file:hover .name {
+  color: #212529;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  .app {
+    max-width: 100%;
+    border-radius: 6px;
+  }
+
+  .header {
+    padding: 15px 20px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .treeNode {
+    padding: 8px 12px;
+    min-height: 36px;
+  }
+
+  .children {
+    margin-left: 16px;
+  }
+
+  .toggle {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
+    font-size: 15px;
+  }
+
+  .fileCount {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.3rem;
+  }
+
+  .header p {
+    font-size: 0.8rem;
+  }
+
+  .treeNode {
+    padding: 6px 10px;
+    min-height: 32px;
+  }
+
+  .children {
+    margin-left: 12px;
+  }
+
+  .fileCount {
+    display: none;
+  }
+}
