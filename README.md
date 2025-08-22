@@ -52,6 +52,9 @@ If you want something stable for production, this is not it (yet).
 - **🌍 Global State Management**: Create global state anywhere without providers, context, or complex setup
 - **🚫 No Virtual DOM**: Direct DOM updates without the overhead of virtual DOM reconciliation
 - **🧩 Component Pattern**: Build components using a familiar JSX-like syntax
+- **🎭 Conditional Rendering**: Built-in `when` function for reactive conditional content
+- **📋 List Rendering**: Powerful `map` function with optional filtering for dynamic lists
+- **🧩 Fragment Support**: `fragment` function for returning multiple elements without wrappers
 - **🎯 Event Handling**: Built-in support for DOM events
 - **🔒 TypeScript Support**: Full TypeScript support with type safety
 - **🧹 Automatic Cleanup**: Prevents memory leaks with smart cleanup
@@ -393,6 +396,62 @@ render(
   document.getElementById('greeting'),
 );
 render(UserProfile, document.getElementById('profile'));
+```
+
+## 🎭 Conditional and List Rendering
+
+Tacit-DOM provides powerful utilities for conditional rendering and list management that automatically update when signals change.
+
+### Conditional Rendering with `when`
+
+```typescript
+import { when, signal, div, h1 } from 'tacit-dom';
+
+const isVisible = signal(true);
+const element = when(isVisible, () => div('This is visible'));
+
+// With computed values
+const count = signal(0);
+const isPositive = computed(() => count.get() > 0);
+const element = when(isPositive, () =>
+  div(`Count is positive: ${count.get()}`),
+);
+```
+
+### List Rendering with `map`
+
+```typescript
+import { map, signal, div, li } from 'tacit-dom';
+
+// Basic array mapping
+const items = signal(['a', 'b', 'c']);
+const list = map(items, (item) => div(item));
+
+// With filtering
+const numbers = signal([1, 2, 3, 4, 5]);
+const evenNumbers = map(
+  numbers,
+  (num) => div(num),
+  (num) => num % 2 === 0,
+);
+```
+
+### Multiple Elements with `fragment`
+
+```typescript
+import { fragment, div, h1, p } from 'tacit-dom';
+
+// Return multiple elements without a wrapper
+const MyComponent = component(() => {
+  const showHeader = signal(true);
+  const showFooter = signal(true);
+
+  return fragment(
+    when(showHeader, () => h1('Header')),
+    div('Main content'),
+    when(showFooter, () => div('Footer')),
+  );
+});
 ```
 
 ## 🛠️ Development

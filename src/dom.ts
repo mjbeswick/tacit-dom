@@ -1158,3 +1158,284 @@ export function cleanup(element: HTMLElement): void {
     element.parentNode.removeChild(element);
   }
 }
+
+/**
+ * Conditionally renders content based on a signal value.
+ *
+ * This function creates a reactive element that automatically shows/hides content
+ * based on whether the signal value is truthy. The content re-renders whenever
+ * the signal changes.
+ *
+ * @param condition - A signal or computed value that determines whether to render
+ * @param renderFn - A function that returns the content to render when condition is truthy
+ * @returns An HTMLElement that conditionally renders content
+ *
+ * @example
+ * ```typescript
+ * // Basic conditional rendering
+ * const isVisible = signal(true);
+ * const element = when(isVisible, () => div('This is visible'));
+ *
+ * // With computed values
+ * const count = signal(0);
+ * const isPositive = computed(() => count.get() > 0);
+ * const element = when(isPositive, () => div(`Count is positive: ${count.get()}`));
+ *
+ * // In a component
+ * const MyComponent = component((props, utils) => {
+ *   const showHeader = utils.signal(true);
+ *
+ *   return div(
+ *     when(showHeader, () => h1('Conditional Header')),
+ *     p('Always visible content')
+ *   );
+ * });
+ * ```
+ */
+export function when<T>(
+  condition: Signal<T> | Computed<T> | T,
+  renderFn: () => HTMLElement,
+): HTMLElement {
+  // Create a container element that will hold the conditional content
+  const container = document.createElement('div');
+
+  // Function to check if the condition is truthy
+  const isTruthy = (value: T): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'number') return value !== 0;
+    if (typeof value === 'string') return value.length > 0;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'object') return Object.keys(value).length > 0;
+    return true;
+  };
+
+  // Function to update the container content
+  const updateContent = () => {
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Check if condition is truthy
+    let shouldRender = false;
+    let currentValue: T;
+
+    if (
+      typeof condition === 'function' &&
+      'get' in condition &&
+      'subscribe' in condition
+    ) {
+      // It's a signal or computed value
+      const signalOrComputed = condition as Signal<T> | Computed<T>;
+      currentValue = signalOrComputed.get();
+      shouldRender = isTruthy(currentValue);
+    } else {
+      // It's a static value
+      currentValue = condition as T;
+      shouldRender = isTruthy(currentValue);
+    }
+
+    // Render content if condition is truthy
+    if (shouldRender) {
+      try {
+        const content = renderFn();
+        container.appendChild(content);
+      } catch (error) {
+        console.error('Error rendering conditional content:', error);
+      }
+    }
+  };
+
+  // Set up effect to track changes and re-render
+  if (
+    typeof condition === 'function' &&
+    'get' in condition &&
+    'subscribe' in condition
+  ) {
+    // It's a signal or computed value, so we need to track dependencies
+    effect(() => {
+      // Access the signal value to track dependencies
+      const signalOrComputed = condition as Signal<T> | Computed<T>;
+      signalOrComputed.get();
+      updateContent();
+    });
+  } else {
+    // Static value, just render once
+    updateContent();
+  }
+
+  return container;
+}
+
+/**
+ * Maps over an array signal to render a list of elements.
+ *
+ * This function creates a reactive list that automatically updates when the
+ * array signal changes. It can optionally filter items using a selector function.
+ *
+ * @param arraySignal - A signal or computed value that contains an array
+ * @param renderFn - A function that renders each item in the array
+ * @param selector - Optional function to filter which items to render
+ * @returns An HTMLElement that contains the mapped list
+ *
+ * @example
+ * ```typescript
+ * // Basic array mapping
+ * const items = signal(['a', 'b', 'c']);
+ * const list = map(items, (item) => div(item));
+ *
+ * // With filtering
+ * const numbers = signal([1, 2, 3, 4, 5]);
+ * const evenNumbers = map(numbers, (num) => div(num), (num) => num % 2 === 0);
+ *
+ * // In a component
+ * const TodoList = component((props, utils) => {
+ *   const todos = utils.signal(['Learn React', 'Build app', 'Deploy']);
+ *
+ *   return div(
+ *     h1('Todo List'),
+ *     map(todos, (todo) => div({ classNames: 'todo-item' }, todo))
+ *   );
+ * });
+ * ```
+ */
+export function map<T>(
+  arraySignal: Signal<T[]> | Computed<T[]> | T[],
+  renderFn: (item: T, index: number) => HTMLElement,
+  selector?: (item: T, index: number) => boolean,
+): HTMLElement {
+  // Create a container element that will hold the mapped content
+  const container = document.createElement('div');
+
+  // Function to update the container content
+  const updateContent = () => {
+    // Clear existing content
+    container.innerHTML = '';
+
+    // Get the current array value
+    let currentArray: T[];
+
+    if (
+      typeof arraySignal === 'function' &&
+      'get' in arraySignal &&
+      'subscribe' in arraySignal
+    ) {
+      // It's a signal or computed value
+      const signalOrComputed = arraySignal as Signal<T[]> | Computed<T[]>;
+      currentArray = signalOrComputed.get();
+    } else {
+      // It's a static array
+      currentArray = arraySignal as T[];
+    }
+
+    // Ensure we have an array
+    if (!Array.isArray(currentArray)) {
+      console.warn('map function received non-array value:', currentArray);
+      return;
+    }
+
+    // Filter items if selector is provided
+    const itemsToRender = selector
+      ? currentArray.filter((item, index) => selector(item, index))
+      : currentArray;
+
+    // Render each item
+    itemsToRender.forEach((item, index) => {
+      try {
+        const element = renderFn(item, index);
+        container.appendChild(element);
+      } catch (error) {
+        console.error(`Error rendering item at index ${index}:`, error);
+      }
+    });
+  };
+
+  // Set up effect to track changes and re-render
+  if (
+    typeof arraySignal === 'function' &&
+    'get' in arraySignal &&
+    'subscribe' in arraySignal
+  ) {
+    // It's a signal or computed value, so we need to track changes
+    effect(() => {
+      // Access the signal value to track dependencies
+      const signalOrComputed = arraySignal as Signal<T[]> | Computed<T[]>;
+      signalOrComputed.get();
+      updateContent();
+    });
+  } else {
+    // Static array, just render once
+    updateContent();
+  }
+
+  return container;
+}
+
+/**
+ * Creates a fragment that renders multiple elements without a wrapper container.
+ *
+ * Fragments are useful when you need to return multiple elements from a component
+ * or conditional rendering without adding an extra DOM node. The fragment itself
+ * is not rendered to the DOM - only its children are.
+ *
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A DocumentFragment containing the children
+ *
+ * @example
+ * ```typescript
+ * // Basic fragment usage
+ * const elements = fragment(
+ *   div('First element'),
+ *   div('Second element'),
+ *   div('Third element')
+ * );
+ *
+ * // In a component that needs to return multiple elements
+ * const MyComponent = component((props, utils) => {
+ *   const showHeader = utils.signal(true);
+ *   const showFooter = utils.signal(true);
+ *
+ *   return fragment(
+ *     when(showHeader, () => h1('Header')),
+ *     div('Main content'),
+ *     when(showFooter, () => footer('Footer'))
+ *   );
+ * });
+ *
+ * // With conditional rendering
+ * const ConditionalList = component((props, utils) => {
+ *   const items = utils.signal(['a', 'b', 'c']);
+ *
+ *   return fragment(
+ *     h1('List'),
+ *     map(items, (item) => div(item)),
+ *     button('Add Item')
+ *   );
+ * });
+ * ```
+ */
+export function fragment(
+  ...children: (string | number | HTMLElement)[]
+): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+
+  children.forEach((child) => {
+    if (typeof child === 'string' || typeof child === 'number') {
+      // Create text node for strings and numbers
+      fragment.appendChild(document.createTextNode(String(child)));
+    } else if (child instanceof HTMLElement) {
+      // Append HTMLElement directly
+      fragment.appendChild(child);
+    } else if (child && typeof child === 'object' && 'firstChild' in child) {
+      // If it's already a fragment, append its children
+      const docFragment = child as DocumentFragment;
+      while (docFragment.firstChild) {
+        fragment.appendChild(docFragment.firstChild);
+      }
+    } else if (child !== null && child !== undefined) {
+      // Handle other types by converting to string
+      fragment.appendChild(document.createTextNode(String(child)));
+    }
+  });
+
+  return fragment;
+}

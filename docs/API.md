@@ -267,6 +267,106 @@ const element = button(
 - `span(props?, ...children)` - Creates span elements
 - `a(props?, ...children)` - Creates anchor elements
 
+## Conditional and List Rendering
+
+### `when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => HTMLElement): HTMLElement`
+
+Conditionally renders content based on a signal value. The content automatically re-renders when the signal changes.
+
+**Parameters:**
+
+- `condition: Signal<T> | Computed<T> | T` - A signal, computed value, or static value that determines whether to render
+- `renderFn: () => HTMLElement` - A function that returns the content to render when condition is truthy
+
+**Returns:**
+
+- `HTMLElement` - A container element that conditionally renders content
+
+**Example:**
+
+```typescript
+import { when, signal, div, h1 } from 'tacit-dom';
+
+const isVisible = signal(true);
+const element = when(isVisible, () => div('This is visible'));
+
+// With computed values
+const count = signal(0);
+const isPositive = computed(() => count.get() > 0);
+const element = when(isPositive, () =>
+  div(`Count is positive: ${count.get()}`),
+);
+```
+
+### `map<T>(arraySignal: Signal<T[]> | Computed<T[]> | T[], renderFn: (item: T, index: number) => HTMLElement, selector?: (item: T, index: number) => boolean): HTMLElement`
+
+Maps over an array signal to render a list of elements. The list automatically updates when the array signal changes.
+
+**Parameters:**
+
+- `arraySignal: Signal<T[]> | Computed<T[]> | T[]` - A signal, computed value, or static array
+- `renderFn: (item: T, index: number) => HTMLElement` - A function that renders each item in the array
+- `selector?: (item: T, index: number) => boolean` - Optional function to filter which items to render
+
+**Returns:**
+
+- `HTMLElement` - A container element that contains the mapped list
+
+**Example:**
+
+```typescript
+import { map, signal, div, li } from 'tacit-dom';
+
+// Basic array mapping
+const items = signal(['a', 'b', 'c']);
+const list = map(items, (item) => div(item));
+
+// With filtering
+const numbers = signal([1, 2, 3, 4, 5]);
+const evenNumbers = map(
+  numbers,
+  (num) => div(num),
+  (num) => num % 2 === 0,
+);
+```
+
+### `fragment(...children: (string | number | HTMLElement)[]): DocumentFragment`
+
+Creates a fragment that renders multiple elements without a wrapper container. Useful for returning multiple elements from components.
+
+**Parameters:**
+
+- `...children: (string | number | HTMLElement)[]` - Any number of children (strings, numbers, or HTMLElements)
+
+**Returns:**
+
+- `DocumentFragment` - A fragment containing the children
+
+**Example:**
+
+```typescript
+import { fragment, div, h1, p } from 'tacit-dom';
+
+// Basic fragment usage
+const elements = fragment(
+  div('First element'),
+  div('Second element'),
+  div('Third element'),
+);
+
+// In a component that needs to return multiple elements
+const MyComponent = component(() => {
+  const showHeader = useSignal(true);
+  const showFooter = useSignal(true);
+
+  return fragment(
+    when(showHeader, () => h1('Header')),
+    div('Main content'),
+    when(showFooter, () => div('Footer')),
+  );
+});
+```
+
 ## Element Properties
 
 ### `ElementProps`
