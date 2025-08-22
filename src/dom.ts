@@ -9,13 +9,7 @@
  */
 
 import { classes } from './classes';
-import {
-  computed,
-  effect,
-  signal,
-  type Computed,
-  type Signal,
-} from './signals';
+import { computed, effect, signal, type Computed, type Signal } from './signals';
 
 /**
  * Generic event handler type for all DOM events.
@@ -94,18 +88,14 @@ type EventHandler<T = Event> = (event: T) => void | boolean;
  * );
  * ```
  */
-type ElementProps = {
+export type ElementProps = {
   /** @deprecated Use classNames instead. className will be removed in a future version. */
   className?: string;
   /**
    * Flexible CSS class names prop that accepts strings, arrays, objects, and more.
    * This is the recommended way to handle CSS classes.
    */
-  classNames?:
-    | string
-    | string[]
-    | { [key: string]: any }
-    | (string | { [key: string]: any })[];
+  classNames?: string | string[] | { [key: string]: any } | (string | { [key: string]: any })[];
   // Mouse events
   onClick?: EventHandler;
   onDoubleClick?: EventHandler;
@@ -147,26 +137,16 @@ type ElementProps = {
 };
 
 // Helper function to handle common element setup
-function setupElement(
-  element: HTMLElement,
-  props: ElementProps,
-  children: (string | number | HTMLElement)[],
-): void {
+function setupElement(element: HTMLElement, props: ElementProps, children: (string | number | HTMLElement)[]): void {
   // Handle event listeners
   if (props.onClick) element.addEventListener('click', props.onClick);
-  if (props.onDoubleClick)
-    element.addEventListener('dblclick', props.onDoubleClick);
-  if (props.onMouseDown)
-    element.addEventListener('mousedown', props.onMouseDown);
+  if (props.onDoubleClick) element.addEventListener('dblclick', props.onDoubleClick);
+  if (props.onMouseDown) element.addEventListener('mousedown', props.onMouseDown);
   if (props.onMouseUp) element.addEventListener('mouseup', props.onMouseUp);
-  if (props.onMouseMove)
-    element.addEventListener('mousemove', props.onMouseMove);
-  if (props.onMouseEnter)
-    element.addEventListener('mouseenter', props.onMouseEnter);
-  if (props.onMouseLeave)
-    element.addEventListener('mouseleave', props.onMouseLeave);
-  if (props.onMouseOver)
-    element.addEventListener('mouseover', props.onMouseOver);
+  if (props.onMouseMove) element.addEventListener('mousemove', props.onMouseMove);
+  if (props.onMouseEnter) element.addEventListener('mouseenter', props.onMouseEnter);
+  if (props.onMouseLeave) element.addEventListener('mouseleave', props.onMouseLeave);
+  if (props.onMouseOver) element.addEventListener('mouseover', props.onMouseOver);
   if (props.onMouseOut) element.addEventListener('mouseout', props.onMouseOut);
   if (props.onWheel) element.addEventListener('wheel', props.onWheel);
   if (props.onKeyDown) element.addEventListener('keydown', props.onKeyDown);
@@ -178,19 +158,14 @@ function setupElement(
   if (props.onFocus) element.addEventListener('focus', props.onFocus);
   if (props.onBlur) element.addEventListener('blur', props.onBlur);
   if (props.onDrag) element.addEventListener('drag', props.onDrag);
-  if (props.onDragStart)
-    element.addEventListener('dragstart', props.onDragStart);
+  if (props.onDragStart) element.addEventListener('dragstart', props.onDragStart);
   if (props.onDragEnd) element.addEventListener('dragend', props.onDragEnd);
-  if (props.onDragEnter)
-    element.addEventListener('dragenter', props.onDragEnter);
-  if (props.onDragLeave)
-    element.addEventListener('dragleave', props.onDragLeave);
+  if (props.onDragEnter) element.addEventListener('dragenter', props.onDragEnter);
+  if (props.onDragLeave) element.addEventListener('dragleave', props.onDragLeave);
   if (props.onDragOver) element.addEventListener('dragover', props.onDragOver);
   if (props.onDrop) element.addEventListener('drop', props.onDrop);
-  if (props.onTouchStart)
-    element.addEventListener('touchstart', props.onTouchStart);
-  if (props.onTouchMove)
-    element.addEventListener('touchmove', props.onTouchMove);
+  if (props.onTouchStart) element.addEventListener('touchstart', props.onTouchStart);
+  if (props.onTouchMove) element.addEventListener('touchmove', props.onTouchMove);
   if (props.onTouchEnd) element.addEventListener('touchend', props.onTouchEnd);
   if (props.onScroll) element.addEventListener('scroll', props.onScroll);
   if (props.onResize) element.addEventListener('resize', props.onResize);
@@ -349,10 +324,7 @@ export type ComponentUtils = {
   /** Creates a component-scoped computed value */
   computed: <T>(computeFn: () => T) => Computed<T>;
   /** Creates a component-scoped effect */
-  effect: (
-    fn: () => void | (() => void),
-    options?: { allowRecursion?: boolean },
-  ) => void;
+  effect: (fn: () => void | (() => void), options?: { allowRecursion?: boolean }) => void;
 };
 
 /**
@@ -460,9 +432,7 @@ export type ComponentUtils = {
  * });
  * ```
  */
-export function component<P = {}>(
-  renderFn: (props: P, utils: ComponentUtils) => HTMLElement,
-): Component<P> {
+export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) => HTMLElement): Component<P> {
   // Create a unique ID for this component definition (not for each call)
   const componentId = `component_${nextComponentId++}`;
 
@@ -494,10 +464,7 @@ export function component<P = {}>(
 
           // Check if we already have a signal for this call
           if (!currentComponentContext.signals.has(signalKey)) {
-            currentComponentContext.signals.set(
-              signalKey,
-              signal(initialValue),
-            );
+            currentComponentContext.signals.set(signalKey, signal(initialValue));
           }
 
           return currentComponentContext.signals.get(signalKey) as Signal<T>;
@@ -515,15 +482,10 @@ export function component<P = {}>(
           if (!currentComponentContext.signals.has(computedKey)) {
             const computedValue = computed(computeFn);
             // Store the computed value in the signals map for consistency
-            currentComponentContext.signals.set(
-              computedKey,
-              computedValue as any,
-            );
+            currentComponentContext.signals.set(computedKey, computedValue as any);
           }
 
-          return currentComponentContext.signals.get(
-            computedKey,
-          ) as Computed<T>;
+          return currentComponentContext.signals.get(computedKey) as Computed<T>;
         },
         effect: (fn: () => void | (() => void)): void => {
           if (!currentComponentContext) {
@@ -821,6 +783,233 @@ export function h1(
 }
 
 /**
+ * Creates an h2 element.
+ *
+ * This function creates an h2 heading element with optional props and children.
+ * The props can be passed as the first argument, followed by any number of children.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An h2 element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple h2 with text
+ * const element = h2('Section Title');
+ *
+ * // H2 with props and text
+ * const element = h2({ classNames: 'section-header' }, 'Section Title');
+ *
+ * // H2 with multiple children
+ * const element = h2(
+ *   { classNames: 'page-title' },
+ *   'Welcome to ',
+ *   span({ classNames: 'highlight' }, 'Our App')
+ * );
+ * ```
+ */
+export function h2(
+  props?: string | number | ElementProps,
+  ...children: (string | number | HTMLElement)[]
+): HTMLElement {
+  const element = document.createElement('h2');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an h3 element.
+ *
+ * This function creates an h3 heading element with optional props and children.
+ * The props can be passed as the first argument, followed by any number of children.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An h3 element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple h3 with text
+ * const element = h3('Subsection Title');
+ *
+ * // H3 with props and text
+ * const element = h3({ classNames: 'subsection-header' }, 'Subsection Title');
+ *
+ * // H3 with multiple children
+ * const element = h3(
+ *   { classNames: 'card-title' },
+ *   'Card ',
+ *   span({ classNames: 'number' }, '1')
+ * );
+ * ```
+ */
+export function h3(
+  props?: string | number | ElementProps,
+  ...children: (string | number | HTMLElement)[]
+): HTMLElement {
+  const element = document.createElement('h3');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an input element.
+ *
+ * This function creates an input element with optional props and children.
+ * The props can be passed as the first argument, followed by any number of children.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps with input-specific props)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An input element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple text input
+ * const element = input({ placeholder: 'Enter text' });
+ *
+ * // Input with type and value
+ * const element = input({
+ *   type: 'email',
+ *   placeholder: 'Enter email',
+ *   value: email.get(),
+ *   onInput: (e) => email.set(e.target.value)
+ * });
+ *
+ * // Input with validation
+ * const element = input({
+ *   type: 'password',
+ *   required: true,
+ *   minLength: 8,
+ *   classNames: ['form-control', { 'has-error': hasError }]
+ * });
+ * ```
+ */
+export function input(
+  props?: ElementProps & {
+    type?: string;
+    value?: string;
+    placeholder?: string;
+    required?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
+    size?: number;
+    accept?: string;
+    multiple?: boolean;
+    step?: number;
+    min?: number;
+    max?: number;
+  },
+  ...children: (string | number | HTMLElement)[]
+): HTMLElement {
+  const element = document.createElement('input');
+
+  if (props) {
+    // Handle input-specific attributes
+    if (props.type) element.setAttribute('type', props.type);
+    if (props.value !== undefined) element.setAttribute('value', props.value);
+    if (props.placeholder) element.setAttribute('placeholder', props.placeholder);
+    if (props.required !== undefined) element.required = props.required;
+    if (props.disabled !== undefined) element.disabled = props.disabled;
+    if (props.readonly !== undefined) element.readOnly = props.readonly;
+    if (props.maxLength !== undefined) element.setAttribute('maxlength', props.maxLength.toString());
+    if (props.minLength !== undefined) element.setAttribute('minlength', props.minLength.toString());
+    if (props.pattern) element.setAttribute('pattern', props.pattern);
+    if (props.size !== undefined) element.setAttribute('size', props.size.toString());
+    if (props.accept) element.setAttribute('accept', props.accept);
+    if (props.multiple !== undefined) element.multiple = props.multiple;
+    if (props.step !== undefined) element.setAttribute('step', props.step.toString());
+    if (props.min !== undefined) element.setAttribute('min', props.min.toString());
+    if (props.max !== undefined) element.setAttribute('max', props.max.toString());
+
+    // Set up common element properties
+    setupElement(element, props, children);
+  } else {
+    // If no props, just add the children
+    children.forEach((child) => {
+      if (typeof child === 'string' || typeof child === 'number') {
+        element.appendChild(document.createTextNode(String(child)));
+      } else {
+        element.appendChild(child);
+      }
+    });
+  }
+
+  return element;
+}
+
+/**
+ * Creates a label element.
+ *
+ * This function creates a label element with optional props and children.
+ * The props can be passed as the first argument, followed by any number of children.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps with label-specific props)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A label element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple label
+ * const element = label('Username:');
+ *
+ * // Label with for attribute
+ * const element = label({ for: 'username-input' }, 'Username:');
+ *
+ * // Label with styling
+ * const element = label(
+ *   { classNames: 'form-label', for: 'email-input' },
+ *   'Email Address:'
+ * );
+ * ```
+ */
+export function label(
+  props?: string | number | (ElementProps & { for?: string }),
+  ...children: (string | number | HTMLElement)[]
+): HTMLElement {
+  const element = document.createElement('label');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    // Handle label-specific attributes
+    if (props.for) element.setAttribute('for', props.for);
+
+    // Set up common element properties
+    setupElement(element, props, children);
+  } else {
+    // If no props, just add the children
+    children.forEach((child) => {
+      if (typeof child === 'string' || typeof child === 'number') {
+        element.appendChild(document.createTextNode(String(child)));
+      } else {
+        element.appendChild(child);
+      }
+    });
+  }
+
+  return element;
+}
+
+/**
  * Creates an anchor element.
  *
  * Creates a link element with optional props and children. Anchor elements
@@ -953,10 +1142,7 @@ export function a(
  * );
  * ```
  */
-export function p(
-  props?: string | number | ElementProps,
-  ...children: (string | number | HTMLElement)[]
-): HTMLElement {
+export function p(props?: string | number | ElementProps, ...children: (string | number | HTMLElement)[]): HTMLElement {
   const element = document.createElement('p');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -1078,10 +1264,7 @@ export function span(
  * render(renderFn, document.getElementById('app')!);
  * ```
  */
-export function render(
-  component: HTMLElement | (() => HTMLElement) | Component<any>,
-  container: HTMLElement,
-): void {
+export function render(component: HTMLElement | (() => HTMLElement) | Component<any>, container: HTMLElement): void {
   container.innerHTML = '';
 
   if (typeof component === 'function') {
@@ -1192,10 +1375,7 @@ export function cleanup(element: HTMLElement): void {
  * });
  * ```
  */
-export function when<T>(
-  condition: Signal<T> | Computed<T> | T,
-  renderFn: () => HTMLElement,
-): HTMLElement {
+export function when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => HTMLElement): HTMLElement {
   // Create a container element that will hold the conditional content
   const container = document.createElement('div');
 
@@ -1219,11 +1399,7 @@ export function when<T>(
     let shouldRender = false;
     let currentValue: T;
 
-    if (
-      typeof condition === 'function' &&
-      'get' in condition &&
-      'subscribe' in condition
-    ) {
+    if (typeof condition === 'function' && 'get' in condition && 'subscribe' in condition) {
       // It's a signal or computed value
       const signalOrComputed = condition as Signal<T> | Computed<T>;
       currentValue = signalOrComputed.get();
@@ -1246,11 +1422,7 @@ export function when<T>(
   };
 
   // Set up effect to track changes and re-render
-  if (
-    typeof condition === 'function' &&
-    'get' in condition &&
-    'subscribe' in condition
-  ) {
+  if (typeof condition === 'function' && 'get' in condition && 'subscribe' in condition) {
     // It's a signal or computed value, so we need to track dependencies
     effect(() => {
       // Access the signal value to track dependencies
@@ -1314,11 +1486,7 @@ export function map<T>(
     // Get the current array value
     let currentArray: T[];
 
-    if (
-      typeof arraySignal === 'function' &&
-      'get' in arraySignal &&
-      'subscribe' in arraySignal
-    ) {
+    if (typeof arraySignal === 'function' && 'get' in arraySignal && 'subscribe' in arraySignal) {
       // It's a signal or computed value
       const signalOrComputed = arraySignal as Signal<T[]> | Computed<T[]>;
       currentArray = signalOrComputed.get();
@@ -1334,9 +1502,7 @@ export function map<T>(
     }
 
     // Filter items if selector is provided
-    const itemsToRender = selector
-      ? currentArray.filter((item, index) => selector(item, index))
-      : currentArray;
+    const itemsToRender = selector ? currentArray.filter((item, index) => selector(item, index)) : currentArray;
 
     // Render each item
     itemsToRender.forEach((item, index) => {
@@ -1350,11 +1516,7 @@ export function map<T>(
   };
 
   // Set up effect to track changes and re-render
-  if (
-    typeof arraySignal === 'function' &&
-    'get' in arraySignal &&
-    'subscribe' in arraySignal
-  ) {
+  if (typeof arraySignal === 'function' && 'get' in arraySignal && 'subscribe' in arraySignal) {
     // It's a signal or computed value, so we need to track changes
     effect(() => {
       // Access the signal value to track dependencies
@@ -1413,9 +1575,7 @@ export function map<T>(
  * });
  * ```
  */
-export function fragment(
-  ...children: (string | number | HTMLElement)[]
-): DocumentFragment {
+export function fragment(...children: (string | number | HTMLElement)[]): DocumentFragment {
   const fragment = document.createDocumentFragment();
 
   children.forEach((child) => {
@@ -1438,4 +1598,64 @@ export function fragment(
   });
 
   return fragment;
+}
+
+/**
+ * Creates an error boundary that wraps a component with error handling capabilities.
+ *
+ * Error boundaries catch errors during rendering, in lifecycle methods, and in constructors
+ * of the wrapped component. When an error occurs, the fallback component is rendered instead.
+ *
+ * @param Component - The component to wrap with error handling
+ * @param options - Configuration options for the error boundary
+ * @returns A new component with error boundary functionality
+ *
+ * @example
+ * ```typescript
+ * // Basic error boundary
+ * const SafeComponent = errorBoundary(MyComponent, {
+ *   fallback: (error) => div('Something went wrong!'),
+ *   onError: (error) => console.error('Component error:', error)
+ * });
+ *
+ * // Error boundary with detailed fallback
+ * const SafeCounter = errorBoundary(Counter, {
+ *   fallback: (error) => div(
+ *     { classNames: 'error-boundary' },
+ *     h1('Error occurred'),
+ *     p(`Error: ${error.message}`),
+ *     button({ onClick: () => window.location.reload() }, 'Reload page')
+ *   ),
+ *   onError: (error, errorInfo) => {
+ *     console.error('Counter error:', error);
+ *     // Send to error reporting service
+ *     reportError(error, errorInfo);
+ *   }
+ * });
+ *
+ * // Usage
+ * render(SafeComponent, document.getElementById('app'));
+ * ```
+ */
+export function errorBoundary<P = {}>(
+  Component: Component<P>,
+  options: {
+    fallback: (error: Error, errorInfo?: any) => HTMLElement;
+    onError?: (error: Error, errorInfo?: any) => void;
+  },
+): Component<P> {
+  return (props?: P) => {
+    try {
+      // Attempt to render the wrapped component
+      return Component(props);
+    } catch (error) {
+      // Log the error if onError handler is provided
+      if (options.onError) {
+        options.onError(error as Error, { componentStack: Component.name || 'Unknown' });
+      }
+
+      // Render the fallback UI
+      return options.fallback(error as Error, { componentStack: Component.name || 'Unknown' });
+    }
+  };
 }

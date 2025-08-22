@@ -1,42 +1,30 @@
-import {
-  button,
-  computed,
-  createReactiveComponent,
-  div,
-  errorBoundary,
-  h2,
-  p,
-  render,
-  signal,
-} from '../../src/index';
+import { button, component, computed, div, errorBoundary, h2, p, render, signal } from '../../src';
 
 // Global variables for manual error demo
 let manualErrorComponent: any = null;
 let manualErrorContainer: HTMLElement | null = null;
 
 // Component that sometimes throws errors
-const BuggyComponent = createReactiveComponent<{ shouldThrow?: boolean }>(
-  (props) => {
-    const count = signal(0);
-    const doubled = computed(() => count.get() * 2);
+const BuggyComponent = component<{ shouldThrow?: boolean }>((props) => {
+  const count = signal(0);
+  const doubled = computed(() => count.get() * 2);
 
-    if (props?.shouldThrow) {
-      throw new Error('This component is intentionally broken!');
-    }
+  if (props?.shouldThrow) {
+    throw new Error('This component is intentionally broken!');
+  }
 
-    return div(
-      div(
-        h2('Working Component'),
-        p(`Count: ${count.get()}`),
-        p(`Doubled: ${doubled.get()}`),
-        button({ onclick: () => count.set(count.get() + 1) }, 'Increment'),
-      ),
-    );
-  },
-);
+  return div(
+    div(
+      h2('Working Component'),
+      p(`Count: ${count.get()}`),
+      p(`Doubled: ${doubled.get()}`),
+      button({ onClick: () => count.set(count.get() + 1) }, 'Increment'),
+    ),
+  );
+});
 
 // Component that can recover from errors
-const RecoverableComponent = createReactiveComponent<{
+const RecoverableComponent = component<{
   mode: 'normal' | 'error' | 'recovered';
 }>((props) => {
   const mode = signal(props?.mode || 'normal');
@@ -49,12 +37,9 @@ const RecoverableComponent = createReactiveComponent<{
     div(
       h2('Recoverable Component'),
       p(`Mode: ${mode.get()}`),
-      button({ onclick: () => mode.set('normal') }, 'Set Normal'),
-      button(
-        { onclick: () => mode.set('error'), classNames: 'danger' },
-        'Trigger Error',
-      ),
-      button({ onclick: () => mode.set('recovered') }, 'Set Recovered'),
+      button({ onClick: () => mode.set('normal') }, 'Set Normal'),
+      button({ onClick: () => mode.set('error'), classNames: 'danger' }, 'Trigger Error'),
+      button({ onClick: () => mode.set('recovered') }, 'Set Recovered'),
     ),
   );
 });
@@ -67,36 +52,38 @@ const CustomErrorFallback = (error: Error) =>
     p(`Something went wrong: ${error.message}`),
     p('This is a custom error UI with better styling and options.'),
     div(
-      button({ onclick: () => window.location.reload() }, 'Reload Page'),
-      button(
-        { onclick: () => console.log('Error details:', error) },
-        'Log Details',
-      ),
+      button({ onClick: () => window.location.reload() }, 'Reload Page'),
+      button({ onClick: () => console.log('Error details:', error) }, 'Log Details'),
     ),
   );
 
 // Basic error boundary demo
-const BasicDemo = errorBoundary(BuggyComponent);
+const BasicDemo = errorBoundary(BuggyComponent, {
+  fallback: (error) => div('Something went wrong!'),
+});
 render(BasicDemo, document.getElementById('basic-demo')!);
 
 // Custom fallback demo
-const CustomDemo = errorBoundary(() => BuggyComponent({ shouldThrow: true }), {
+const CustomDemo = errorBoundary(BuggyComponent, {
   fallback: CustomErrorFallback,
 });
 render(CustomDemo, document.getElementById('custom-demo')!);
 
 // Recovery demo
-const RecoveryDemo = errorBoundary(RecoverableComponent);
+const RecoveryDemo = errorBoundary(RecoverableComponent, {
+  fallback: (error) => div('Something went wrong!'),
+});
 render(RecoveryDemo, document.getElementById('recovery-demo')!);
 
 // Manual error demo
 const ManualDemo = errorBoundary(
-  createReactiveComponent(() => div('Manual error demo - click buttons above')),
+  component(() => div('Manual error demo - click buttons above')),
   {
     onError: (error) => {
       console.log('Manual error triggered:', error);
       updateStatus('manual-status', 'Error triggered manually', 'error');
     },
+    fallback: (error) => div('Something went wrong!'),
   },
 );
 
@@ -105,11 +92,7 @@ manualErrorComponent = ManualDemo;
 render(ManualDemo, manualErrorContainer);
 
 // Status update helper
-function updateStatus(
-  elementId: string,
-  message: string,
-  type: 'success' | 'error' | 'info',
-) {
+function updateStatus(elementId: string, message: string, type: 'success' | 'error' | 'info') {
   const statusElement = document.getElementById(elementId);
   if (statusElement) {
     statusElement.textContent = message;
