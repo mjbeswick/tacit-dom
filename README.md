@@ -2,8 +2,6 @@
 
 ![Tacit-DOM Banner](docs/images/tacit-dom_banner.svg)
 
-> **Implicit. Reactive. Powerful.**
-
 > A React-like library with reactive signals and computed values for building dynamic web applications—without the need for JSX.
 
 </div>
@@ -23,41 +21,53 @@ _Think of it as a "what if React was simpler?" experiment. Use at your own risk!
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9.2-blue.svg)](https://www.typescriptlang.org/)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/mjbeswick/tacit-dom/test-examples.yml?branch=main)](https://github.com/mjbeswick/tacit-dom/actions)
 
-</div>
-
-## ⚠️ Project status
-
-- **Experimental**: This library is still an experiment and subject to significant change.
-- **Work in progress**: APIs are evolving and may change without notice.
-- **Poor test coverage**: The current test coverage is limited and many areas are untested.
-- **Expect breakage**: This will likely break badly if you try to build anything non‑trivial right now.
-
-If you want something stable for production, this is not it (yet).
-
 ## 📋 Table of Contents
 
+- [Project Status](#-project-status)
 - [Features](#-features)
+- [Why Tacit-DOM?](#-why-tacit-dom)
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
+- [Components](#-components)
+- [Conditional and List Rendering](#-conditional-and-list-rendering)
+- [Examples](#-examples)
 - [Documentation](#-documentation)
 - [API Reference](#-api-reference)
-- [Examples](#-examples)
 - [Development](#-development)
 - [License](#-license)
 
+## ⚠️ Project Status
+
+**Current Status**: Experimental Proof of Concept
+
+- **🚧 Experimental**: APIs are evolving and may change without notice
+- **🧪 Proof of Concept**: Designed to explore reactive programming patterns
+- **⚠️ Not Production Ready**: Limited test coverage and may break with non-trivial use cases
+- **🔄 Work in Progress**: Subject to significant changes and improvements
+
+> **Note**: If you need a stable, production-ready solution, consider established alternatives like React, Vue, or Svelte.
+
 ## ✨ Features
+
+### 🚀 Core Reactivity
 
 - **⚡ Reactive Signals**: Create reactive state that automatically updates when dependencies change
 - **🧮 Computed Values**: Derive values from signals with automatic dependency tracking
 - **🌍 Global State Management**: Create global state anywhere without providers, context, or complex setup
+- **🧹 Automatic Cleanup**: Prevents memory leaks with smart cleanup
+
+### 🎨 DOM & Components
+
 - **🚫 No Virtual DOM**: Direct DOM updates without the overhead of virtual DOM reconciliation
 - **🧩 Component Pattern**: Build components using a familiar JSX-like syntax
 - **🎭 Conditional Rendering**: Built-in `when` function for reactive conditional content
 - **📋 List Rendering**: Powerful `map` function with optional filtering for dynamic lists
 - **🧩 Fragment Support**: `fragment` function for returning multiple elements without wrappers
 - **🎯 Event Handling**: Built-in support for DOM events
+
+### 🛠️ Developer Experience
+
 - **🔒 TypeScript Support**: Full TypeScript support with type safety
-- **🧹 Automatic Cleanup**: Prevents memory leaks with smart cleanup
 - **📦 Zero Dependencies**: Lightweight with no external dependencies
 - **⚡ Optimized Bundles**: Multiple formats (ESM, UMD, CJS) with Rollup
 - **🎯 Tree-shaking**: Individual modules for optimal bundling
@@ -65,192 +75,94 @@ If you want something stable for production, this is not it (yet).
 
 ## 🚀 Why Tacit-DOM?
 
-React has transformed web development, making it straightforward to build complex, interactive UIs with reusable components. Its approach to rendering and UI composition has become the industry standard. However, **state management in React has long been a source of frustration**. Whether it's prop drilling, context, Redux, hooks, or ongoing debates about the "best" way to handle state, managing state in React often feels unnecessarily complicated. Tacit-DOM is designed to change that—offering simple, reactive, and intuitive state management, so you can keep your UI in sync without the hassle of hooks or boilerplate.
+React has transformed web development, but **state management complexity remains a significant pain point**. Tacit-DOM offers a simpler, signal-first approach that addresses these fundamental issues:
 
-React appears to have reached its peak. Meaningful progress likely requires a different foundation—not more layers on the same model. Recent releases skew toward additive features and ergonomic tweaks, while core pain points remain: state complexity, re-render churn, and mental overhead. Tacit-DOM explores a simpler, signal-first approach that addresses those fundamentals directly.
+### 🎯 Key Advantages
 
-### The React Reality Check 🤔
+| Feature              | React                            | Tacit-DOM                   |
+| -------------------- | -------------------------------- | --------------------------- |
+| **State Management** | Hooks, Context, Redux, etc.      | Simple signals, anywhere    |
+| **Re-renders**       | Component-level re-renders       | Granular DOM updates only   |
+| **Dependencies**     | Manual dependency arrays         | Automatic tracking          |
+| **Virtual DOM**      | Yes (overhead)                   | No (direct updates)         |
+| **Bundle Size**      | Larger (React + dependencies)    | Smaller (zero dependencies) |
+| **Learning Curve**   | Complex (hooks, rules, patterns) | Simple (just signals)       |
 
-React is great and all... but honestly, it's kind of like using a chainsaw to slice a loaf of bread. Sure, it gets the job done, but is all that machinery—virtual DOM, reconciliation, and a sprawling state system—really needed just to update a simple counter?
+### 🧠 Simpler Mental Model
 
-**This isn't to say React is bad** — it often solves problems that don't always need solving. Sometimes updating the DOM directly is enough, without the overhead of a virtual DOM, reconciliation, and the entire React ecosystem. 🎯
-
-### Signals vs React Hooks: The Showdown ⚔️
-
-**Signals are fundamentally better than React hooks because:**
-
-- **🎯 Granular Updates**: Signals update only the specific DOM elements that depend on them, not entire components (no more "why is my entire app re-rendering?" moments)
-- **⚡ No Re-renders**: Unlike React's component re-rendering, signals update the DOM directly without virtual DOM overhead (because who needs a virtual DOM when you can just... update the DOM?)
-- **🧠 Automatic Dependency Tracking**: Signals automatically track dependencies without manual dependency arrays (goodbye, `useEffect` dependency hell!)
-- **🔧 Simpler Mental Model**: No need to understand hooks rules, dependency arrays, or component lifecycle (your brain will thank you)
-- **🚫 No useEffect**: No need for useEffect which creates unnecessary complexity and side effect management (one less hook to worry about!)
-- **📦 Smaller Bundle**: No virtual DOM, reconciliation, or complex state management overhead (your users will thank you)
-- **🎨 Better Performance**: Direct DOM updates are faster than React's render cycle (because sometimes the direct route is the best route)
-- **🌍 Global State Without Providers**: Create global state anywhere without complex provider patterns or context setup (no more provider nesting nightmares!)
-
-### Pure TypeScript vs JSX: The Battle Continues 🥊
-
-**Pure TypeScript is better than JSX because:**
-
-- **🔒 Type Safety**: Full TypeScript support with compile-time type checking (catch bugs before they catch you)
-- **🧹 No Build Step**: No need for JSX transformation or Babel configuration (one less thing to configure!)
-- **📦 Smaller Bundle**: No JSX runtime or transformation overhead (every byte counts)
-- **🎯 Better IDE Support**: Full IntelliSense, autocomplete, and refactoring support (your IDE will love you)
-- **🔧 Simpler Tooling**: No need for JSX plugins, Babel, or special build configurations (less configuration = more coding)
-- **📚 Familiar Syntax**: Uses standard JavaScript/TypeScript function calls (no new syntax to learn!)
-- **🎨 More Flexible**: Easier to compose, transform, and manipulate programmatically (power to the programmer!)
-- **✍️ Less Code**: More concise and easier to write without verbose JSX syntax (less typing, more doing)
-- **🚫 No XML Recreation**: JSX is just trying to recreate XML in TypeScript, which has no advantages aside from looking like HTML, but is less efficient (because who said JavaScript needed XML?)
-
-### The React Inertia 🎠
-
-Time to address the elephant in the room: **defaulting to React by habit**.
-
-React is ubiquitous—in job postings, tutorials, bootcamps, and portfolios. That ubiquity can make it the default, but the default isn't always the right tool for the job.
-
-Sometimes a sledgehammer (React) is perfect; sometimes a regular hammer (Tacit-DOM) is exactly right. 🛠️
-
-**Tacit-DOM is for developers who:**
-
-- Want to build reactive UIs without the React complexity
-- Prefer direct DOM manipulation over virtual DOM abstraction
-- Value simplicity and performance over ecosystem size
-- Don't want to learn another framework's quirks and gotchas
-- Believe that sometimes less is more
-
-Remember: **The best tool is the one that gets the job done with the least amount of complexity.** Sometimes that's React, and sometimes it's Tacit-DOM. 🤷‍♂️
-
-### The Hook Horror Show 🎭
-
-Time to address the elephant in the React room: **hooks are a mess**.
-
-#### The useEffect Nightmare 😱
-
-`useEffect` is like that friend who always shows up to your party but never knows when to leave. Here's what you're dealing with:
+**React Hooks Complexity:**
 
 ```typescript
-// React way - the useEffect dependency hell
-useEffect(() => {
-  // Do something
-}, [dependency1, dependency2, dependency3]); // Did I forget one? 🤔
-
-// Oh wait, I need to add another dependency...
-useEffect(() => {
-  // Do something else
-}, [dependency1, dependency2, dependency3, dependency4]); // Still missing something?
-
-// And another one for cleanup...
+// React - multiple hooks, dependency arrays, cleanup
 useEffect(() => {
   const timer = setInterval(() => {
-    // Do something
+    setCount((c) => c + 1);
   }, 1000);
-
-  return () => clearInterval(timer); // Don't forget cleanup!
-}, [dependency1, dependency2, dependency3, dependency4]); // Wait, what was I doing again?
+  return () => clearInterval(timer);
+}, []); // Don't forget dependencies!
 ```
 
-**vs Tacit-DOM signals:**
+**Tacit-DOM Simplicity:**
 
 ```typescript
-// Tacit-DOM way - just update the signal
-const timer = signal(0);
-
-setInterval(() => {
-  timer.set(timer.get() + 1);
-}, 1000);
-
-// That's it. No cleanup, no dependencies, no useEffect hell.
-// The DOM updates automatically when the signal changes.
+// Tacit-DOM - just update the signal
+const count = signal(0);
+setInterval(() => count.set(count.get() + 1), 1000);
+// DOM updates automatically, no cleanup needed
 ```
 
-#### Hook Rules: The Developer's Burden 📚
+### 🎭 No More Re-render Roulette
 
-With React hooks, you need to remember:
-
-- ✅ Only call hooks at the top level
-- ✅ Don't call hooks inside loops, conditions, or nested functions
-- ✅ Always include all dependencies in useEffect
-- ✅ Don't forget to clean up side effects
-- ✅ Make sure your dependency array is exhaustive
-- ✅ Don't create objects in the dependency array (unless you memoize them)
-- ✅ Remember that useEffect runs after every render
-- ✅ Don't forget that useEffect can run multiple times
-- ✅ Make sure you're not causing infinite re-renders
-- ✅ Remember that useEffect cleanup runs before the next effect
-
-**With Tacit-DOM signals:**
-
-- Just use the signal 😎
-
-#### The Re-render Roulette 🎰
-
-In React, you never know what's going to re-render:
+In React, changing any state re-renders the entire component. With Tacit-DOM, only DOM elements that depend on a specific signal will update:
 
 ```typescript
-// React - will this re-render? Who knows!
+// React: Changing count re-renders everything
 const [count, setCount] = useState(0);
 const [user, setUser] = useState({ name: 'John' });
 
-// Does changing count re-render the user display?
-// Does changing user re-render the count display?
-// The answer: YES, because React re-renders the entire component!
-```
-
-**vs Tacit-DOM:**
-
-```typescript
-// Tacit-DOM - only what depends on the signal updates
+// Tacit-DOM: Only count-dependent elements update
 const count = signal(0);
 const user = signal({ name: 'John' });
-
-// Only elements that depend on count will update when count changes
-// Only elements that depend on user will update when user changes
-// No unnecessary re-renders, no guessing games!
+// Elements using count update when count changes
+// Elements using user update when user changes
 ```
 
-#### The State Management Circus 🎪
+### 🌍 Global State Without Complexity
 
-React state management is like trying to organize a circus where all the performers are connected by invisible strings:
+**React State Management:**
 
 ```typescript
-// React - state management hell
-const [localState, setLocalState] = useState(0);
-const [globalState, setGlobalState] = useState({});
-const [formState, setFormState] = useState({});
-const [uiState, setUiState] = useState({});
-
-// Need to share state? Time for Context!
+// React - Context, Providers, Redux, etc.
 const MyContext = createContext();
 const MyProvider = ({ children }) => {
-  const [sharedState, setSharedState] = useState({});
+  const [state, setState] = useState({});
   return (
-    <MyContext.Provider value={{ sharedState, setSharedState }}>
+    <MyContext.Provider value={{ state, setState }}>
       {children}
     </MyContext.Provider>
   );
 };
-
-// Or Redux, or Zustand, or Recoil, or...
 ```
 
-**vs Tacit-DOM:**
+**Tacit-DOM Simplicity:**
 
 ```typescript
 // Tacit-DOM - just create a signal anywhere
-const count = signal(0);
-const user = signal({ name: 'John' });
-
+const globalState = signal({ user: null, theme: 'light' });
 // Use it anywhere in your app, no providers needed
-// No context, no reducers, no complex state management
 ```
-
-**The bottom line:** Hooks are like trying to solve a Rubik's cube blindfolded while juggling flaming torches. Signals are like having a magic wand that just works. ✨
 
 ## 📦 Installation
 
 ```bash
 npm install tacit-dom
 ```
+
+### Requirements
+
+- **Node.js**: 16.0.0 or higher
+- **TypeScript**: 4.5.0 or higher (recommended)
+- **Modern Browsers**: ES2020+ support
 
 ## 🚀 Quick Start
 
@@ -593,28 +505,40 @@ For development setup, building, testing, and project structure, see [DEVELOPMEN
 
 ## 📚 Documentation
 
-Tacit-DOM provides comprehensive documentation covering all aspects of the library:
+Tacit-DOM provides comprehensive documentation covering all aspects of the library. The documentation is organized into logical sections to help you find what you need quickly.
 
-### Core Concepts
+### 🚀 Getting Started
 
-- **[Signals Guide](docs/SIGNALS.md)**: Learn about reactive signals, the foundation of Tacit-DOM
-- **[Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and common patterns
-- **[Signal Internals](docs/SIGNAL_INTERNALS.md)**: Technical implementation details
+- **[📖 API Reference](docs/API.md)**: Complete API documentation with examples
+- **[🔄 Signals Guide](docs/SIGNALS.md)**: Learn about reactive signals, the foundation of Tacit-DOM
+- **[💡 Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and common patterns
 
-### DOM and Components
+### 🎨 DOM & Components
 
-- **[DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
-- **[Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
-- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management (recommended)
-- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Migrate from deprecated `className` to `classNames`
+- **[🌐 DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
+- **[🔒 Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
+- **[🎨 ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class management (recommended)
+- **[🔄 Migration Guide](docs/MIGRATION_GUIDE.md)**: Migrate from deprecated `className` to `classNames`
 
-#### Component Naming Convention
+### 🔧 Advanced Features
+
+- **[🌐 Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
+- **[🌍 i18n Guide](docs/I18N.md)**: Internationalization and localization support
+- **[🚨 Error Boundaries](docs/ERROR_BOUNDARIES.md)**: Graceful error handling and recovery ⚠️ **Experimental**
+
+### 🛠️ Development & Internals
+
+- **[⚙️ Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
+- **[🔍 Signal Internals](docs/SIGNAL_INTERNALS.md)**: Technical implementation details
+
+### 📚 Component Naming Convention
 
 Tacit-DOM uses a clean, intuitive naming convention:
 
-- **`component<P>`** - Function to create reactive components (alias for `createReactiveComponent`)
-- **`Component<P>`** - Type for reactive components with props
-- **`errorBoundary<P>`** - Function to wrap components with error handling capabilities ⚠️ **Experimental**
+| Function               | Type               | Description                                                      |
+| ---------------------- | ------------------ | ---------------------------------------------------------------- |
+| **`component<P>`**     | `Component<P>`     | Create reactive components (alias for `createReactiveComponent`) |
+| **`errorBoundary<P>`** | `ErrorBoundary<P>` | Wrap components with error handling ⚠️ **Experimental**          |
 
 ```typescript
 import { component, Component, div } from 'tacit-dom';
@@ -629,10 +553,6 @@ const Greeting = component<{ name: string }>((props) => {
   return div(`Hello, ${props?.name || 'World'}!`);
 });
 
-// Usage
-SimpleCounter();
-Greeting({ name: 'Alice' });
-
 // Error boundary example (⚠️ Experimental)
 const SafeGreeting = errorBoundary(Greeting, {
   fallback: (error) => div('Error loading greeting'),
@@ -640,34 +560,9 @@ const SafeGreeting = errorBoundary(Greeting, {
 });
 ```
 
-### Advanced Features
-
-- **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
-
-- **[i18n Guide](docs/I18N.md)**: Internationalization and localization support
-
-### Development
-
-- **[Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
-- **[API Reference](docs/API.md)**: Complete API documentation
-
 ## 🛠️ API Reference
 
 For detailed API documentation, see [API.md](docs/API.md).
-
-### Documentation
-
-- **[API Reference](docs/API.md)**: Complete API documentation
-- **[Signals Guide](docs/SIGNALS.md)**: Comprehensive guide to reactive signals
-- **[Signals Usage Guide](docs/SIGNAL_USAGE_GUIDE.md)**: Practical examples and patterns for using signals
-- **[ClassNames Utility](docs/CLASSNAMES.md)**: Dynamic CSS class name utility (recommended)
-- **[Migration Guide](docs/MIGRATION_GUIDE.md)**: Migrate from deprecated `className` to `classNames`
-- **[Router Guide](docs/ROUTER.md)**: Client-side routing with navigation and error handling
-- **[Development Guide](docs/DEVELOPMENT.md)**: Setup, building, testing, and contributing
-- **[i18n Guide](docs/I18N.md)**: Internationalization and localization support
-- **[DOM Internals](docs/DOM_INTERNALS.md)**: Deep dive into DOM manipulation and reactive updates
-- **[Signal Internals](docs/SIGNAL_INTERNALS.md)**: Technical details about signal implementation
-- **[Strongly Typed Props](docs/STRONGLY_TYPED_PROPS.md)**: TypeScript type safety for HTML elements
 
 ### Core Functions
 
@@ -786,57 +681,111 @@ const SafeComponent = errorBoundary(MyComponent, {
 
 ## 🎯 Examples
 
-The `examples/` directory contains comprehensive examples demonstrating Tacit-DOM features:
+The `examples/` directory contains comprehensive examples demonstrating Tacit-DOM features. Each example is designed to showcase specific aspects of the library and can be run independently.
 
-### Available Examples
+### 🚀 Getting Started Examples
 
-- **🎲 Random Generator** (`/random-generator`): Signal updates with automatic UI re-rendering
-- **🐛 Debug** (`/debug`): Reactive signals with disabled states and real-time logging
-- **🌐 Router** (`/router`): Advanced client-side routing with navigation and error handling
+- **📊 [Signals](/examples/signals)**: Basic reactive signals with automatic UI updates
+- **🎨 [ClassNames](/examples/classnames)**: Dynamic CSS class management utility
+- **🧩 [Component Props](/examples/props-demo)**: Strongly-typed components with props
 
-- **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
-- **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
-- **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
-- **🚨 Error Boundary** (`/error-boundary`): Graceful error handling and recovery for components with error boundaries ⚠️ **Experimental**
+### 🔧 Advanced Features
 
-### Example Features
+- **🌐 [Router](/examples/router)**: Client-side routing with navigation and error handling
+- **🌍 [i18n](/examples/i18n)**: Internationalization with reactive translations
+- **🚨 [Error Boundary](/examples/error-boundary)**: Graceful error handling and recovery ⚠️ **Experimental**
+- **🔄 [Nested Signals](/examples/nested-signals)**: Complex signal relationships and patterns
 
-Each example demonstrates different aspects of Tacit-DOM:
+### 🎮 Interactive Demos
 
-- **Reactive Signals**: Global state management without providers or context
-- **Store Pattern**: Centralized state management with persistent signals across component re-renders
-- **Computed Values**: Automatic dependency tracking and derived state
-- **Event Handling**: Built-in DOM event support with reactive updates
-- **Type Safety**: Full TypeScript support with strongly typed props
-- **Routing**: Client-side routing with dynamic route handling
-- **Error Boundaries**: Graceful error handling and recovery with error boundary components
+- **⏱️ [Stopwatch](/examples/stopwatch)**: Real-time timer with reactive updates
+- **🌳 [Tree](/examples/tree)**: Interactive tree component with expand/collapse
+- **🎲 [Complex Signals](/examples/signals-complex)**: Advanced state management patterns
 
-### Running Examples
+### 🚀 Running Examples
+
+#### Quick Start (All Examples)
 
 ```bash
 # Run all examples simultaneously
 ./examples/run-all.sh
-
-# Or run individual examples
-cd examples/debug && npm install && npm run dev
-cd examples/router && npm install && npm run dev
-
 ```
 
-### Example Ports
+#### Individual Examples
 
-Each example runs on a different port:
+```bash
+# Navigate to any example directory
+cd examples/signals
 
-- **Debug**: `http://localhost:5173`
-- **Random Generator**: `http://localhost:5174`
-- **Router**: `http://localhost:5175`
+# Install dependencies
+npm install
 
-- **Signals**: `http://localhost:5177`
-- **ClassNames**: `http://localhost:5178`
-- **Error Boundary**: `http://localhost:3004`
+# Start development server
+npm run dev
+```
+
+### 🎯 What Each Example Demonstrates
+
+- **Reactive Signals**: Global state management without providers or context
+- **Store Pattern**: Centralized state management with persistent signals
+- **Computed Values**: Automatic dependency tracking and derived state
+- **Event Handling**: Built-in DOM event support with reactive updates
+- **Type Safety**: Full TypeScript support with strongly typed props
+- **Routing**: Client-side routing with dynamic route handling
+- **Error Boundaries**: Graceful error handling and recovery
+- **Performance**: Direct DOM updates without virtual DOM overhead
 
 For detailed information about each example, see the [Examples README](examples/README.md).
+
+## 🚀 Performance & Benchmarks
+
+Tacit-DOM is designed for performance from the ground up:
+
+### ⚡ Key Performance Features
+
+- **🚫 No Virtual DOM**: Direct DOM updates eliminate reconciliation overhead
+- **🎯 Granular Updates**: Only affected DOM elements update, not entire components
+- **🧠 Smart Dependency Tracking**: Automatic dependency management without manual arrays
+- **📦 Zero Dependencies**: Minimal bundle size with no external runtime overhead
+- **🔄 Efficient Signal System**: Optimized signal updates with batching support
+
+### 📊 Performance Comparison
+
+| Metric              | React                      | Tacit-DOM                 |
+| ------------------- | -------------------------- | ------------------------- |
+| **Bundle Size**     | ~42KB (React 18)           | ~15KB (estimated)         |
+| **Update Overhead** | Virtual DOM reconciliation | Direct DOM updates        |
+| **Memory Usage**    | Component tree + VDOM      | Signal subscriptions only |
+| **Startup Time**    | Framework initialization   | Minimal setup             |
+
+> **Note**: These are estimated metrics based on the library's architecture. Actual performance may vary based on use case and implementation.
+
+## 🤝 Contributing
+
+Tacit-DOM is an experimental project exploring reactive programming patterns. Contributions are welcome!
+
+### 🎯 Areas for Contribution
+
+- **🧪 Testing**: Improve test coverage and add integration tests
+- **📚 Documentation**: Enhance guides and add more examples
+- **🚀 Performance**: Optimize signal updates and DOM operations
+- **🔧 Tooling**: Improve build tools and development experience
+- **🌐 Examples**: Create more comprehensive example applications
+
+### 🛠️ Development Setup
+
+See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed setup instructions.
 
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+<div align="center">
+
+**Tacit-DOM** - Because sometimes the simplest solution is the best solution.
+
+_Built with ❤️ and a lot of 🧪 experimentation_
+
+</div>
