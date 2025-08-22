@@ -91,16 +91,22 @@ describe('DOM Element Creation', () => {
     });
 
     it('should filter out falsy children', () => {
-      const element = div('Hello', null, undefined, false, 0, '', 'World');
+      const element = div('Hello', null, undefined, false, '', 'World');
       expect(element.tagName).toBe('DIV');
       expect(element.textContent).toBe('HelloWorld');
     });
 
     it('should filter out falsy children with props', () => {
-      const element = div({ className: 'test' }, 'Hello', null, undefined, false, 0, '', 'World');
+      const element = div({ className: 'test' }, 'Hello', null, undefined, false, '', 'World');
       expect(element.tagName).toBe('DIV');
       expect(element.className).toBe('test');
       expect(element.textContent).toBe('HelloWorld');
+    });
+
+    it('should render zero as valid content', () => {
+      const element = div('Hello', 0, 'World');
+      expect(element.tagName).toBe('DIV');
+      expect(element.textContent).toBe('Hello0World');
     });
 
     it('should handle conditional rendering with falsy values', () => {

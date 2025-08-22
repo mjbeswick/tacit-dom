@@ -48,8 +48,9 @@ type EventHandler<T = Event> = (event: T) => void | boolean;
 /**
  * Type for valid DOM element children.
  *
- * Falsy values (null, undefined, false, 0, '') are automatically filtered out
+ * Falsy values (null, undefined, false, '') are automatically filtered out
  * and not rendered, allowing for conditional rendering patterns.
+ * Numbers (including 0) are rendered as text content.
  */
 export type ElementChildren = (string | number | HTMLElement | null | undefined | false | 0 | '')[];
 
@@ -209,7 +210,14 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
             const cssProperty = property.replace(/([A-Z])/g, '-$1').toLowerCase();
             const cssValue = typeof value === 'number' ? `${value}px` : String(value);
             element.style.setProperty(cssProperty, cssValue);
-          } else if ('get' in value) {
+          } else if (
+            typeof value === 'object' &&
+            value !== null &&
+            'get' in value &&
+            typeof value.get === 'function' &&
+            'subscribe' in value &&
+            typeof value.subscribe === 'function'
+          ) {
             // Handle signal/computed value
             const updateProperty = () => {
               const signalValue = value.get();
@@ -259,11 +267,36 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
     }
   }
 
-  // Handle children - filter out falsy values
+  // Handle children - filter out falsy values and handle reactive children
   children.forEach((child) => {
-    if (child !== null && child !== undefined && child !== false && child !== 0 && child !== '') {
+    if (child !== null && child !== undefined && child !== false && child !== '') {
       if (typeof child === 'string' || typeof child === 'number') {
         element.appendChild(document.createTextNode(String(child)));
+      } else if (
+        typeof child === 'object' &&
+        child !== null &&
+        !Array.isArray(child) &&
+        typeof child !== 'function' &&
+        'get' in child &&
+        typeof child.get === 'function' &&
+        'subscribe' in child &&
+        typeof child.subscribe === 'function' &&
+        (child as any).constructor === Object // Only plain objects, not built-in types like Number
+      ) {
+        // Handle reactive children (signals or computed values)
+        const reactiveChild = child as Signal<any> | Computed<any>;
+        const createReactiveTextNode = () => {
+          const value = reactiveChild.get();
+          const textNode = document.createTextNode(String(value));
+          element.appendChild(textNode);
+
+          // Subscribe to changes and update the text node
+          reactiveChild.subscribe(() => {
+            textNode.textContent = String(reactiveChild.get());
+          });
+        };
+
+        createReactiveTextNode();
       } else {
         element.appendChild(child);
       }
@@ -275,9 +308,34 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
 function setupTextElement(element: HTMLElement, textContent: string | number, children: ElementChildren): void {
   element.textContent = String(textContent);
   children.forEach((child) => {
-    if (child !== null && child !== undefined && child !== false && child !== 0 && child !== '') {
+    if (child !== null && child !== undefined && child !== false && child !== '') {
       if (typeof child === 'string' || typeof child === 'number') {
         element.appendChild(document.createTextNode(String(child)));
+      } else if (
+        typeof child === 'object' &&
+        child !== null &&
+        !Array.isArray(child) &&
+        typeof child !== 'function' &&
+        'get' in child &&
+        typeof child.get === 'function' &&
+        'subscribe' in child &&
+        typeof child.subscribe === 'function' &&
+        (child as any).constructor === Object // Only plain objects, not built-in types like Number
+      ) {
+        // Handle reactive children (signals or computed values)
+        const reactiveChild = child as Signal<any> | Computed<any>;
+        const createReactiveTextNode = () => {
+          const value = reactiveChild.get();
+          const textNode = document.createTextNode(String(value));
+          element.appendChild(textNode);
+
+          // Subscribe to changes and update the text node
+          reactiveChild.subscribe(() => {
+            textNode.textContent = String(reactiveChild.get());
+          });
+        };
+
+        createReactiveTextNode();
       } else {
         element.appendChild(child);
       }

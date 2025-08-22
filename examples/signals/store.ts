@@ -1,7 +1,9 @@
-import { effect, signal } from '../../src/index';
+import { computed, effect, signal } from '../../src/index';
 
 // Global signal - accessible from anywhere
 export const globalCounter = signal(0);
+
+export const globalEven = computed(() => (globalCounter.get() % 2 === 0 ? 'even' : 'odd'));
 
 // Simple update function for the global counter
 export const incrementGlobal = () => {
