@@ -286,17 +286,11 @@ render(Counter, document.getElementById('app'));
 
 ```typescript
 const Greeting = component<{ name: string; greeting?: string }>((props) => {
-  return div(
-    { className: 'greeting' },
-    h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`),
-  );
+  return div({ className: 'greeting' }, h1(`${props?.greeting || 'Hello'}, ${props?.name || 'World'}!`));
 });
 
 // Usage
-render(
-  Greeting({ name: 'Alice', greeting: 'Welcome' }),
-  document.getElementById('greeting'),
-);
+render(Greeting({ name: 'Alice', greeting: 'Welcome' }), document.getElementById('greeting'));
 ```
 
 ### Component with Local State
@@ -323,26 +317,13 @@ const UserProfile = component(() => {
           }),
           button({ onclick: toggleEdit }, 'Save'),
         )
-      : div(
-          p(`Name: ${user.get().name}`),
-          p(`Email: ${user.get().email}`),
-          button({ onclick: toggleEdit }, 'Edit'),
-        ),
+      : div(p(`Name: ${user.get().name}`), p(`Email: ${user.get().email}`), button({ onclick: toggleEdit }, 'Edit')),
   );
 });
 ```
 
 ```typescript
-import {
-  signal,
-  computed,
-  component,
-  div,
-  h1,
-  p,
-  button,
-  render,
-} from 'tacit-dom';
+import { signal, computed, component, div, h1, p, button, render } from 'tacit-dom';
 
 // Create global reactive signals - accessible anywhere in your app
 const count = signal(0);
@@ -391,10 +372,7 @@ const UserProfile = component(() => {
 
 // Render components to DOM
 render(Counter, document.getElementById('app'));
-render(
-  Greeting({ name: 'Alice', greeting: 'Welcome' }),
-  document.getElementById('greeting'),
-);
+render(Greeting({ name: 'Alice', greeting: 'Welcome' }), document.getElementById('greeting'));
 render(UserProfile, document.getElementById('profile'));
 ```
 
@@ -413,9 +391,7 @@ const element = when(isVisible, () => div('This is visible'));
 // With computed values
 const count = signal(0);
 const isPositive = computed(() => count.get() > 0);
-const element = when(isPositive, () =>
-  div(`Count is positive: ${count.get()}`),
-);
+const element = when(isPositive, () => div(`Count is positive: ${count.get()}`));
 ```
 
 ### List Rendering with `map`
@@ -569,14 +545,84 @@ render(Counter(), document.getElementById('app'));
 All HTML elements are available as factory functions:
 
 ```typescript
-import { div, h1, p, button, input, span } from 'tacit-dom';
+import { div, h1, h2, h3, p, button, input, label, span, a } from 'tacit-dom';
 
 const element = div(
-  { className: 'container' },
-  h1({ children: 'Hello World' }),
-  p({ children: 'This is a paragraph' }),
-  button({ onClick: handleClick, children: 'Click me' }),
+  { classNames: 'container' },
+  h1('Hello World'),
+  h2('Subtitle'),
+  h3('Section'),
+  p('This is a paragraph'),
+  button({ onclick: handleClick }, 'Click me'),
+  input({ type: 'text', placeholder: 'Enter text' }),
+  label({ for: 'input-id' }, 'Input Label'),
 );
+```
+
+### Conditional and List Rendering
+
+Tacit-DOM provides powerful utilities for conditional rendering and list management:
+
+#### `when<T>(condition: Signal<T> | Computed<T> | T, renderFn: () => HTMLElement): HTMLElement`
+
+Conditionally renders content based on a signal's truthiness:
+
+```typescript
+const isVisible = signal(true);
+const element = when(isVisible, () => div('This is visible'));
+
+// With computed values
+const count = signal(0);
+const isPositive = computed(() => count.get() > 0);
+const element = when(isPositive, () => div(`Count is positive: ${count.get()}`));
+```
+
+#### `map<T>(arraySignal: Signal<T[]> | Computed<T[]> | T[], renderFn: (item: T, index: number) => HTMLElement, selector?: (item: T, index: number) => boolean): HTMLElement`
+
+Renders a list of elements from an array signal with optional filtering:
+
+```typescript
+// Basic array mapping
+const items = signal(['a', 'b', 'c']);
+const list = map(items, (item) => div(item));
+
+// With filtering
+const numbers = signal([1, 2, 3, 4, 5]);
+const evenNumbers = map(
+  numbers,
+  (num) => div(num),
+  (num) => num % 2 === 0,
+);
+```
+
+#### `fragment(...children: (string | number | HTMLElement)[]): DocumentFragment`
+
+Creates a document fragment for rendering multiple elements without a wrapper:
+
+```typescript
+const MyComponent = component(() => {
+  const showHeader = signal(true);
+  const showFooter = signal(true);
+
+  return fragment(
+    when(showHeader, () => h1('Header')),
+    div('Main content'),
+    when(showFooter, () => div('Footer')),
+  );
+});
+```
+
+### Error Boundaries
+
+#### `errorBoundary<P>(Component: Component<P>, options: { fallback: (error: Error, errorInfo?: any) => HTMLElement; onError?: (error: Error, errorInfo?: any) => void }): Component<P>`
+
+Wraps components with error handling capabilities:
+
+```typescript
+const SafeComponent = errorBoundary(MyComponent, {
+  fallback: (error) => div('Something went wrong!'),
+  onError: (error) => console.error('Component error:', error),
+});
 ```
 
 ## 🎯 Examples
@@ -592,7 +638,7 @@ The `examples/` directory contains comprehensive examples demonstrating Tacit-DO
 - **⚡ Signals** (`/signals`): Unified signal API with preserved signals and reactive updates
 - **🎨 ClassNames** (`/classnames`): Dynamic CSS class management utility
 - **🧩 Component Props** (`/props-demo`): Strongly-typed components with props and reactive updates
-- **🚨 Error Boundary** (`/error-boundary`): Graceful error handling and recovery for components
+- **🚨 Error Boundary** (`/error-boundary`): Graceful error handling and recovery for components with error boundaries
 
 ### Example Features
 
@@ -604,7 +650,7 @@ Each example demonstrates different aspects of Tacit-DOM:
 - **Event Handling**: Built-in DOM event support with reactive updates
 - **Type Safety**: Full TypeScript support with strongly typed props
 - **Routing**: Client-side routing with dynamic route handling
-- **Error Boundaries**: Graceful error handling and recovery
+- **Error Boundaries**: Graceful error handling and recovery with error boundary components
 
 ### Running Examples
 
