@@ -624,26 +624,6 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
 }
 
 /**
- * Hook for creating component-scoped signals that persist across re-renders
- */
-export function useSignal<T>(initialValue: T): Signal<T> {
-  if (!currentComponentContext) {
-    throw new Error('useSignal can only be called inside a component');
-  }
-
-  // Create a stable identifier for this hook call
-  const hookIndex = currentComponentContext.stateIndex++;
-  const signalKey = `${currentComponentContext.id}_hook_${hookIndex}`;
-
-  // Check if we already have a signal for this hook
-  if (!currentComponentContext.signals.has(signalKey)) {
-    currentComponentContext.signals.set(signalKey, signal(initialValue));
-  }
-
-  return currentComponentContext.signals.get(signalKey) as Signal<T>;
-}
-
-/**
  * Creates a div element.
  *
  * This is the most commonly used element creation function. It creates a div
@@ -1277,6 +1257,1107 @@ export function p(props?: string | number | ElementProps, ...children: ElementCh
  */
 export function span(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
   const element = document.createElement('span');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a pre element.
+ *
+ * Creates a preformatted text element that preserves whitespace and line breaks.
+ * Pre elements are typically used for displaying code, formatted text, or any
+ * content where whitespace preservation is important.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A pre element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple pre with text
+ * const element = pre('function hello() {\n  console.log("Hello");\n}');
+ *
+ * // Pre with props and code
+ * const element = pre(
+ *   { classNames: 'code-block' },
+ *   'const greeting = "Hello, World!";\nconsole.log(greeting);'
+ * );
+ *
+ * // Pre with event handler
+ * const element = pre(
+ *   {
+ *     onClick: () => console.log('Code block clicked'),
+ *     classNames: 'clickable-code'
+ *   },
+ *   'Click me to copy this code'
+ * );
+ *
+ * // Pre for displaying formatted data
+ * const jsonData = JSON.stringify({ name: 'John', age: 30 }, null, 2);
+ * const element = pre(
+ *   { classNames: 'json-display' },
+ *   jsonData
+ * );
+ *
+ * // Pre with reactive content
+ * const code = signal('console.log("Hello")');
+ * const element = pre(
+ *   { classNames: 'dynamic-code' },
+ *   code.get()
+ * );
+ *
+ * // Pre with conditional styling
+ * const isError = signal(false);
+ * const element = pre(
+ *   {
+ *     classNames: ['code-block', { 'error': isError.get() }],
+ *     style: isError.get() ? 'border-color: red;' : 'border-color: green;'
+ *   },
+ *   isError.get() ? 'Error in code' : 'Valid code'
+ * );
+ * ```
+ */
+export function pre(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('pre');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a form element.
+ *
+ * Creates a form element for collecting user input. Forms can contain various
+ * input elements and handle submission events.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A form element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple form
+ * const element = form(
+ *   { onsubmit: (e) => e.preventDefault() },
+ *   input({ type: 'text', placeholder: 'Name' }),
+ *   button({ type: 'submit' }, 'Submit')
+ * );
+ *
+ * // Form with validation
+ * const element = form(
+ *   {
+ *     onsubmit: handleSubmit,
+ *     classNames: 'contact-form'
+ *   },
+ *   label('Name:'),
+ *   input({ type: 'text', required: true }),
+ *   label('Email:'),
+ *   input({ type: 'email', required: true }),
+ *   button({ type: 'submit' }, 'Send')
+ * );
+ * ```
+ */
+export function form(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('form');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a textarea element.
+ *
+ * Creates a multi-line text input element for longer text content.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A textarea element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple textarea
+ * const element = textarea({ placeholder: 'Enter your message...' });
+ *
+ * // Textarea with specific dimensions
+ * const element = textarea(
+ *   {
+ *     rows: 5,
+ *     cols: 50,
+ *     placeholder: 'Enter your message...',
+ *     oninput: (e) => console.log(e.target.value)
+ *   }
+ * );
+ *
+ * // Textarea with reactive value
+ * const message = signal('');
+ * const element = textarea(
+ *   {
+ *     value: message.get(),
+ *     oninput: (e) => message.set(e.target.value),
+ *     classNames: 'message-input'
+ *   }
+ * );
+ * ```
+ */
+export function textarea(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('textarea');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a select element.
+ *
+ * Creates a dropdown selection element with options.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of option elements
+ * @returns A select element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple select with options
+ * const element = select(
+ *   { onchange: (e) => console.log(e.target.value) },
+ *   option({ value: 'option1' }, 'Option 1'),
+ *   option({ value: 'option2' }, 'Option 2'),
+ *   option({ value: 'option3' }, 'Option 3')
+ * );
+ *
+ * // Select with reactive value
+ * const selected = signal('option1');
+ * const element = select(
+ *   {
+ *     value: selected.get(),
+ *     onchange: (e) => selected.set(e.target.value),
+ *     classNames: 'country-select'
+ *   },
+ *   option({ value: 'us' }, 'United States'),
+ *   option({ value: 'ca' }, 'Canada'),
+ *   option({ value: 'uk' }, 'United Kingdom')
+ * );
+ * ```
+ */
+export function select(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('select');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an option element.
+ *
+ * Creates an option element for use within select elements.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An option element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple option
+ * const element = option({ value: 'option1' }, 'Option 1');
+ *
+ * // Option with additional attributes
+ * const element = option(
+ *   {
+ *     value: 'option1',
+ *     disabled: true,
+ *     classNames: 'disabled-option'
+ *   },
+ *   'Disabled Option'
+ * );
+ * ```
+ */
+export function option(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('option');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a section element.
+ *
+ * Creates a section element for grouping related content.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A section element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple section
+ * const element = section(
+ *   { classNames: 'content-section' },
+ *   h2('About Us'),
+ *   p('This is the about section content.')
+ * );
+ *
+ * // Section with reactive content
+ * const isVisible = signal(true);
+ * const element = when(isVisible, () =>
+ *   section(
+ *     { classNames: 'dynamic-section' },
+ *     h2('Dynamic Content'),
+ *     p('This section shows/hides based on state.')
+ *   )
+ * );
+ * ```
+ */
+export function section(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('section');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an article element.
+ *
+ * Creates an article element for self-contained content.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An article element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple article
+ * const element = article(
+ *   { classNames: 'blog-post' },
+ *   h1('Blog Post Title'),
+ *   p('Blog post content goes here...')
+ * );
+ *
+ * // Article with metadata
+ * const element = article(
+ *   { classNames: 'news-article' },
+ *   header(
+ *     h1('News Headline'),
+ *     p({ classNames: 'date' }, 'Published on January 1, 2024')
+ *   ),
+ *   p('News content...')
+ * );
+ * ```
+ */
+export function article(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('article');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a header element.
+ *
+ * Creates a header element for introductory content or navigation.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A header element with the specified props and children
+ *
+ * @example
+ * // Simple header
+ * const element = header(
+ *   { classNames: 'page-header' },
+ *   h1('Page Title'),
+ *   nav(
+ *     a({ href: '/home' }, 'Home'),
+ *     a({ href: '/about' }, 'About'),
+ *     a({ href: '/contact' }, 'Contact')
+ *   )
+ * );
+ *
+ * // Header with reactive title
+ * const title = signal('Dynamic Title');
+ * const element = header(
+ *   { classNames: 'dynamic-header' },
+ *   h1(title.get()),
+ *   p('Subtitle content')
+ * );
+ * ```
+ */
+export function header(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('header');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a footer element.
+ *
+ * Creates a footer element for closing content or metadata.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A footer element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple footer
+ * const element = footer(
+ *   { classNames: 'page-footer' },
+ *   p('© 2024 Company Name. All rights reserved.'),
+ *   nav(
+ *     a({ href: '/privacy' }, 'Privacy Policy'),
+ *     a({ href: '/terms' }, 'Terms of Service')
+ *   )
+ * );
+ *
+ * // Footer with dynamic year
+ * const currentYear = signal(new Date().getFullYear());
+ * const element = footer(
+ *   { classNames: 'dynamic-footer' },
+ *   p(`© ${currentYear.get()} Company Name`)
+ * );
+ * ```
+ */
+export function footer(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('footer');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a nav element.
+ *
+ * Creates a navigation element for navigation links.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A nav element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple navigation
+ * const element = nav(
+ *   { classNames: 'main-nav' },
+ *   a({ href: '/home' }, 'Home'),
+ *   a({ href: '/about' }, 'About'),
+ *   a({ href: '/contact' }, 'Contact')
+ * );
+ *
+ * // Navigation with active state
+ * const currentPage = signal('home');
+ * const element = nav(
+ *   { classNames: 'site-nav' },
+ *   a({
+ *     href: '/home',
+ *     classNames: currentPage.get() === 'home' ? 'active' : ''
+ *   }, 'Home'),
+ *   a({
+ *     href: '/about',
+ *     classNames: currentPage.get() === 'about' ? 'active' : ''
+ *   }, 'About')
+ * );
+ * ```
+ */
+export function nav(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('nav');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a main element.
+ *
+ * Creates a main element for the primary content of the document.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A main element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple main content
+ * const element = main(
+ *   { classNames: 'main-content' },
+ *   h1('Page Title'),
+ *   p('Main content goes here...')
+ * );
+ *
+ * // Main with multiple sections
+ * const element = main(
+ *   { classNames: 'app-main' },
+ *   section(h2('Section 1'), p('Content 1')),
+ *   section(h2('Section 2'), p('Content 2'))
+ * );
+ * ```
+ */
+export function main(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('main');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an aside element.
+ *
+ * Creates an aside element for content that is tangentially related to the main content.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An aside element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple sidebar
+ * const element = aside(
+ *   { classNames: 'sidebar' },
+ *   h3('Related Links'),
+ *   ul(
+ *     li(a({ href: '/link1' }, 'Link 1')),
+ *     li(a({ href: '/link2' }, 'Link 2'))
+ *   )
+ * );
+ *
+ * // Aside with reactive content
+ * const isExpanded = signal(false);
+ * const element = aside(
+ *   {
+ *     classNames: ['sidebar', { 'expanded': isExpanded.get() }],
+ *     onclick: () => isExpanded.set(!isExpanded.get())
+ *   },
+ *   h3('Sidebar'),
+ *   when(isExpanded, () => p('Expanded content...'))
+ * );
+ * ```
+ */
+export function aside(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('aside');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an h4 element.
+ *
+ * Creates a level 4 heading element.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An h4 element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple h4
+ * const element = h4('Subsection Title');
+ *
+ * // H4 with props
+ * const element = h4(
+ *   { classNames: 'subsection-heading' },
+ *   'Subsection Title'
+ * );
+ * ```
+ */
+export function h4(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('h4');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an h5 element.
+ *
+ * Creates a level 5 heading element.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An h5 element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple h5
+ * const element = h5('Minor Section Title');
+ *
+ * // H5 with props
+ * const element = h5(
+ *   { classNames: 'minor-heading' },
+ *   'Minor Section Title'
+ * );
+ * ```
+ */
+export function h5(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('h5');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an h6 element.
+ *
+ * Creates a level 6 heading element.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An h6 element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple h6
+ * const element = h6('Smallest Heading');
+ *
+ * // H6 with props
+ * const element = h6(
+ *   { classNames: 'smallest-heading' },
+ *   'Smallest Heading'
+ * );
+ * ```
+ */
+export function h6(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('h6');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a strong element.
+ *
+ * Creates a strong element for important text (typically displayed as bold).
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A strong element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple strong text
+ * const element = strong('Important text');
+ *
+ * // Strong with props
+ * const element = strong(
+ *   { classNames: 'highlight' },
+ *   'Highlighted important text'
+ * );
+ *
+ * // Strong within paragraph
+ * const element = p(
+ *   'This is a paragraph with ',
+ *   strong('important text'),
+ *   ' that stands out.'
+ * );
+ * ```
+ */
+export function strong(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('strong');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an em element.
+ *
+ * Creates an emphasis element for emphasized text (typically displayed as italic).
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An em element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple emphasized text
+ * const element = em('Emphasized text');
+ *
+ * // Em with props
+ * const element = em(
+ *   { classNames: 'italic-text' },
+ *   'Styled emphasized text'
+ * );
+ *
+ * // Em within paragraph
+ * const element = p(
+ *   'This is a paragraph with ',
+ *   em('emphasized text'),
+ *   ' that draws attention.'
+ * );
+ * ```
+ */
+export function em(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('em');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a code element.
+ *
+ * Creates an inline code element for displaying code snippets.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A code element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple inline code
+ * const element = code('const x = 42;');
+ *
+ * // Code with props
+ * const element = code(
+ *   { classNames: 'inline-code' },
+ *   'function hello() { return "world"; }'
+ * );
+ *
+ * // Code within paragraph
+ * const element = p(
+ *   'Use the ',
+ *   code('console.log()'),
+ *   ' function to output to the console.'
+ * );
+ * ```
+ */
+export function code(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('code');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a ul element.
+ *
+ * Creates an unordered list element for displaying lists of items.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of li elements
+ * @returns A ul element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple unordered list
+ * const element = ul(
+ *   li('First item'),
+ *   li('Second item'),
+ *   li('Third item')
+ * );
+ *
+ * // List with props
+ * const element = ul(
+ *   { classNames: 'feature-list' },
+ *   li('Feature 1'),
+ *   li('Feature 2'),
+ *   li('Feature 3')
+ * );
+ *
+ * // List with reactive items
+ * const items = signal(['Apple', 'Banana', 'Cherry']);
+ * const element = ul(
+ *   { classNames: 'fruit-list' },
+ *   ...items.get().map(item => li(item))
+ * );
+ * ```
+ */
+export function ul(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('ul');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an ol element.
+ *
+ * Creates an ordered list element for displaying numbered lists of items.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of li elements
+ * @returns An ol element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple ordered list
+ * const element = ol(
+ *   li('First step'),
+ *   li('Second step'),
+ *   li('Third step')
+ * );
+ *
+ * // List with props
+ * const element = ol(
+ *   { classNames: 'instruction-list' },
+ *   li('Read the manual'),
+ *   li('Follow the steps'),
+ *   li('Test the result')
+ * );
+ *
+ * // List with reactive items
+ * const steps = signal(['Step 1', 'Step 2', 'Step 3']);
+ * const element = ol(
+ *   { classNames: 'dynamic-steps' },
+ *   ...steps.get().map(step => li(step))
+ * );
+ * ```
+ */
+export function ol(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('ol');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an li element.
+ *
+ * Creates a list item element for use within ul or ol elements.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An li element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple list item
+ * const element = li('List item text');
+ *
+ * // List item with props
+ * const element = li(
+ *   { classNames: 'highlighted-item' },
+ *   'Highlighted list item'
+ * );
+ *
+ * // List item with complex content
+ * const element = li(
+ *   { classNames: 'complex-item' },
+ *   strong('Bold text'),
+ *   ' and regular text with ',
+ *   code('inline code')
+ * );
+ * ```
+ */
+export function li(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('li');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a blockquote element.
+ *
+ * Creates a blockquote element for quoted content.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A blockquote element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple blockquote
+ * const element = blockquote('This is a quoted text.');
+ *
+ * // Blockquote with props
+ * const element = blockquote(
+ *   { classNames: 'famous-quote' },
+ *   'Be the change you wish to see in the world.'
+ * );
+ *
+ * // Blockquote with citation
+ * const element = blockquote(
+ *   { classNames: 'quote-with-citation' },
+ *   'The only way to do great work is to love what you do.',
+ *   footer('— Steve Jobs')
+ * );
+ * ```
+ */
+export function blockquote(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('blockquote');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an img element.
+ *
+ * Creates an image element for displaying images.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An img element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple image
+ * const element = img({ src: '/path/to/image.jpg', alt: 'Description' });
+ *
+ * // Image with props
+ * const element = img({
+ *   src: '/logo.png',
+ *   alt: 'Company Logo',
+ *   classNames: 'company-logo',
+ *   width: 200,
+ *   height: 100
+ * });
+ *
+ * // Responsive image
+ * const element = img({
+ *   src: '/hero.jpg',
+ *   alt: 'Hero Image',
+ *   classNames: 'responsive-image',
+ *   style: 'max-width: 100%; height: auto;'
+ * });
+ * ```
+ */
+export function img(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('img');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates an hr element.
+ *
+ * Creates a horizontal rule element for thematic breaks.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns An hr element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple horizontal rule
+ * const element = hr();
+ *
+ * // Styled horizontal rule
+ * const element = hr({
+ *   classNames: 'section-divider',
+ *   style: 'border: 2px solid #ccc; margin: 20px 0;'
+ * });
+ *
+ * // HR between sections
+ * const element = div(
+ *   section(h2('Section 1'), p('Content...')),
+ *   hr({ classNames: 'section-break' }),
+ *   section(h2('Section 2'), p('Content...'))
+ * );
+ * ```
+ */
+export function hr(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('hr');
+
+  if (typeof props === 'string' || typeof props === 'number') {
+    setupTextElement(element, props, children);
+  } else if (props) {
+    setupElement(element, props, children);
+  } else {
+    setupElement(element, {}, children);
+  }
+
+  return element;
+}
+
+/**
+ * Creates a br element.
+ *
+ * Creates a line break element.
+ *
+ * @param props - Optional props (can be a string/number for text content, or ElementProps object)
+ * @param children - Any number of children (strings, numbers, or HTMLElements)
+ * @returns A br element with the specified props and children
+ *
+ * @example
+ * ```typescript
+ * // Simple line break
+ * const element = br();
+ *
+ * // Line break with props
+ * const element = br({ classNames: 'spacing-break' });
+ *
+ * // Line breaks in text
+ * const element = div(
+ *   'First line',
+ *   br(),
+ *   'Second line',
+ *   br(),
+ *   'Third line'
+ * );
+ * ```
+ */
+export function br(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+  const element = document.createElement('br');
 
   if (typeof props === 'string' || typeof props === 'number') {
     setupTextElement(element, props, children);

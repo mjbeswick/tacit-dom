@@ -7,7 +7,7 @@ global.TextEncoder = require('util').TextEncoder;
 global.TextDecoder = require('util').TextDecoder;
 
 import { JSDOM } from 'jsdom';
-import { a, button, cleanup, component, div, h1, render, useSignal } from './dom';
+import { a, button, cleanup, component, div, h1, render } from './dom';
 import { signal } from './signals';
 
 // Set up JSDOM environment
@@ -236,72 +236,6 @@ describe('DOM Element Creation', () => {
       render(TestComponent, container);
 
       expect(container.textContent).toContain('Hello undefined');
-    });
-
-    it('should preserve useSignal values across component re-renders', () => {
-      let renderCount = 0;
-      const externalSignal = signal(0);
-
-      const TestComponent = component(() => {
-        renderCount++;
-
-        // useSignal hook should preserve signal value across re-renders
-        const localCounter = useSignal(100);
-
-        return div(
-          { className: 'test-component' },
-          div({ className: 'local-value' }, `Local: ${localCounter.get()}`),
-          div({ className: 'external-value' }, `External: ${externalSignal.get()}`),
-          button(
-            {
-              className: 'increment-local',
-              onClick: () => localCounter.set(localCounter.get() + 1),
-            },
-            'Increment Local',
-          ),
-        );
-      });
-
-      const container = document.createElement('div');
-      render(TestComponent, container);
-
-      // Initial render
-      expect(renderCount).toBe(1);
-      expect(container.querySelector('.local-value')?.textContent).toBe('Local: 100');
-      expect(container.querySelector('.external-value')?.textContent).toBe('External: 0');
-
-      // Click increment button to update local signal
-      const incrementButton = container.querySelector('.increment-local') as HTMLButtonElement;
-      incrementButton.click();
-
-      // Wait for effect to run
-      return new Promise((resolve) => setTimeout(resolve, 50))
-        .then(() => {
-          // Local signal should be updated and preserved
-          expect(container.querySelector('.local-value')?.textContent).toBe('Local: 101');
-          expect(container.querySelector('.external-value')?.textContent).toBe('External: 0');
-
-          // Update external signal to trigger re-render
-          externalSignal.set(42);
-
-          return new Promise((resolve) => setTimeout(resolve, 50));
-        })
-        .then(() => {
-          // After re-render, local signal value should still be preserved
-          expect(container.querySelector('.local-value')?.textContent).toBe('Local: 101');
-          expect(container.querySelector('.external-value')?.textContent).toBe('External: 42');
-
-          // Click increment again to verify local signal still works
-          const incrementButton = container.querySelector('.increment-local') as HTMLButtonElement;
-          incrementButton.click();
-
-          return new Promise((resolve) => setTimeout(resolve, 50));
-        })
-        .then(() => {
-          // Local signal should be incremented again
-          expect(container.querySelector('.local-value')?.textContent).toBe('Local: 102');
-          expect(container.querySelector('.external-value')?.textContent).toBe('External: 42');
-        });
     });
   });
 
