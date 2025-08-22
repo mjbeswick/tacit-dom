@@ -101,7 +101,6 @@ function performOperation(nextOperation: string) {
   const currentVal = currentValue.get();
   const prevVal = previousValue.get();
   const currentOp = operation.get();
-  const waiting = waitingForOperand.get();
   const inputValue = parseFloat(currentVal);
 
   if (prevVal === null) {
