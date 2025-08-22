@@ -1,0 +1,273 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: #1a1a1a;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.calculator {
+  background: #2d2d2d;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  padding: 0;
+  width: 100%;
+  max-width: 360px;
+  border: 1px solid #404040;
+  position: relative;
+  overflow: hidden;
+}
+
+/* macOS Traffic Light Controls */
+.calculator::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  background: #ff5f57;
+  border-radius: 50%;
+  box-shadow:
+    24px 0 0 #ffbd2e,
+    48px 0 0 #28ca42;
+  z-index: 10;
+}
+
+.display {
+  background: #2d2d2d;
+  padding: 60px 24px 24px 24px;
+  margin-bottom: 16px;
+  text-align: right;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-bottom: 1px solid #404040;
+}
+
+.expression {
+  font-size: 16px;
+  color: #888;
+  margin-bottom: 8px;
+  min-height: 20px;
+  word-wrap: break-word;
+  font-weight: 400;
+}
+
+.result {
+  font-size: 48px;
+  font-weight: 300;
+  color: #ffffff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: font-size 0.2s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive text sizing for longer numbers */
+.result[data-digits='10'],
+.result[data-digits='11'] {
+  font-size: 42px;
+}
+
+.result[data-digits='12'],
+.result[data-digits='13'] {
+  font-size: 36px;
+}
+
+.result[data-digits='14'],
+.result[data-digits='15'] {
+  font-size: 30px;
+}
+
+.result[data-digits='16'] {
+  font-size: 24px;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 16px 16px 16px;
+}
+
+.btn {
+  background: #505050;
+  border: none;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 20px;
+  font-weight: 400;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 70px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  position: relative;
+}
+
+.btn:hover {
+  background: #606060;
+}
+
+.btn:active {
+  background: #404040;
+}
+
+.btn.operator {
+  background: #ff9500;
+  color: white;
+  font-weight: 500;
+}
+
+.btn.operator:hover {
+  background: #ffaa33;
+}
+
+.btn.operator:active {
+  background: #e6850e;
+}
+
+.btn.equals {
+  background: #ff9500;
+  border-color: #ff9500;
+  color: white;
+  width: 70px;
+  border-radius: 35px;
+  font-weight: 500;
+}
+
+.btn.equals:hover {
+  background: #ffaa33;
+}
+
+.btn.equals:active {
+  background: #e6850e;
+}
+
+.btn.clear {
+  background: #666666;
+  border-color: #666666;
+  color: white;
+  font-weight: 400;
+}
+
+.btn.clear:hover {
+  background: #777777;
+}
+
+.btn.clear:active {
+  background: #555555;
+}
+
+.btn.delete {
+  background: #666666;
+  border-color: #666666;
+  color: white;
+  font-weight: 400;
+}
+
+.btn.delete:hover {
+  background: #777777;
+}
+
+.btn.delete:active {
+  background: #555555;
+}
+
+.btn.zero {
+  grid-column: span 2;
+  width: 152px;
+  border-radius: 35px;
+}
+
+/* Number button specific styling */
+.btn:not(.operator):not(.equals):not(.clear):not(.delete) {
+  font-weight: 400;
+  color: #ffffff;
+}
+
+.btn:not(.operator):not(.equals):not(.clear):not(.delete):hover {
+  background: #606060;
+}
+
+.btn:not(.operator):not(.equals):not(.clear):not(.delete):active {
+  background: #404040;
+}
+
+/* Focus states for accessibility */
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 149, 0, 0.5);
+}
+
+@media (max-width: 480px) {
+  .calculator {
+    max-width: 320px;
+  }
+
+  .btn {
+    width: 60px;
+    height: 60px;
+    font-size: 18px;
+  }
+
+  .btn.zero {
+    width: 132px;
+  }
+
+  .btn.equals {
+    width: 60px;
+    height: 132px;
+    border-radius: 30px;
+  }
+
+  .result {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 360px) {
+  .calculator {
+    max-width: 280px;
+  }
+
+  .btn {
+    width: 50px;
+    height: 50px;
+    font-size: 16px;
+  }
+
+  .btn.zero {
+    width: 112px;
+  }
+
+  .btn.equals {
+    width: 50px;
+    height: 112px;
+    border-radius: 25px;
+  }
+
+  .result {
+    font-size: 36px;
+  }
+
+  .buttons {
+    gap: 8px;
+    padding: 0 12px 12px 12px;
+  }
+}
