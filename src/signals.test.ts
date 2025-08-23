@@ -643,4 +643,44 @@ describe('computed()', () => {
 
     expect(computedValue.get()).toBe(3);
   });
+
+  test('effect runs when computed value dependencies change', () => {
+    const signalA = signal(0);
+    const signalB = signal(0);
+
+    const computedValue = computed(() => signalA.get() + signalB.get());
+
+    expect(computedValue.get()).toBe(0);
+
+    let effectRuns = 0;
+    let lastComputedValue = 0;
+
+    const cleanup = effect(() => {
+      effectRuns++;
+      // Track the signals directly to establish dependency
+      signalA.get();
+      signalB.get();
+      lastComputedValue = computedValue.get();
+    });
+
+    // Initial run
+    expect(effectRuns).toBe(1);
+    expect(lastComputedValue).toBe(0);
+
+    // Change signalA - should trigger effect because effect depends on signalA
+    signalA.set(1);
+    expect(effectRuns).toBe(2);
+    expect(lastComputedValue).toBe(1);
+
+    // Change signalB - should trigger effect again because effect depends on signalB
+    signalB.set(2);
+    expect(effectRuns).toBe(3);
+    expect(lastComputedValue).toBe(3);
+
+    // Verify final computed value
+    expect(computedValue.get()).toBe(3);
+
+    // Clean up
+    cleanup();
+  });
 });
