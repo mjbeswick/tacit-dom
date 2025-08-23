@@ -732,16 +732,23 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
  * );
  * ```
  */
-export function div(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function div(...children: ElementChildren): HTMLElement;
+export function div(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function div(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('div');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props && typeof props === 'object' && !('tagName' in props) && !(props instanceof HTMLElement)) {
-    setupElement(element, props, children);
-  } else if (props) {
-    // If props is an HTMLElement or other non-props object, treat it as first child
-    setupElement(element, {}, [props as any, ...children]);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild as ElementProps, children);
+  } else if (propsOrChild) {
+    // If propsOrChild is an HTMLElement or other non-props object, treat it as first child
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -812,7 +819,7 @@ export function div(props?: string | number | ElementProps, ...children: Element
 export function button(
   props?: string | number | (ElementProps & { disabled?: boolean }),
   ...children: ElementChildren
-): HTMLElement {
+): HTMLButtonElement {
   const element = document.createElement('button');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -881,13 +888,22 @@ export function button(
  * );
  * ```
  */
-export function h1(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function h1(...children: ElementChildren): HTMLHeadingElement;
+export function h1(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
+export function h1(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHeadingElement {
   const element = document.createElement('h1');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild as ElementProps, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -921,13 +937,22 @@ export function h1(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function h2(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function h2(...children: ElementChildren): HTMLHeadingElement;
+export function h2(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
+export function h2(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHeadingElement {
   const element = document.createElement('h2');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild as ElementProps, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -961,13 +986,22 @@ export function h2(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function h3(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function h3(...children: ElementChildren): HTMLHeadingElement;
+export function h3(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
+export function h3(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHeadingElement {
   const element = document.createElement('h3');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild as ElementProps, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1026,7 +1060,7 @@ export function input(
     max?: number;
   },
   ...children: ElementChildren
-): HTMLElement {
+): HTMLInputElement {
   const element = document.createElement('input');
 
   if (props) {
@@ -1093,7 +1127,7 @@ export function input(
 export function label(
   props?: string | number | (ElementProps & { for?: string }),
   ...children: ElementChildren
-): HTMLElement {
+): HTMLLabelElement {
   const element = document.createElement('label');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -1188,7 +1222,7 @@ export function label(
 export function a(
   props?: string | number | (ElementProps & { href?: string; target?: string }),
   ...children: ElementChildren
-): HTMLElement {
+): HTMLAnchorElement {
   const element = document.createElement('a');
 
   if (typeof props === 'string' || typeof props === 'number') {
@@ -1253,13 +1287,18 @@ export function a(
  * );
  * ```
  */
-export function p(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function p(...children: ElementChildren): HTMLParagraphElement;
+export function p(props: ElementProps, ...children: ElementChildren): HTMLParagraphElement;
+export function p(
+  propsOrChild?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
+): HTMLParagraphElement {
   const element = document.createElement('p');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1321,13 +1360,15 @@ export function p(props?: string | number | ElementProps, ...children: ElementCh
  * );
  * ```
  */
-export function span(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function span(...children: ElementChildren): HTMLSpanElement;
+export function span(props: ElementProps, ...children: ElementChildren): HTMLSpanElement;
+export function span(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLSpanElement {
   const element = document.createElement('span');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1391,13 +1432,15 @@ export function span(props?: string | number | ElementProps, ...children: Elemen
  * );
  * ```
  */
-export function pre(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function pre(...children: ElementChildren): HTMLPreElement;
+export function pre(props: ElementProps, ...children: ElementChildren): HTMLPreElement;
+export function pre(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLPreElement {
   const element = document.createElement('pre');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1438,13 +1481,15 @@ export function pre(props?: string | number | ElementProps, ...children: Element
  * );
  * ```
  */
-export function form(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function form(...children: ElementChildren): HTMLFormElement;
+export function form(props: ElementProps, ...children: ElementChildren): HTMLFormElement;
+export function form(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLFormElement {
   const element = document.createElement('form');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1487,13 +1532,18 @@ export function form(props?: string | number | ElementProps, ...children: Elemen
  * );
  * ```
  */
-export function textarea(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function textarea(...children: ElementChildren): HTMLTextAreaElement;
+export function textarea(props: ElementProps, ...children: ElementChildren): HTMLTextAreaElement;
+export function textarea(
+  propsOrChild?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
+): HTMLTextAreaElement {
   const element = document.createElement('textarea');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1534,13 +1584,18 @@ export function textarea(props?: string | number | ElementProps, ...children: El
  * );
  * ```
  */
-export function select(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function select(...children: ElementChildren): HTMLSelectElement;
+export function select(props: ElementProps, ...children: ElementChildren): HTMLSelectElement;
+export function select(
+  propsOrChild?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
+): HTMLSelectElement {
   const element = document.createElement('select');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1573,13 +1628,18 @@ export function select(props?: string | number | ElementProps, ...children: Elem
  * );
  * ```
  */
-export function option(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function option(...children: ElementChildren): HTMLOptionElement;
+export function option(props: ElementProps, ...children: ElementChildren): HTMLOptionElement;
+export function option(
+  propsOrChild?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
+): HTMLOptionElement {
   const element = document.createElement('option');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1616,13 +1676,15 @@ export function option(props?: string | number | ElementProps, ...children: Elem
  * );
  * ```
  */
-export function section(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function section(...children: ElementChildren): HTMLElement;
+export function section(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function section(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('section');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1659,13 +1721,15 @@ export function section(props?: string | number | ElementProps, ...children: Ele
  * );
  * ```
  */
-export function article(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function article(...children: ElementChildren): HTMLElement;
+export function article(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function article(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('article');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, propsOrChild as ElementProps, children);
   } else {
     setupElement(element, {}, children);
   }
@@ -1703,13 +1767,22 @@ export function article(props?: string | number | ElementProps, ...children: Ele
  * );
  * ```
  */
-export function header(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function header(...children: ElementChildren): HTMLElement;
+export function header(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function header(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('header');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1746,13 +1819,22 @@ export function header(props?: string | number | ElementProps, ...children: Elem
  * );
  * ```
  */
-export function footer(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function footer(...children: ElementChildren): HTMLElement;
+export function footer(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function footer(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('footer');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1794,13 +1876,22 @@ export function footer(props?: string | number | ElementProps, ...children: Elem
  * );
  * ```
  */
-export function nav(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function nav(...children: ElementChildren): HTMLElement;
+export function nav(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function nav(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('nav');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1834,13 +1925,22 @@ export function nav(props?: string | number | ElementProps, ...children: Element
  * );
  * ```
  */
-export function main(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function main(...children: ElementChildren): HTMLElement;
+export function main(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function main(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('main');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1881,13 +1981,22 @@ export function main(props?: string | number | ElementProps, ...children: Elemen
  * );
  * ```
  */
-export function aside(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function aside(...children: ElementChildren): HTMLElement;
+export function aside(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function aside(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('aside');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1916,13 +2025,22 @@ export function aside(props?: string | number | ElementProps, ...children: Eleme
  * );
  * ```
  */
-export function h4(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function h4(...children: ElementChildren): HTMLHeadingElement;
+export function h4(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
+export function h4(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHeadingElement {
   const element = document.createElement('h4');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1951,13 +2069,22 @@ export function h4(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function h5(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function h5(...children: ElementChildren): HTMLHeadingElement;
+export function h5(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
+export function h5(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHeadingElement {
   const element = document.createElement('h5');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -1986,13 +2113,22 @@ export function h5(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function h6(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function h6(...children: ElementChildren): HTMLHeadingElement;
+export function h6(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
+export function h6(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHeadingElement {
   const element = document.createElement('h6');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2028,13 +2164,22 @@ export function h6(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function strong(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function strong(...children: ElementChildren): HTMLElement;
+export function strong(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function strong(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('strong');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2070,13 +2215,22 @@ export function strong(props?: string | number | ElementProps, ...children: Elem
  * );
  * ```
  */
-export function em(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function em(...children: ElementChildren): HTMLSpanElement;
+export function em(props: ElementProps, ...children: ElementChildren): HTMLSpanElement;
+export function em(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLSpanElement {
   const element = document.createElement('em');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2112,13 +2266,22 @@ export function em(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function code(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function code(...children: ElementChildren): HTMLElement;
+export function code(props: ElementProps, ...children: ElementChildren): HTMLElement;
+export function code(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLElement {
   const element = document.createElement('code');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2160,13 +2323,22 @@ export function code(props?: string | number | ElementProps, ...children: Elemen
  * );
  * ```
  */
-export function ul(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function ul(...children: ElementChildren): HTMLUListElement;
+export function ul(props: ElementProps, ...children: ElementChildren): HTMLUListElement;
+export function ul(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLUListElement {
   const element = document.createElement('ul');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2208,13 +2380,22 @@ export function ul(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function ol(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function ol(...children: ElementChildren): HTMLOListElement;
+export function ol(props: ElementProps, ...children: ElementChildren): HTMLOListElement;
+export function ol(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLOListElement {
   const element = document.createElement('ol');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2251,13 +2432,22 @@ export function ol(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function li(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function li(...children: ElementChildren): HTMLLIElement;
+export function li(props: ElementProps, ...children: ElementChildren): HTMLLIElement;
+export function li(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLLIElement {
   const element = document.createElement('li');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2293,13 +2483,25 @@ export function li(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function blockquote(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function blockquote(...children: ElementChildren): HTMLQuoteElement;
+export function blockquote(props: ElementProps, ...children: ElementChildren): HTMLQuoteElement;
+export function blockquote(
+  propsOrChild?: ElementProps | ElementChildren[0],
+  ...children: ElementChildren
+): HTMLQuoteElement {
   const element = document.createElement('blockquote');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2339,13 +2541,22 @@ export function blockquote(props?: string | number | ElementProps, ...children: 
  * });
  * ```
  */
-export function img(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function img(...children: ElementChildren): HTMLImageElement;
+export function img(props: ElementProps, ...children: ElementChildren): HTMLImageElement;
+export function img(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLImageElement {
   const element = document.createElement('img');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2381,13 +2592,22 @@ export function img(props?: string | number | ElementProps, ...children: Element
  * );
  * ```
  */
-export function hr(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function hr(...children: ElementChildren): HTMLHRElement;
+export function hr(props: ElementProps, ...children: ElementChildren): HTMLHRElement;
+export function hr(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLHRElement {
   const element = document.createElement('hr');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
@@ -2422,13 +2642,22 @@ export function hr(props?: string | number | ElementProps, ...children: ElementC
  * );
  * ```
  */
-export function br(props?: string | number | ElementProps, ...children: ElementChildren): HTMLElement {
+export function br(...children: ElementChildren): HTMLBRElement;
+export function br(props: ElementProps, ...children: ElementChildren): HTMLBRElement;
+export function br(propsOrChild?: ElementProps | ElementChildren[0], ...children: ElementChildren): HTMLBRElement {
   const element = document.createElement('br');
 
-  if (typeof props === 'string' || typeof props === 'number') {
-    setupTextElement(element, props, children);
-  } else if (props) {
-    setupElement(element, props, children);
+  if (typeof propsOrChild === 'string' || typeof propsOrChild === 'number') {
+    setupTextElement(element, propsOrChild, children);
+  } else if (
+    propsOrChild &&
+    typeof propsOrChild === 'object' &&
+    !('tagName' in propsOrChild) &&
+    !(propsOrChild instanceof HTMLElement)
+  ) {
+    setupElement(element, propsOrChild, children);
+  } else if (propsOrChild) {
+    setupElement(element, {}, [propsOrChild as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }

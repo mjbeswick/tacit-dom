@@ -56,7 +56,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Local Counter'),
-            div({ className: [styles.counterValue, styles.localValue] }, localCounter),
+            div({ className: [styles.counterValue, styles.localValue] }, localCounter.get()),
             button(
               {
                 onClick: incrementLocal,
@@ -72,7 +72,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Doubled Counter'),
-            div({ className: [styles.counterValue, styles.localValue] }, doubledCounter),
+            div({ className: [styles.counterValue, styles.localValue] }, doubledCounter.get()),
           ),
         ),
         // Global even counter display
@@ -81,7 +81,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Global Even Counter'),
-            div({ className: [styles.counterValue, styles.globalValue] }, globalEven),
+            div({ className: [styles.counterValue, styles.globalValue] }, globalEven.get()),
           ),
         ),
         // Info section
