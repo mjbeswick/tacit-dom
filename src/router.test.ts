@@ -4,14 +4,7 @@
 
 import { JSDOM } from 'jsdom';
 import { div, h1, p } from './dom';
-import {
-  Router,
-  createRouter,
-  history,
-  link,
-  router,
-  type Route,
-} from './router';
+import { Router, createRouter, history, link, router, type Route } from './router';
 
 // Set up JSDOM environment
 const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
@@ -34,17 +27,13 @@ global.History = dom.window.History;
 // JSDOM should handle location properties automatically
 
 // Mock components for testing
-const HomeComponent = () =>
-  div({ className: 'home' }, h1('Home'), p('Welcome to the home page'));
-const AboutComponent = () =>
-  div({ className: 'about' }, h1('About'), p('About us page'));
-const UserComponent = (data?: any) =>
-  div({ className: 'user' }, h1(`User: ${data?.name || 'Unknown'}`));
-const ErrorComponent = (error: Error) =>
-  div({ className: 'error' }, h1('Error'), p(error.message));
-const NotFoundComponent = () =>
-  div({ className: 'not-found' }, h1('404'), p('Page not found'));
-const LoadingComponent = () => div({ className: 'loading' }, 'Loading...');
+const HomeComponent = () => div({ className: 'home' }, h1('Home'), p('Welcome to the home page'));
+const AboutComponent = () => div({ className: 'about' }, h1('About'), p('About us page'));
+const UserComponent = (data?: any) => div({ className: 'user' }, h1(`User: ${data?.name || 'Unknown'}`));
+const ErrorComponent = (error: Error) => div({ className: 'error' }, h1('Error'), p(error.message));
+const NotFoundComponent = () => div({ className: 'not-found' }, h1('404'), p('Page not found'));
+// LoadingComponent for demonstration purposes
+// const LoadingComponent = () => div({ className: 'loading' }, 'Loading...');
 
 // Test routes configuration
 const testRoutes: Route[] = [
@@ -160,10 +149,7 @@ describe('Router', () => {
 
     test('should handle multiple parameters', () => {
       const multiParamRoute = { path: '/user/:id/profile/:tab' } as Route;
-      const params = routerInstance['parseParams'](
-        '/user/123/profile/settings',
-        multiParamRoute.path,
-      );
+      const params = routerInstance['parseParams']('/user/123/profile/settings', multiParamRoute.path);
       expect(params).toEqual({ id: '123', tab: 'settings' });
     });
 
@@ -422,9 +408,7 @@ describe('Router', () => {
       expect(linkElement.tagName).toBe('A');
       expect(linkElement.className).toBe('nav-link');
       // JSDOM resolves relative URLs against localhost without port
-      expect((linkElement as HTMLAnchorElement).href).toBe(
-        'http://localhost/about',
-      );
+      expect((linkElement as HTMLAnchorElement).href).toBe('http://localhost/about');
       expect(linkElement.textContent).toBe('About');
     });
 
@@ -500,9 +484,7 @@ describe('Router', () => {
 
       expect(linkElement.tagName).toBe('A');
       // JSDOM resolves relative URLs against localhost without port
-      expect((linkElement as HTMLAnchorElement).href).toBe(
-        'http://localhost/about',
-      );
+      expect((linkElement as HTMLAnchorElement).href).toBe('http://localhost/about');
     });
 
     test('should handle link click when global router exists', async () => {
@@ -571,8 +553,7 @@ describe('Router', () => {
       });
 
       // Get the router instance from the element
-      const routerInstance =
-        (routerElement as any)._routerInstance || (global as any).globalRouter;
+      const routerInstance = (routerElement as any)._routerInstance || (global as any).globalRouter;
 
       // Navigate to different route
       await routerInstance.navigate('/about');
@@ -612,10 +593,7 @@ describe('Router', () => {
     });
 
     test('should handle base path with trailing slash', () => {
-      const router = new Router({
-        routes: testRoutes,
-        basePath: '/app/',
-      });
+      // Test logic without actually instantiating router since it's not used
 
       // Since we can't mock window.location.pathname, we'll test the logic
       // by calling the method directly with a mock path
@@ -623,17 +601,12 @@ describe('Router', () => {
       const expectedPath = 'about';
 
       // Test the base path logic
-      const result = mockPath.startsWith('/app/')
-        ? mockPath.slice('/app/'.length) || '/'
-        : mockPath;
+      const result = mockPath.startsWith('/app/') ? mockPath.slice('/app/'.length) || '/' : mockPath;
       expect(result).toBe(expectedPath);
     });
 
     test('should handle base path without trailing slash', () => {
-      const router = new Router({
-        routes: testRoutes,
-        basePath: '/app',
-      });
+      // Test logic without actually instantiating router since it's not used
 
       // Since we can't mock window.location.pathname, we'll test the logic
       // by calling the method directly with a mock path
@@ -641,17 +614,12 @@ describe('Router', () => {
       const expectedPath = '/about';
 
       // Test the base path logic
-      const result = mockPath.startsWith('/app')
-        ? mockPath.slice('/app'.length) || '/'
-        : mockPath;
+      const result = mockPath.startsWith('/app') ? mockPath.slice('/app'.length) || '/' : mockPath;
       expect(result).toBe(expectedPath);
     });
 
     test('should handle root path with base path', () => {
-      const router = new Router({
-        routes: testRoutes,
-        basePath: '/app',
-      });
+      // Test logic without actually instantiating router since it's not used
 
       // Since we can't mock window.location.pathname, we'll test the logic
       // by calling the method directly with a mock path
@@ -659,9 +627,7 @@ describe('Router', () => {
       const expectedPath = '/';
 
       // Test the base path logic
-      const result = mockPath.startsWith('/app')
-        ? mockPath.slice('/app'.length) || '/'
-        : mockPath;
+      const result = mockPath.startsWith('/app') ? mockPath.slice('/app'.length) || '/' : mockPath;
       expect(result).toBe(expectedPath);
     });
   });

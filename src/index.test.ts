@@ -90,7 +90,7 @@ describe('ReactiveDOM exports', () => {
     it('should work with all exported functions together', () => {
       // Test that we can use all the main exports together
       const count = ReactiveDOM.signal(0);
-      const doubled = ReactiveDOM.computed(() => count.get() * 2);
+      ReactiveDOM.computed(() => count.get() * 2); // Test computed creation
 
       const button = ReactiveDOM.button(
         {

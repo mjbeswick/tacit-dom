@@ -404,7 +404,7 @@ describe('DOM Element Creation', () => {
 
         // Effect with cleanup function
         utils.effect(() => {
-          const currentCount = count.get();
+          count.get(); // Track count for effect dependency
 
           // Return cleanup function
           return () => {

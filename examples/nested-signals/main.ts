@@ -58,7 +58,7 @@ const Counter = component<{ title: string; initialValue?: number }>((props, util
 });
 
 // Main app component
-const app = component((props, utils) => {
+const app = component((_props, _utils) => {
   console.log('app renders');
 
   return div(

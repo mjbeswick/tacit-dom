@@ -59,7 +59,7 @@ const CustomErrorFallback = (error: Error) =>
 
 // Basic error boundary demo
 const BasicDemo = errorBoundary(BuggyComponent, {
-  fallback: (error) => div('Something went wrong!'),
+  fallback: (_error) => div('Something went wrong!'),
 });
 render(BasicDemo, document.getElementById('basic-demo')!);
 
@@ -71,7 +71,7 @@ render(CustomDemo, document.getElementById('custom-demo')!);
 
 // Recovery demo
 const RecoveryDemo = errorBoundary(RecoverableComponent, {
-  fallback: (error) => div('Something went wrong!'),
+  fallback: (_error) => div('Something went wrong!'),
 });
 render(RecoveryDemo, document.getElementById('recovery-demo')!);
 
@@ -83,7 +83,7 @@ const ManualDemo = errorBoundary(
       console.log('Manual error triggered:', error);
       updateStatus('manual-status', 'Error triggered manually', 'error');
     },
-    fallback: (error) => div('Something went wrong!'),
+    fallback: (_error) => div('Something went wrong!'),
   },
 );
 
