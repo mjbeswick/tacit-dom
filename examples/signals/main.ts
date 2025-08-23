@@ -40,7 +40,7 @@ const app = component((_props, { signal, computed, effect }) => {
           div(
             { className: styles.counterHeader },
             div({ className: styles.counterLabel }, 'Global Counter'),
-            div({ className: [styles.counterValue, styles.globalValue] }, globalCounterComputed),
+            div({ className: [styles.counterValue, styles.globalValue] }, globalCounterComputed.get()),
             button(
               {
                 onClick: incrementGlobal,

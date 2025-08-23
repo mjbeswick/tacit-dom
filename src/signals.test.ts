@@ -628,3 +628,19 @@ describe('Signals', () => {
     });
   });
 });
+
+describe('computed()', () => {
+  test('computed value updates when dependencies change', () => {
+    const signalA = signal(0);
+    const signalB = signal(0);
+
+    const computedValue = computed(() => signalA.get() + signalB.get());
+
+    expect(computedValue.get()).toBe(0);
+
+    signalA.set(1);
+    signalB.set(2);
+
+    expect(computedValue.get()).toBe(3);
+  });
+});

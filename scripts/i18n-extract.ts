@@ -26,12 +26,10 @@ const CONFIG = {
   localesDir: 'locales',
   defaultLocale: 'en',
   supportedLocales: ['en', 'es', 'fr', 'de', 'ja', 'zh'],
-  keyPattern:
-    /t\s*\(\s*['"`]([a-zA-Z][a-zA-Z0-9._-]*)['"`]\s*(?:,\s*['"`]([^'"`]+)['"`])?/g,
+  keyPattern: /t\s*\(\s*['"`]([a-zA-Z][a-zA-Z0-9._-]*)['"`]\s*(?:,\s*['"`]([^'"`]+)['"`])?/g,
   namespacePattern: /useNamespace\s*\(\s*['"`]([^'"`]+)['"`]\s*\)/g,
-  contextPattern:
-    /tWithContext\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*['"`]([^'"`]+)['"`]/g,
-} as const;
+  contextPattern: /tWithContext\s*\(\s*['"`]([^'"`]+)['"`]\s*,\s*['"`]([^'"`]+)['"`]/g,
+};
 
 // Detect if we're running from the demo directory
 const isDemoDirectory = process.cwd().includes('i18n');
@@ -140,9 +138,7 @@ function createNestedTranslations(): Record<string, any> {
 }
 
 // Clean up flat keys that should be nested
-function cleanupFlatKeys(
-  translations: Record<string, any>,
-): Record<string, any> {
+function cleanupFlatKeys(translations: Record<string, any>): Record<string, any> {
   const cleaned: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(translations)) {
@@ -215,14 +211,8 @@ function createTranslationFiles(): void {
   }
 
   // Write default locale file
-  const defaultLocalePath = path.join(
-    CONFIG.localesDir,
-    `${CONFIG.defaultLocale}.json`,
-  );
-  fs.writeFileSync(
-    defaultLocalePath,
-    JSON.stringify(defaultTranslations, null, 2),
-  );
+  const defaultLocalePath = path.join(CONFIG.localesDir, `${CONFIG.defaultLocale}.json`);
+  fs.writeFileSync(defaultLocalePath, JSON.stringify(defaultTranslations, null, 2));
 
   console.log(`✅ Created default locale file: ${defaultLocalePath}`);
 
@@ -352,10 +342,7 @@ function extractTranslations(): void {
     try {
       extractFromFile(file);
     } catch (error) {
-      console.warn(
-        `⚠️  Warning: Could not process ${file}:`,
-        (error as Error).message,
-      );
+      console.warn(`⚠️  Warning: Could not process ${file}:`, (error as Error).message);
     }
   }
 
@@ -374,12 +361,8 @@ function extractTranslations(): void {
 
   console.log('\n🎉 Translation extraction complete!');
   console.log('\nNext steps:');
-  console.log(
-    '1. Review the generated translation files in the locales/ directory',
-  );
-  console.log(
-    '2. Translate the [TRANSLATE] marked strings in other locale files',
-  );
+  console.log('1. Review the generated translation files in the locales/ directory');
+  console.log('2. Translate the [TRANSLATE] marked strings in other locale files');
   console.log('3. Use the generated types in your TypeScript code');
   console.log('4. Run this script again when you add new translations');
 }
@@ -414,8 +397,6 @@ Note: Run from the demo directory to extract demo-specific translations.
     break;
   default:
     console.error(`Unknown command: ${command}`);
-    console.error(
-      'Run "node scripts/i18n-extract.ts help" for usage information',
-    );
+    console.error('Run "node scripts/i18n-extract.ts help" for usage information');
     process.exit(1);
 }

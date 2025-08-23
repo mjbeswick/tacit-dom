@@ -283,7 +283,7 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
         typeof child.get === 'function' &&
         'subscribe' in child &&
         typeof child.subscribe === 'function' &&
-        (child as any).constructor === Object // Only plain objects, not built-in types like Number
+        !(child instanceof HTMLElement) // Don't treat HTMLElements as reactive values
       ) {
         // Handle reactive children (signals or computed values)
         const reactiveChild = child as any; // Type assertion to avoid value property requirement
@@ -322,7 +322,7 @@ function setupTextElement(element: HTMLElement, textContent: string | number, ch
         typeof child.get === 'function' &&
         'subscribe' in child &&
         typeof child.subscribe === 'function' &&
-        (child as any).constructor === Object // Only plain objects, not built-in types like Number
+        !(child instanceof HTMLElement) // Don't treat HTMLElements as reactive values
       ) {
         // Handle reactive children (signals or computed values)
         const reactiveChild = child as any; // Type assertion to avoid value property requirement
@@ -737,8 +737,11 @@ export function div(props?: string | number | ElementProps, ...children: Element
 
   if (typeof props === 'string' || typeof props === 'number') {
     setupTextElement(element, props, children);
-  } else if (props) {
+  } else if (props && typeof props === 'object' && !('tagName' in props) && !(props instanceof HTMLElement)) {
     setupElement(element, props, children);
+  } else if (props) {
+    // If props is an HTMLElement or other non-props object, treat it as first child
+    setupElement(element, {}, [props as any, ...children]);
   } else {
     setupElement(element, {}, children);
   }
