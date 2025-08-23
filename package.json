@@ -7,7 +7,7 @@
   "module": "dist/tacit-dom.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "rollup -c && node scripts/build-size.js",
+    "build": "rollup -c && node scripts/build-size.ts",
     "build:tsc": "tsc",
     "build:prod": "tsc --project tsconfig.prod.json",
     "dev": "rollup -c --watch",

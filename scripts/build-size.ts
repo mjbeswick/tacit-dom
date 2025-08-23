@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-function formatBytes(bytes, decimals = 2) {
+function formatBytes(bytes: number, decimals: number = 2): string {
   if (bytes === 0) return '0 Bytes';
 
   const k = 1024;
@@ -19,7 +19,7 @@ function formatBytes(bytes, decimals = 2) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-function getBuildSizes() {
+function getBuildSizes(): void {
   const distPath = path.join(__dirname, '..', 'dist');
 
   if (!fs.existsSync(distPath)) {
@@ -27,7 +27,7 @@ function getBuildSizes() {
     return;
   }
 
-  const files = fs.readdirSync(distPath).filter((f) => f.endsWith('.js'));
+  const files = fs.readdirSync(distPath).filter((f: string) => f.endsWith('.js'));
 
   if (files.length === 0) {
     console.log('❌ No JavaScript files found in dist folder');
@@ -39,7 +39,7 @@ function getBuildSizes() {
 
   let totalSize = 0;
 
-  files.forEach((file) => {
+  files.forEach((file: string) => {
     const filePath = path.join(distPath, file);
     const stats = fs.statSync(filePath);
     const size = stats.size;
@@ -49,9 +49,7 @@ function getBuildSizes() {
   });
 
   console.log('─'.repeat(40));
-  console.log(
-    `  Total:${' '.repeat(18)} ${formatBytes(totalSize).padStart(10)}\n`,
-  );
+  console.log(`  Total:${' '.repeat(18)} ${formatBytes(totalSize).padStart(10)}\n`);
 }
 
 getBuildSizes();
