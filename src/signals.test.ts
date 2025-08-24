@@ -655,7 +655,7 @@ describe('computed()', () => {
     let effectRuns = 0;
     let lastComputedValue = 0;
 
-    const cleanup = effect(() => {
+    effect(() => {
       effectRuns++;
       // Track the signals directly to establish dependency
       signalA.get();
@@ -679,8 +679,243 @@ describe('computed()', () => {
 
     // Verify final computed value
     expect(computedValue.get()).toBe(3);
+  });
 
-    // Clean up
-    cleanup();
+  test('component re-renders when computed value dependencies change', () => {
+    const count = signal(0);
+    const doubled = computed(() => count.get() * 2);
+
+    let renderCount = 0;
+    let lastDisplayValue = 0;
+
+    // Simulate a component that reads computed values
+    const component = () => {
+      renderCount++;
+      lastDisplayValue = doubled.get();
+      return { renderCount, lastDisplayValue };
+    };
+
+    // Initial render
+    const result1 = component();
+    expect(result1.renderCount).toBe(1);
+    expect(result1.lastDisplayValue).toBe(0);
+
+    // Update dependency - should trigger recomputation
+    count.set(5);
+
+    // Simulate component re-render
+    const result2 = component();
+    expect(result2.renderCount).toBe(2);
+    expect(result2.lastDisplayValue).toBe(10);
+
+    // Update dependency again
+    count.set(10);
+
+    // Simulate component re-render
+    const result3 = component();
+    expect(result3.renderCount).toBe(3);
+    expect(result3.lastDisplayValue).toBe(20);
+  });
+
+  test('calculator display value updates when currentValue changes', () => {
+    // Simulate the calculator scenario
+    const currentValue = signal<string>('0');
+    const displayValue = computed(() => {
+      console.log('Display value computed');
+      return currentValue.get();
+    });
+
+    let renderCount = 0;
+    let lastDisplayValue = '';
+
+    // Simulate the calculator component render
+    const calculatorRender = () => {
+      renderCount++;
+      lastDisplayValue = displayValue.get();
+      return { renderCount, lastDisplayValue };
+    };
+
+    // Initial render
+    const result1 = calculatorRender();
+    expect(result1.renderCount).toBe(1);
+    expect(result1.lastDisplayValue).toBe('0');
+
+    // Simulate inputDigit('5') - should update currentValue
+    currentValue.set('5');
+
+    // Simulate component re-render
+    const result2 = calculatorRender();
+    expect(result2.renderCount).toBe(2);
+    expect(result2.lastDisplayValue).toBe('5');
+
+    // Simulate inputDigit('7') - should update currentValue to '57'
+    currentValue.set('57');
+
+    // Simulate component re-render
+    const result3 = calculatorRender();
+    expect(result3.renderCount).toBe(3);
+    expect(result3.lastDisplayValue).toBe('57');
+  });
+
+  test('effect properly tracks computed value dependencies', () => {
+    // This test verifies that effects properly track computed value dependencies
+    const currentValue = signal<string>('0');
+    const displayValue = computed(() => {
+      console.log('Display value computed');
+      return currentValue.get();
+    });
+
+    let effectRunCount = 0;
+    let lastDisplayValue = '';
+
+    // Create an effect that reads the computed value
+    const cleanup = effect(() => {
+      effectRunCount++;
+      lastDisplayValue = displayValue.get();
+      console.log(`Effect run ${effectRunCount}: displayValue = ${lastDisplayValue}`);
+    });
+
+    // Initial state
+    expect(effectRunCount).toBe(1);
+    expect(lastDisplayValue).toBe('0');
+
+    // Update the signal - should trigger the effect
+    currentValue.set('5');
+
+    // Wait for microtask to complete since notifications are async
+    return Promise.resolve().then(() => {
+      expect(effectRunCount).toBeGreaterThanOrEqual(2);
+      expect(lastDisplayValue).toBe('5');
+
+      // Update again
+      currentValue.set('57');
+
+      return Promise.resolve().then(() => {
+        expect(effectRunCount).toBeGreaterThanOrEqual(3);
+        expect(lastDisplayValue).toBe('57');
+
+        cleanup();
+      });
+    });
+  });
+
+  test('computed value notifies subscribers when dependencies change', () => {
+    // This test verifies that computed values properly notify their subscribers
+    const currentValue = signal<string>('0');
+    const displayValue = computed(() => {
+      console.log('Display value computed');
+      return currentValue.get();
+    });
+
+    let notificationCount = 0;
+    let lastValue = '';
+
+    // Force initial evaluation so dependencies are tracked
+    expect(displayValue.get()).toBe('0');
+
+    // Subscribe to the computed value
+    const unsubscribe = displayValue.subscribe(() => {
+      notificationCount++;
+      lastValue = displayValue.get();
+      console.log(`Notification ${notificationCount}: value = ${lastValue}`);
+    });
+
+    // Initial state
+    expect(notificationCount).toBe(0);
+
+    // Update the signal - should trigger notification
+    currentValue.set('5');
+
+    // Wait for microtask to complete since notifications are async
+    return Promise.resolve().then(() => {
+      expect(notificationCount).toBe(1);
+      expect(lastValue).toBe('5');
+
+      // Update again
+      currentValue.set('57');
+
+      return Promise.resolve().then(() => {
+        expect(notificationCount).toBe(2);
+        expect(lastValue).toBe('57');
+
+        unsubscribe();
+      });
+    });
+  });
+
+  test('component utils.computed properly tracks dependencies', () => {
+    // Test that component utils.computed works the same as regular computed
+    const count = signal(0);
+
+    // Simulate component utils
+    const utils = {
+      computed: <T>(fn: () => T) => computed(fn),
+    };
+
+    // Create computed value using utils
+    const doubled = utils.computed(() => count.get() * 2);
+
+    let renderCount = 0;
+    let lastValue = 0;
+
+    // Simulate component render
+    const componentRender = () => {
+      renderCount++;
+      lastValue = doubled.get();
+      return { renderCount, lastValue };
+    };
+
+    // Initial render
+    const result1 = componentRender();
+    expect(result1.renderCount).toBe(1);
+    expect(result1.lastValue).toBe(0);
+
+    // Update dependency
+    count.set(5);
+
+    // Simulate re-render
+    const result2 = componentRender();
+    expect(result2.renderCount).toBe(2);
+    expect(result2.lastValue).toBe(10);
+
+    // Update dependency again
+    count.set(10);
+
+    // Simulate re-render
+    const result3 = componentRender();
+    expect(result3.renderCount).toBe(3);
+    expect(result3.lastValue).toBe(20);
+  });
+
+  test('module-level-like computed read inside effect re-runs on dependency change', () => {
+    // Simulate module-level computed and effect relationship (as in calculator)
+    const currentValue = signal<string>('0');
+    const displayValue = computed(() => currentValue.get());
+
+    let runs = 0;
+    let seen = '';
+
+    const cleanup = effect(() => {
+      runs++;
+      seen = displayValue.get();
+    });
+
+    // Initial evaluation
+    expect(runs).toBe(1);
+    expect(seen).toBe('0');
+
+    // Update underlying signal; effect should re-run (asynchronously)
+    currentValue.set('5');
+    return Promise.resolve().then(() => {
+      expect(runs).toBeGreaterThanOrEqual(2);
+      expect(seen).toBe('5');
+
+      currentValue.set('57');
+      return Promise.resolve().then(() => {
+        expect(runs).toBeGreaterThanOrEqual(3);
+        expect(seen).toBe('57');
+        cleanup();
+      });
+    });
   });
 });

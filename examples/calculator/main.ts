@@ -1,4 +1,4 @@
-import { button, component, computed, div, render, signal } from 'tacit-dom';
+import { button, component, computed, div, effect, render, signal } from 'tacit-dom';
 import styles from './styles.module.css';
 
 // Calculator state - using atomic signals
@@ -8,7 +8,11 @@ const operation = signal<string | null>(null);
 const waitingForOperand = signal<boolean>(false);
 
 // Computed values
-const displayValue = computed(() => currentValue.get());
+const displayValue = computed(() => {
+  console.log('Display value computed');
+  return currentValue.get();
+});
+
 const expression = computed(() => {
   const prev = previousValue.get();
   const op = operation.get();
@@ -16,6 +20,10 @@ const expression = computed(() => {
     return `${prev} ${op}`;
   }
   return '';
+});
+
+effect(() => {
+  console.log('Display value:', displayValue.get());
 });
 
 // Calculator functions
@@ -182,6 +190,7 @@ function percentage() {
 // Calculator component
 const calculator = component(() => {
   // Make the component reactive by accessing signals in the render
+  // These computed values will automatically trigger re-renders when their dependencies change
   const currentDisplayValue = displayValue.get();
   const currentExpression = expression.get();
 

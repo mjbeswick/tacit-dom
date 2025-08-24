@@ -194,19 +194,22 @@ export function computed<T>(computeFn: () => T): ReadonlySignal<T> {
       activeEffect = () => {
         // Mark as dirty when dependencies change
         dirty = true;
-        // Schedule notification of subscribers (don't notify immediately)
-        if (subscribers.size > 0) {
-          // Use a microtask to avoid recursive calls
-          Promise.resolve().then(() => {
-            if (dirty) {
-              subscribers.forEach((sub) => {
-                if (sub !== activeEffect) {
-                  sub();
-                }
-              });
+        // Schedule notification of subscribers and dependent effects
+        Promise.resolve().then(() => {
+          if (!dirty) return;
+          // Notify subscribers (e.g., computed subscribers)
+          subscribers.forEach((sub) => {
+            if (sub !== activeEffect) {
+              sub();
             }
           });
-        }
+          // Notify dependent effects/components to re-run
+          dependencies.forEach((dep) => {
+            if (dep !== activeEffect) {
+              dep();
+            }
+          });
+        });
       };
 
       try {
@@ -217,6 +220,11 @@ export function computed<T>(computeFn: () => T): ReadonlySignal<T> {
       }
 
       dirty = false;
+    }
+
+    // Track this computed value as a dependency if we're in an effect
+    if (activeEffect) {
+      dependencies.add(activeEffect);
     }
 
     return cachedValue;
