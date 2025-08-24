@@ -186,26 +186,25 @@ export function computed<T>(computeFn: () => T): ReadonlySignal<T> {
     if (dirty && !isComputing) {
       isComputing = true;
 
-      // Clear previous dependencies
-      dependencies.clear();
-
       // Track dependencies by running the compute function
       const prevEffect = activeEffect;
       activeEffect = () => {
         // Mark as dirty when dependencies change
         dirty = true;
+        // Store the current activeEffect to exclude it from notifications
+        const currentActiveEffect = activeEffect;
         // Schedule notification of subscribers and dependent effects
         Promise.resolve().then(() => {
           if (!dirty) return;
           // Notify subscribers (e.g., computed subscribers)
           subscribers.forEach((sub) => {
-            if (sub !== activeEffect) {
+            if (sub !== currentActiveEffect) {
               sub();
             }
           });
           // Notify dependent effects/components to re-run
           dependencies.forEach((dep) => {
-            if (dep !== activeEffect) {
+            if (dep !== currentActiveEffect) {
               dep();
             }
           });

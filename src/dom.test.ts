@@ -291,6 +291,125 @@ describe('DOM Element Creation', () => {
       expect(renderCount).toBe(3);
     });
 
+    it('should rerender when component reads a module-level computed directly', () => {
+      // Simulate module-level signals/computed
+      const value = signal('0');
+      const display = computed(() => value.get());
+
+      let renderCount = 0;
+      const App = component(() => {
+        renderCount++;
+        // Read computed directly in render
+        const text = display.get();
+        return div(text);
+      });
+
+      const container = document.createElement('div');
+      render(App, container);
+      expect(container.textContent).toBe('0');
+      expect(renderCount).toBe(1);
+
+      value.set('5');
+
+      // Allow async effect scheduling
+      return Promise.resolve().then(() => {
+        expect(container.textContent).toBe('5');
+        expect(renderCount).toBe(2);
+
+        value.set('57');
+        return Promise.resolve().then(() => {
+          expect(container.textContent).toBe('57');
+          expect(renderCount).toBe(3);
+        });
+      });
+    });
+
+    it('should rerender calculator-like component when display value changes', () => {
+      // Exact calculator scenario: module-level signal and computed
+      const currentValue = signal<string>('0');
+      const displayValue = computed(() => {
+        console.log('Display value computed');
+        return currentValue.get();
+      });
+
+      let renderCount = 0;
+      const Calculator = component(() => {
+        renderCount++;
+        const currentDisplayValue = displayValue.get();
+        console.log('Rendering calculator with:', { currentDisplayValue, renderCount });
+
+        return div({ className: 'calculator' }, div({ className: 'display' }, currentDisplayValue));
+      });
+
+      const container = document.createElement('div');
+      render(Calculator, container);
+
+      expect(container.textContent).toBe('0');
+      expect(renderCount).toBe(1);
+
+      // Simulate pressing digit 5
+      currentValue.set('5');
+
+      return Promise.resolve().then(() => {
+        expect(container.textContent).toBe('5');
+        expect(renderCount).toBeGreaterThanOrEqual(2);
+
+        // Simulate pressing digit 7 to make '57'
+        currentValue.set('57');
+
+        return Promise.resolve().then(() => {
+          expect(container.textContent).toBe('57');
+          expect(renderCount).toBeGreaterThanOrEqual(3);
+        });
+      });
+    });
+
+    it('should rerender exact calculator example scenario', () => {
+      // Exact replication of calculator example usage
+      const currentValue = signal<string>('0');
+      const displayValue = computed(() => {
+        console.log('Display value computed');
+        return currentValue.get();
+      });
+
+      // Add effect like in calculator example
+      effect(() => {
+        console.log('Display value:', displayValue.get());
+      });
+
+      let renderCount = 0;
+      const calculator = component(() => {
+        renderCount++;
+        const currentDisplayValue = displayValue.get();
+        console.log('Rendering calculator with:', { currentDisplayValue, renderCount });
+
+        return div({ className: 'calculator' }, div({ className: 'display' }, currentDisplayValue));
+      });
+
+      const container = document.createElement('div');
+      render(calculator, container); // This is how calculator example calls it
+
+      expect(container.textContent).toBe('0');
+      expect(renderCount).toBe(1);
+
+      // Simulate inputDigit('1')
+      currentValue.set('1');
+
+      return Promise.resolve().then(() => {
+        console.log('After first update - renderCount:', renderCount, 'textContent:', container.textContent);
+        expect(container.textContent).toBe('1');
+        expect(renderCount).toBeGreaterThanOrEqual(2);
+
+        currentValue.set('12');
+
+        return Promise.resolve().then(() => {
+          console.log('After second update - renderCount:', renderCount, 'textContent:', container.textContent);
+          expect(container.textContent).toBe('12');
+          expect(renderCount).toBeGreaterThanOrEqual(3);
+        });
+      });
+    });
+
     it('should use component utils signal and rerender when it changes', () => {
       let renderCount = 0;
 
