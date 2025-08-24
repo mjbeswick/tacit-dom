@@ -57,6 +57,7 @@ export {
   when,
   type Component,
   type ComponentUtils,
+  type PostRenderCallback,
 } from './dom';
 
 // Export utility types

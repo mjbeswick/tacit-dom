@@ -565,7 +565,17 @@ export type ComponentUtils = {
  * });
  * ```
  */
-export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) => HTMLElement): Component<P> {
+/**
+ * Post-render callback type for component lifecycle hooks.
+ * Called after each render with the rendered element.
+ * Can return a cleanup function that will be called before the next render or on unmount.
+ */
+export type PostRenderCallback = (element: HTMLElement) => (() => void) | void;
+
+export function component<P = {}>(
+  renderFn: (props: P, utils: ComponentUtils) => HTMLElement,
+  postRender?: PostRenderCallback,
+): Component<P> {
   // Create a unique ID for this component definition (not for each call)
   const componentId = `component_${nextComponentId++}`;
 
@@ -653,7 +663,15 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
       };
 
       // Set up effect to track dependencies and re-render
+      let postRenderCleanup: (() => void) | undefined;
+
       const cleanup = effect(() => {
+        // Call previous post-render cleanup if it exists
+        if (postRenderCleanup) {
+          postRenderCleanup();
+          postRenderCleanup = undefined;
+        }
+
         // Reset the state index for this render cycle
         context.stateIndex = 0;
 
@@ -668,6 +686,11 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
         } else {
           container.appendChild(newElement);
         }
+
+        // Call post-render callback if provided
+        if (postRender) {
+          postRenderCleanup = postRender(newElement) || undefined;
+        }
       });
 
       // Store the instance for this component definition
@@ -675,7 +698,15 @@ export function component<P = {}>(renderFn: (props: P, utils: ComponentUtils) =>
         id: componentId,
         element: container,
         render,
-        cleanup,
+        cleanup: () => {
+          // Clean up post-render callback
+          if (postRenderCleanup) {
+            postRenderCleanup();
+            postRenderCleanup = undefined;
+          }
+          // Clean up the effect
+          cleanup();
+        },
         context,
       };
 

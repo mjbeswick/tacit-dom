@@ -188,64 +188,73 @@ function percentage() {
 }
 
 // Calculator component
-const calculator = component(() => {
-  // Make the component reactive by accessing signals in the render
-  // These computed values will automatically trigger re-renders when their dependencies change
-  const currentDisplayValue = displayValue.get();
-  const currentExpression = expression.get();
+const calculator = component(
+  () => {
+    // Make the component reactive by accessing signals in the render
+    // These computed values will automatically trigger re-renders when their dependencies change
+    const currentDisplayValue = displayValue.get();
+    const currentExpression = expression.get();
 
-  console.log('Rendering calculator with:', { currentDisplayValue, currentExpression });
+    console.log('Rendering calculator with:', { currentDisplayValue, currentExpression });
 
-  return div(
-    { className: [styles.calculator] },
+    return div(
+      { className: [styles.calculator] },
 
-    // Display
-    div(
-      { className: [styles.display] },
-      div({ className: [styles.expression] }, currentExpression),
+      // Display
       div(
-        {
-          className: [styles.result, styles[`digits-${currentDisplayValue.length}`] || ''],
-        },
-        currentDisplayValue,
+        { className: [styles.display] },
+        div({ className: [styles.expression] }, currentExpression),
+        div(
+          {
+            className: [styles.result, styles[`digits-${currentDisplayValue.length}`] || ''],
+          },
+          currentDisplayValue,
+        ),
       ),
-    ),
 
-    // Buttons
-    div(
-      { className: [styles.buttons] },
+      // Buttons
+      div(
+        { className: [styles.buttons] },
 
-      // First row
-      button({ className: [styles.btn, styles.clear], onClick: clear }, 'C'),
-      button({ className: [styles.btn, styles.delete], onClick: deleteLastDigit }, '⌫'),
-      button({ className: [styles.btn, styles.operator], onClick: () => percentage() }, '%'),
-      button({ className: [styles.btn, styles.operator], onClick: () => performOperation('÷') }, '÷'),
+        // First row
+        button({ className: [styles.btn, styles.clear], onClick: clear }, 'C'),
+        button({ className: [styles.btn, styles.delete], onClick: deleteLastDigit }, '⌫'),
+        button({ className: [styles.btn, styles.operator], onClick: () => percentage() }, '%'),
+        button({ className: [styles.btn, styles.operator], onClick: () => performOperation('÷') }, '÷'),
 
-      // Second row
-      button({ className: [styles.btn], onClick: () => inputDigit('7') }, '7'),
-      button({ className: [styles.btn], onClick: () => inputDigit('8') }, '8'),
-      button({ className: [styles.btn], onClick: () => inputDigit('9') }, '9'),
-      button({ className: [styles.btn, styles.operator], onClick: () => performOperation('×') }, '×'),
+        // Second row
+        button({ className: [styles.btn], onClick: () => inputDigit('7') }, '7'),
+        button({ className: [styles.btn], onClick: () => inputDigit('8') }, '8'),
+        button({ className: [styles.btn], onClick: () => inputDigit('9') }, '9'),
+        button({ className: [styles.btn, styles.operator], onClick: () => performOperation('×') }, '×'),
 
-      // Third row
-      button({ className: [styles.btn], onClick: () => inputDigit('4') }, '4'),
-      button({ className: [styles.btn], onClick: () => inputDigit('5') }, '5'),
-      button({ className: [styles.btn], onClick: () => inputDigit('6') }, '6'),
-      button({ className: [styles.btn, styles.operator], onClick: () => performOperation('-') }, '−'),
+        // Third row
+        button({ className: [styles.btn], onClick: () => inputDigit('4') }, '4'),
+        button({ className: [styles.btn], onClick: () => inputDigit('5') }, '5'),
+        button({ className: [styles.btn], onClick: () => inputDigit('6') }, '6'),
+        button({ className: [styles.btn, styles.operator], onClick: () => performOperation('-') }, '−'),
 
-      // Fourth row
-      button({ className: [styles.btn], onClick: () => inputDigit('1') }, '1'),
-      button({ className: [styles.btn], onClick: () => inputDigit('2') }, '2'),
-      button({ className: [styles.btn], onClick: () => inputDigit('3') }, '3'),
-      button({ className: [styles.btn, styles.operator], onClick: () => performOperation('+') }, '+'),
+        // Fourth row
+        button({ className: [styles.btn], onClick: () => inputDigit('1') }, '1'),
+        button({ className: [styles.btn], onClick: () => inputDigit('2') }, '2'),
+        button({ className: [styles.btn], onClick: () => inputDigit('3') }, '3'),
+        button({ className: [styles.btn, styles.operator], onClick: () => performOperation('+') }, '+'),
 
-      // Fifth row
-      button({ className: [styles.btn, styles.zero], onClick: () => inputDigit('0') }, '0'),
-      button({ className: [styles.btn], onClick: inputDecimal }, '.'),
-      button({ className: [styles.btn, styles.equals], onClick: calculate }, '='),
-    ),
-  );
-});
+        // Fifth row
+        button({ className: [styles.btn, styles.zero], onClick: () => inputDigit('0') }, '0'),
+        button({ className: [styles.btn], onClick: inputDecimal }, '.'),
+        button({ className: [styles.btn, styles.equals], onClick: calculate }, '='),
+      ),
+    );
+  },
+  (element) => {
+    console.log('Calculator component mounted', element);
+
+    return () => {
+      console.log('Calculator component unmounted');
+    };
+  },
+);
 
 // Render the calculator
 render(calculator, document.getElementById('app')!);

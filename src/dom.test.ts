@@ -410,6 +410,57 @@ describe('DOM Element Creation', () => {
       });
     });
 
+    it('should call post-render callback after each render', () => {
+      const postRenderCalls: HTMLElement[] = [];
+      const cleanupCalls: number[] = [];
+      let cleanupCallCount = 0;
+      let countSignal: any = null;
+
+      const TestComponent = component(
+        (_props, utils) => {
+          countSignal = utils.signal(0);
+          return div(`Count: ${countSignal.get()}`);
+        },
+        (element) => {
+          postRenderCalls.push(element);
+          return () => {
+            cleanupCalls.push(++cleanupCallCount);
+          };
+        },
+      );
+
+      const container = document.createElement('div');
+      render(TestComponent, container);
+
+      // Should have been called once after initial render
+      expect(postRenderCalls).toHaveLength(1);
+      expect(postRenderCalls[0].textContent).toBe('Count: 0');
+      expect(cleanupCalls).toHaveLength(0);
+
+      // Trigger a re-render by updating the signal
+      countSignal.set(1);
+
+      return Promise.resolve().then(() => {
+        // Should have been called again after re-render
+        expect(postRenderCalls).toHaveLength(2);
+        expect(postRenderCalls[1].textContent).toBe('Count: 1');
+
+        // Previous cleanup should have been called
+        expect(cleanupCalls).toHaveLength(1);
+        expect(cleanupCalls[0]).toBe(1);
+
+        // Trigger another re-render
+        countSignal.set(2);
+
+        return Promise.resolve().then(() => {
+          expect(postRenderCalls).toHaveLength(3);
+          expect(postRenderCalls[2].textContent).toBe('Count: 2');
+          expect(cleanupCalls).toHaveLength(2);
+          expect(cleanupCalls[1]).toBe(2);
+        });
+      });
+    });
+
     it('should use component utils signal and rerender when it changes', () => {
       let renderCount = 0;
 
