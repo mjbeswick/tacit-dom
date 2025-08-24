@@ -1,0 +1,429 @@
+.gameContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #2a2a2a;
+  background-image:
+    linear-gradient(45deg, #333 25%, transparent 25%), linear-gradient(-45deg, #333 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #333 75%), linear-gradient(-45deg, transparent 75%, #333 75%);
+  background-size: 20px 20px;
+  background-position:
+    0 0,
+    0 10px,
+    10px -10px,
+    -10px 0px;
+  padding: 20px;
+  gap: 15px;
+}
+
+.gameArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.gameBoard {
+  border: 2px solid #00aaff;
+  background: #000;
+  position: relative;
+}
+
+.gameBoard.gameOver {
+  border-color: #ff0000;
+}
+
+.gameBoard.paused {
+  border-color: #ffff00;
+}
+
+.infoPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 200px;
+}
+
+.infoBox {
+  background: #2a2a2a;
+  border: 2px solid #00aaff;
+  padding: 8px;
+  text-align: center;
+  margin-bottom: 8px;
+  min-width: 120px;
+}
+
+.infoTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.infoValue {
+  font-size: 24px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.nextPiece {
+  width: 60px;
+  height: 60px;
+  background: #000;
+  border: 2px solid #00aaff;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 0px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.controls {
+  display: none;
+}
+
+.statisticsPanel {
+  background: #2a2a2a;
+  border: 2px solid #00aaff;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.statisticsTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.statisticsItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #fff;
+}
+
+.pieceShape {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 0px;
+  margin-right: 8px;
+}
+
+.pieceCount {
+  font-family: monospace;
+  font-size: 16px;
+  color: #fff;
+}
+
+.aTypeButton {
+  background: #2a2a2a;
+  border: 2px solid #00aaff;
+  padding: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.aTypeButton:hover {
+  background: #444;
+}
+
+.aTypeText {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.linesDisplay {
+  background: #2a2a2a;
+  border: 2px solid #00aaff;
+  padding: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.linesTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.linesValue {
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  font-family: monospace;
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.controlTitle {
+  font-size: 14px;
+  color: #00ff00;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.controlKey {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #00ff00;
+  border-radius: 4px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: monospace;
+  font-size: 12px;
+  text-align: center;
+}
+
+.gameOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 10;
+}
+
+.overlayTitle {
+  font-size: 36px;
+  font-weight: bold;
+  color: #ff0000;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.overlaySubtitle {
+  font-size: 18px;
+  color: #ffff00;
+  text-align: center;
+}
+
+.overlayButton {
+  background: #00ff00;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.overlayButton:hover {
+  background: #00cc00;
+  transform: scale(1.05);
+}
+
+.pauseOverlay {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.pauseTitle {
+  color: #ffff00;
+  text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+}
+
+.pauseSubtitle {
+  color: #00ff00;
+}
+
+.startModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 20;
+}
+
+.modalTitle {
+  font-size: 48px;
+  font-weight: bold;
+  color: #00aaff;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+  margin-bottom: 20px;
+}
+
+.modalSubtitle {
+  font-size: 24px;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.keyBindings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+  max-width: 600px;
+}
+
+.keyBindingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.keyBindingTitle {
+  font-size: 18px;
+  color: #00aaff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.keyBinding {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.key {
+  background: #2a2a2a;
+  border: 2px solid #00aaff;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #fff;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  min-width: 40px;
+  text-align: center;
+}
+
+.keyDescription {
+  color: #fff;
+  font-size: 16px;
+}
+
+.modalButton {
+  background: #00aaff;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  transition: all 0.2s ease;
+  margin-top: 20px;
+}
+
+.modalButton:hover {
+  background: #0088cc;
+  transform: scale(1.05);
+}
+
+.gameOverModal .modalTitle {
+  color: #ff4444;
+  text-shadow: 0 0 15px rgba(255, 68, 68, 0.5);
+}
+
+.gameOverModal .modalSubtitle {
+  color: #ffaa00;
+}
+
+.gameOverModal .modalButton {
+  background: #ff4444;
+}
+
+.gameOverModal .modalButton:hover {
+  background: #cc3333;
+}
+
+@media (max-width: 768px) {
+  .gameContainer {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .infoPanel {
+    min-width: auto;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .nextPiece {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .statisticsPanel {
+    display: none;
+  }
+  
+  .startModal {
+    padding: 20px;
+  }
+  
+  .modalTitle {
+    font-size: 32px;
+    letter-spacing: 2px;
+  }
+  
+  .modalSubtitle {
+    font-size: 18px;
+  }
+  
+  .keyBindings {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .keyBinding {
+    gap: 10px;
+  }
+  
+  .key {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 35px;
+  }
+  
+  .keyDescription {
+    font-size: 14px;
+  }
+}

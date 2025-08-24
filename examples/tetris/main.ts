@@ -627,30 +627,42 @@ function StartModal() {
 
 // Game overlay component
 function GameOverlay() {
-  const state = gameState.get();
+  const overlayContainer = div();
 
-  if (state === 'playing') return null;
+  effect(() => {
+    const state = gameState.get();
 
-  const isPaused = state === 'paused';
-  const title = isPaused ? 'PAUSED' : 'GAME OVER';
-  const subtitle = isPaused ? 'Press SPACE to resume' : `Final Score: ${score.get()}`;
-  const buttonText = isPaused ? 'Resume' : 'New Game';
-  const buttonAction = isPaused ? pauseGame : startGame;
+    if (state === 'playing' || state === 'notStarted') {
+      overlayContainer.innerHTML = '';
+      return;
+    }
 
-  return div(
-    {
-      className: `${styles.gameOverlay} ${isPaused ? styles.pauseOverlay : ''}`,
-    },
-    div({ className: `${styles.overlayTitle} ${isPaused ? styles.pauseTitle : ''}` }, title),
-    div({ className: `${styles.overlaySubtitle} ${isPaused ? styles.pauseSubtitle : ''}` }, subtitle),
-    button(
-      {
-        className: styles.overlayButton,
-        onClick: buttonAction,
-      },
-      buttonText,
-    ),
-  );
+    const isPaused = state === 'paused';
+    const title = isPaused ? 'PAUSED' : 'GAME OVER';
+    const subtitle = isPaused ? 'Press SPACE to resume' : `Final Score: ${score.get()}`;
+    const buttonText = isPaused ? 'Resume' : 'New Game';
+    const buttonAction = isPaused ? pauseGame : startGame;
+
+    overlayContainer.innerHTML = '';
+    overlayContainer.appendChild(
+      div(
+        {
+          className: `${styles.gameOverlay} ${isPaused ? styles.pauseOverlay : ''}`,
+        },
+        div({ className: `${styles.overlayTitle} ${isPaused ? styles.pauseTitle : ''}` }, title),
+        div({ className: `${styles.overlaySubtitle} ${isPaused ? styles.pauseSubtitle : ''}` }, subtitle),
+        button(
+          {
+            className: styles.overlayButton,
+            onClick: buttonAction,
+          },
+          buttonText,
+        ),
+      ),
+    );
+  });
+
+  return overlayContainer;
 }
 
 // Main game component
@@ -666,6 +678,10 @@ function TetrisGame() {
           startGame();
         }
         return;
+      }
+
+      if (gameState.get() === 'notStarted') {
+        return; // Don't handle keys until game starts
       }
 
       switch (event.code) {
@@ -790,7 +806,19 @@ function TetrisGame() {
       ),
     ),
     // Show start modal when game hasn't started yet
-    gameState.get() === 'playing' ? null : StartModal(),
+    (() => {
+      const modalContainer = div();
+
+      effect(() => {
+        const state = gameState.get();
+        modalContainer.innerHTML = '';
+        if (state === 'notStarted') {
+          modalContainer.appendChild(StartModal());
+        }
+      });
+
+      return modalContainer;
+    })(),
   );
 }
 

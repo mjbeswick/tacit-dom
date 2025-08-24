@@ -1,0 +1,18 @@
+{
+  "name": "tacit-dom-tetris-example",
+  "version": "1.0.0",
+  "description": "Example demonstrating Tacit-DOM with a classic Tetris game",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^4.0.0"
+  },
+  "dependencies": {
+    "tacit-dom": "file:../../"
+  }
+}
