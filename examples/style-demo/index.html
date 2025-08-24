@@ -4,45 +4,45 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Style Demo - Tacit-DOM</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-        background-color: #f5f5f5;
-      }
-      .demo-section {
-        background: white;
-        padding: 20px;
-        margin: 20px 0;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      .demo-title {
-        color: #333;
-        border-bottom: 2px solid #007acc;
-        padding-bottom: 10px;
-      }
-      .demo-item {
-        margin: 10px 0;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-      }
-      .color-box {
-        width: 100px;
-        height: 60px;
-        border: 2px solid #333;
-        display: inline-block;
-        margin: 5px;
-        text-align: center;
-        line-height: 60px;
-        color: white;
-        font-weight: bold;
-      }
-    </style>
   </head>
   <body>
-    <h1>Style Demo - Tacit-DOM</h1>
+    <button class="theme-toggle" id="theme-toggle">🌙 Dark Mode</button>
+
+    <div class="header">
+      <h1 class="header-title">Style Demo - Tacit-DOM</h1>
+      <p class="header-description">Explore the power of reactive styling with CSS themes, dark mode support, and dynamic visual effects</p>
+    </div>
+
+    <div class="demo-section">
+      <h2 class="demo-title">Theme Information</h2>
+      <div class="theme-info">
+        <h3 class="theme-info-title">CSS Custom Properties (Variables)</h3>
+        <p class="theme-info-description">This demo uses CSS custom properties to create a comprehensive theming system. The theme automatically applies to all elements and can be toggled between light and dark modes.</p>
+        <div class="css-variables">
+          <div class="css-var">
+            <span class="css-var-name">--bg-primary</span>
+            <span class="css-var-value">Background color for main content areas</span>
+          </div>
+          <div class="css-var">
+            <span class="css-var-name">--text-primary</span>
+            <span class="css-var-value">Primary text color</span>
+          </div>
+          <div class="css-var">
+            <span class="css-var-name">--accent-primary</span>
+            <span class="css-var-value">Primary accent color for highlights</span>
+          </div>
+          <div class="css-var">
+            <span class="css-var-name">--border-primary</span>
+            <span class="css-var-value">Primary border color</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2 class="demo-title">Theme-Aware Styles</h2>
+      <div id="theme-aware-styles"></div>
+    </div>
 
     <div class="demo-section">
       <h2 class="demo-title">Static Styles</h2>
@@ -62,6 +62,11 @@
     <div class="demo-section">
       <h2 class="demo-title">Conditional Rendering with Falsy Values</h2>
       <div id="conditional-rendering"></div>
+    </div>
+
+    <div class="demo-section">
+      <h2 class="demo-title">Theme Color Palette</h2>
+      <div id="theme-showcase"></div>
     </div>
 
     <script type="module" src="main.ts"></script>

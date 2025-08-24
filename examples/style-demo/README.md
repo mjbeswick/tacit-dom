@@ -1,72 +1,94 @@
 # Style Demo - Tacit-DOM
 
-This example demonstrates the new style functionality in Tacit-DOM, showing how to use styles in various ways:
+A comprehensive demonstration of Tacit-DOM's styling capabilities with CSS modules and theme support.
 
-## Features Demonstrated
+## Features
 
-### 1. Static Styles
-
-- **String-based styles**: Using CSS strings like `'background-color: red; color: white;'`
-- **Object-based styles**: Using React-like style objects with camelCase properties
-- **Mixed properties**: Combining string and numeric values
-
-### 2. Reactive Styles
-
-- **Signal-based styles**: Styles that automatically update when signals change
-- **Computed styles**: Styles computed from multiple signals
-- **Interactive updates**: Buttons to change colors, sizes, and rotations
-
-### 3. Mixed Styles with Signals
-
-- **Individual property signals**: Signals for specific style properties
-- **RGB color mixer**: Interactive color mixing with range inputs
-- **Real-time updates**: Styles update as you move the sliders
-
-## Usage Examples
-
-```typescript
-// String-based styles
-div({ style: 'background-color: red; color: white;' }, 'Content');
-
-// Object-based styles (React-like)
-div(
-  {
-    style: {
-      backgroundColor: 'red',
-      color: 'white',
-      fontSize: 16,
-      padding: 15,
-    },
-  },
-  'Content',
-);
-
-// Reactive styles
-const colorSignal = signal('red');
-div({ style: { backgroundColor: colorSignal } }, 'Content');
-
-// Computed styles
-const dynamicStyle = computed(() => ({
-  backgroundColor: colorSignal.get(),
-  fontSize: sizeSignal.get(),
-}));
-div({ style: dynamicStyle }, 'Content');
-```
+- **CSS Modules**: All styles are organized using CSS modules for better maintainability
+- **Theme System**: Comprehensive light/dark theme with CSS custom properties
+- **Reactive Styling**: Dynamic styles that respond to user interactions
+- **Theme Toggle**: Interactive button to switch between light and dark modes
+- **CSS Variables**: Demonstrates the power of CSS custom properties for theming
 
 ## Running the Demo
 
-1. Install dependencies: `npm install`
-2. Start development server: `npm run dev`
-3. Open the browser to the displayed URL
+1. Install dependencies:
 
-## Style Property Handling
+   ```bash
+   npm install
+   ```
 
-- **CamelCase to kebab-case**: Properties like `backgroundColor` are automatically converted to `background-color`
-- **Automatic units**: Numeric values for properties like `fontSize` automatically get `px` units
-- **Mixed types**: Support for both string and numeric values
-- **Reactive updates**: Styles automatically update when signals change
-- **JSDOM compatibility**: Uses `setProperty` for better test environment compatibility
+2. Start the development server:
 
-## Browser Compatibility
+   ```bash
+   npm run dev
+   ```
 
-The style functionality works in all modern browsers and is fully compatible with the Tacit-DOM testing environment (JSDOM).
+3. Open your browser to the URL shown in the terminal (usually `http://localhost:5173`)
+
+## What You'll See
+
+### Theme Information
+
+- Overview of CSS custom properties used in the demo
+- Explanation of the theming system
+
+### Theme-Aware Styles
+
+- Elements that automatically adapt to the current theme
+- Smooth transitions between light and dark modes
+
+### Static Styles
+
+- String-based styles with CSS variables
+- Object-based styles with theme integration
+- Mixed style properties with theme awareness
+
+### Reactive Styles
+
+- Dynamic styles that change based on user interactions
+- Toggle between theme colors and fixed colors
+- Size and rotation controls
+
+### Mixed Styles
+
+- RGB color mixer with theme support
+- Interactive sliders for color control
+- Option to enable/disable theme background effects
+
+### Conditional Rendering
+
+- Demonstrates falsy value filtering
+- Interactive content toggles
+- Theme-aware styling
+
+### Theme Color Palette
+
+- Visual showcase of all theme colors
+- Automatic adaptation to current theme
+
+## Theme System
+
+The demo uses CSS custom properties (variables) to create a comprehensive theming system:
+
+- **Light Theme**: Clean, bright interface with subtle shadows
+- **Dark Theme**: Dark interface with enhanced contrast and deeper shadows
+- **Smooth Transitions**: All theme changes include smooth animations
+- **Consistent Colors**: Semantic color system (primary, secondary, success, warning, error, info)
+
+## CSS Modules
+
+All styles are organized using CSS modules:
+
+- Scoped class names prevent conflicts
+- Kebab-case naming convention
+- Organized by component and functionality
+- Easy to maintain and extend
+
+## Technical Details
+
+- Built with Tacit-DOM reactive library
+- Uses Vite for fast development and building
+- TypeScript for type safety
+- CSS modules for style organization
+- CSS custom properties for theming

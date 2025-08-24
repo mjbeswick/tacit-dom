@@ -1,162 +1,267 @@
 import { button, computed, div, p, render, signal, span } from '../../src/index';
+import styles from './styles.module.css';
 
-// Static styles
-function createStaticStyles() {
+// Theme management
+const currentTheme = signal<'light' | 'dark'>('light');
+
+// Theme toggle functionality
+function setupThemeToggle() {
+  const themeToggle = document.getElementById('theme-toggle') as HTMLButtonElement;
+
+  themeToggle.addEventListener('click', () => {
+    const newTheme = currentTheme.get() === 'light' ? 'dark' : 'light';
+    currentTheme.set(newTheme);
+
+    // Update document attribute for CSS variables
+    document.documentElement.setAttribute('data-theme', newTheme);
+
+    // Update button text and icon
+    themeToggle.textContent = newTheme === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
+  });
+}
+
+// Theme-aware styles using CSS modules
+function createThemeAwareStyles() {
   return div(
-    { className: 'demo-item' },
-    h3('String-based styles'),
+    { className: styles.demoItem },
+    h3('Theme-Aware Styles'),
     div(
-      {
-        style: 'background-color: #ff6b6b; color: white; padding: 15px; border-radius: 8px;',
-      },
-      'This div uses a CSS string for styling',
-    ),
-
-    h3('Object-based styles'),
-    div(
-      {
-        style: {
-          backgroundColor: '#4ecdc4',
-          color: 'white',
-          padding: 15,
-          borderRadius: 8,
-          fontSize: 18,
-          fontWeight: 'bold',
-          textAlign: 'center',
-        },
-      },
-      'This div uses a style object (React-like)',
-    ),
-
-    h3('Mixed style properties'),
-    div(
-      {
-        style: {
-          backgroundColor: '#45b7d1',
-          color: 'white',
-          padding: '20px',
-          borderRadius: 12,
-          fontSize: 16,
-          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-          transform: 'rotate(2deg)',
-        },
-      },
-      'Mixed string and numeric values',
+      { className: styles.themeAwareContainer },
+      p('This element automatically adapts to the current theme!'),
+      p('Try toggling between light and dark mode using the button in the top-right corner.'),
+      p('All colors, borders, and shadows will smoothly transition between themes.'),
     ),
   );
 }
 
-// Reactive styles
+// Enhanced static styles with CSS modules
+function createStaticStyles() {
+  return div(
+    { className: styles.demoItem },
+    h3('String-based styles with CSS Variables'),
+    div({ className: styles.staticStylesPrimary }, 'This div uses CSS variables for theming'),
+
+    h3('Object-based styles with theme integration'),
+    div({ className: styles.staticStylesSecondary }, 'This div uses a style object with CSS variables'),
+
+    h3('Mixed style properties with theme awareness'),
+    div({ className: styles.staticStylesInfo }, 'Mixed string and numeric values with theme integration'),
+  );
+}
+
+// Enhanced reactive styles with CSS modules
 function createReactiveStyles() {
-  const colorSignal = signal('#ff6b6b');
+  const colorSignal = signal('var(--accent-primary)');
   const sizeSignal = signal(16);
   const rotationSignal = signal(0);
+  const useThemeColors = signal(true);
 
   const dynamicStyle = computed(() => ({
-    backgroundColor: colorSignal.get(),
+    backgroundColor: useThemeColors.get() ? colorSignal.get() : '#ff6b6b',
     fontSize: sizeSignal.get(),
     transform: `rotate(${rotationSignal.get()}deg)`,
-    padding: 15,
-    color: 'white',
-    borderRadius: 8,
-    textAlign: 'center',
-    transition: 'all 0.3s ease',
   }));
 
   return div(
-    { className: 'demo-item' },
-    h3('Reactive Styles'),
-    div({ style: dynamicStyle }, 'This div has reactive styles!'),
+    { className: styles.demoItem },
+    h3('Reactive Styles with Theme Integration'),
+    div(
+      {
+        className: styles.reactiveContainer,
+        style: dynamicStyle,
+      },
+      'This div has reactive styles that work with themes!',
+    ),
 
     div(
-      { style: { marginTop: 15 } },
+      { className: styles.buttonContainer },
       button(
         {
-          onClick: () => colorSignal.set(colorSignal.get() === '#ff6b6b' ? '#4ecdc4' : '#ff6b6b'),
-          style: { margin: 5, padding: '8px 16px' },
+          onClick: () => {
+            if (useThemeColors.get()) {
+              colorSignal.set(
+                colorSignal.get() === 'var(--accent-primary)' ? 'var(--accent-secondary)' : 'var(--accent-primary)',
+              );
+            } else {
+              colorSignal.set(colorSignal.get() === '#ff6b6b' ? '#4ecdc4' : '#ff6b6b');
+            }
+          },
+          className: `${styles.button} ${styles.buttonPrimary}`,
         },
         'Change Color',
       ),
       button(
         {
           onClick: () => sizeSignal.set(sizeSignal.get() === 16 ? 24 : 16),
-          style: { margin: 5, padding: '8px 16px' },
+          className: `${styles.button} ${styles.buttonSecondary}`,
         },
         'Change Size',
       ),
       button(
         {
           onClick: () => rotationSignal.set(rotationSignal.get() === 0 ? 5 : 0),
-          style: { margin: 5, padding: '8px 16px' },
+          className: `${styles.button} ${styles.buttonInfo}`,
         },
         'Toggle Rotation',
+      ),
+      button(
+        {
+          onClick: () => useThemeColors.set(!useThemeColors.get()),
+          className: `${styles.button} ${useThemeColors.get() ? styles.buttonSuccess : styles.buttonWarning}`,
+        },
+        useThemeColors.get() ? 'Use Fixed Colors' : 'Use Theme Colors',
       ),
     ),
   );
 }
 
-// Mixed styles with signals in object values
+// Enhanced mixed styles with CSS modules
 function createMixedStyles() {
   const redSignal = signal(255);
   const greenSignal = signal(100);
   const blueSignal = signal(100);
+  const useThemeBackground = signal(true);
 
   const colorStyle = computed(() => ({
-    backgroundColor: `rgb(${redSignal.get()}, ${greenSignal.get()}, ${blueSignal.get()})`,
-    color: 'white',
-    padding: 20,
-    borderRadius: 10,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+    backgroundColor: useThemeBackground.get()
+      ? `rgba(${redSignal.get()}, ${greenSignal.get()}, ${blueSignal.get()}, 0.8)`
+      : `rgb(${redSignal.get()}, ${greenSignal.get()}, ${blueSignal.get()})`,
+    backdropFilter: useThemeBackground.get() ? 'blur(10px)' : 'none',
   }));
 
   return div(
-    { className: 'demo-item' },
-    h3('Mixed Styles with Signals'),
-    div({ style: colorStyle }, 'RGB Color Mixer'),
+    { className: styles.demoItem },
+    h3('Mixed Styles with Theme Integration'),
+    div(
+      {
+        className: styles.rgbMixerContainer,
+        style: colorStyle,
+      },
+      'RGB Color Mixer with Theme Support',
+    ),
 
     div(
       { style: { marginTop: 15 } },
       div(
-        { style: { marginBottom: 10 } },
-        span('Red: '),
+        { className: styles.controlRow },
+        span({ className: styles.controlLabel }, 'Red: '),
         input({
           type: 'range',
           min: 0,
           max: 255,
           value: redSignal.get(),
           onInput: (e) => redSignal.set(parseInt((e.target as HTMLInputElement).value)),
-          style: { width: 150, margin: '0 10px' },
+          className: `${styles.controlSlider} ${styles.controlSliderPrimary}`,
         }),
-        span(redSignal.get().toString()),
+        span({ className: styles.controlValue }, redSignal.get().toString()),
       ),
       div(
-        { style: { marginBottom: 10 } },
-        span('Green: '),
+        { className: styles.controlRow },
+        span({ className: styles.controlLabel }, 'Green: '),
         input({
           type: 'range',
           min: 0,
           max: 255,
           value: greenSignal.get(),
           onInput: (e) => greenSignal.set(parseInt((e.target as HTMLInputElement).value)),
-          style: { width: 150, margin: '0 10px' },
+          className: `${styles.controlSlider} ${styles.controlSliderSecondary}`,
         }),
-        span(greenSignal.get().toString()),
+        span({ className: styles.controlValue }, greenSignal.get().toString()),
       ),
       div(
-        { style: { marginBottom: 10 } },
-        span('Blue: '),
+        { className: styles.controlRow },
+        span({ className: styles.controlLabel }, 'Blue: '),
         input({
           type: 'range',
           min: 0,
           max: 255,
           value: blueSignal.get(),
           onInput: (e) => blueSignal.set(parseInt((e.target as HTMLInputElement).value)),
-          style: { width: 150, margin: '0 10px' },
+          className: `${styles.controlSlider} ${styles.controlSliderInfo}`,
         }),
-        span(blueSignal.get().toString()),
+        span({ className: styles.controlValue }, blueSignal.get().toString()),
+      ),
+      button(
+        {
+          onClick: () => useThemeBackground.set(!useThemeBackground.get()),
+          className: `${styles.controlButton} ${useThemeBackground.get() ? styles.buttonSuccess : styles.buttonWarning}`,
+        },
+        useThemeBackground.get() ? 'Disable Theme Background' : 'Enable Theme Background',
+      ),
+    ),
+  );
+}
+
+// Enhanced conditional rendering with CSS modules
+function createConditionalRendering() {
+  const showExtra = signal(false);
+  const showDetails = signal(true);
+  const count = signal(0);
+
+  return div(
+    { className: styles.demoItem },
+    h3('Conditional Rendering with Theme Integration'),
+    div(
+      { className: styles.conditionalContainer },
+      p('This demonstrates how falsy values are automatically filtered out:'),
+      p('Hello', null, undefined, false, 0, '', 'World'), // Only "HelloWorld" will render
+      p('Conditional content:', showExtra.get() && 'Extra content here'),
+      p('Details:', showDetails.get() ? 'Visible' : null),
+      p('Count:', count.get() || 'No count yet'),
+    ),
+    div(
+      { className: styles.buttonContainer },
+      button(
+        {
+          onClick: () => showExtra.set(!showExtra.get()),
+          className: `${styles.button} ${styles.buttonPrimary}`,
+        },
+        showExtra.get() ? 'Hide Extra' : 'Show Extra',
+      ),
+      button(
+        {
+          onClick: () => showDetails.set(!showDetails.get()),
+          className: `${styles.button} ${styles.buttonSecondary}`,
+        },
+        showDetails.get() ? 'Hide Details' : 'Show Details',
+      ),
+      button(
+        {
+          onClick: () => count.set(count.get() + 1),
+          className: `${styles.button} ${styles.buttonInfo}`,
+        },
+        'Increment Count',
+      ),
+    ),
+  );
+}
+
+// Theme showcase section with CSS modules
+function createThemeShowcase() {
+  const colorPalette = [
+    { name: 'Primary', var: 'var(--accent-primary)' },
+    { name: 'Secondary', var: 'var(--accent-secondary)' },
+    { name: 'Success', var: 'var(--success)' },
+    { name: 'Warning', var: 'var(--warning)' },
+    { name: 'Error', var: 'var(--error)' },
+    { name: 'Info', var: 'var(--info)' },
+  ];
+
+  return div(
+    { className: styles.demoItem },
+    h3('Theme Color Palette'),
+    p('These colors automatically adapt to the current theme:'),
+    div(
+      { className: styles.colorPalette },
+      ...colorPalette.map((color) =>
+        div(
+          {
+            className: styles.colorPaletteItem,
+            style: { backgroundColor: color.var },
+          },
+          div({ className: styles.colorPaletteName }, color.name),
+          div({ className: styles.colorPaletteVar }, color.var),
+        ),
       ),
     ),
   );
@@ -164,7 +269,7 @@ function createMixedStyles() {
 
 // Helper function for h3
 function h3(text: string) {
-  return div({ style: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#333' } }, text);
+  return div({ className: styles.sectionHeading }, text);
 }
 
 // Helper function for input
@@ -174,52 +279,16 @@ function input(props: any) {
   return element;
 }
 
-// Demo of conditional rendering with falsy values
-function createConditionalRendering() {
-  const showExtra = signal(false);
-  const showDetails = signal(true);
-  const count = signal(0);
+// Initialize theme
+document.documentElement.setAttribute('data-theme', currentTheme.get());
 
-  return div(
-    { className: 'demo-item' },
-    h3('Conditional Rendering with Falsy Values'),
-    div(
-      { style: { padding: 20, border: '2px solid #007acc', borderRadius: 10, marginBottom: 20 } },
-      p('This demonstrates how falsy values are automatically filtered out:'),
-      p('Hello', null, undefined, false, 0, '', 'World'), // Only "HelloWorld" will render
-      p('Conditional content:', showExtra.get() && 'Extra content here'),
-      p('Details:', showDetails.get() ? 'Visible' : null),
-      p('Count:', count.get() || 'No count yet'),
-    ),
-    div(
-      { style: { marginTop: 15 } },
-      button(
-        {
-          onClick: () => showExtra.set(!showExtra.get()),
-          style: { margin: 5, padding: '8px 16px' },
-        },
-        showExtra.get() ? 'Hide Extra' : 'Show Extra',
-      ),
-      button(
-        {
-          onClick: () => showDetails.set(!showDetails.get()),
-          style: { margin: 5, padding: '8px 16px' },
-        },
-        showDetails.get() ? 'Hide Details' : 'Show Details',
-      ),
-      button(
-        {
-          onClick: () => count.set(count.get() + 1),
-          style: { margin: 5, padding: '8px 16px' },
-        },
-        'Increment Count',
-      ),
-    ),
-  );
-}
+// Setup theme toggle
+setupThemeToggle();
 
-// Render the demo
+// Render all demo sections
+render(createThemeAwareStyles(), document.getElementById('theme-aware-styles')!);
 render(createStaticStyles(), document.getElementById('static-styles')!);
 render(createReactiveStyles(), document.getElementById('reactive-styles')!);
 render(createMixedStyles(), document.getElementById('mixed-styles')!);
 render(createConditionalRendering(), document.getElementById('conditional-rendering')!);
+render(createThemeShowcase(), document.getElementById('theme-showcase')!);
