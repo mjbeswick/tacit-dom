@@ -37,13 +37,24 @@ import { computed, effect, signal, type ReadonlySignal, type Signal } from './si
  *
  * // With specific event types
  * const handleKeyDown = (event: KeyboardEvent) => {
- *   if (event.key === 'Enter') {
- *     submitForm();
- *   }
+ *   console.log('Key pressed:', event.key);
  * };
  * ```
  */
 type EventHandler<T = Event> = (event: T) => void | boolean;
+
+/**
+ * Event handler type for form input events that provides automatic type inference.
+ * The target property is automatically typed as the specific input element type.
+ */
+type FormInputEventHandler = (
+  event: Event & { target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null },
+) => void | boolean;
+
+/**
+ * Event handler type for form submission events.
+ */
+type FormSubmitEventHandler = (event: Event & { target: HTMLFormElement | null }) => void | boolean;
 
 /**
  * Type for valid DOM element children.
@@ -131,11 +142,11 @@ export type ElementProps = {
   onKeyUp?: EventHandler<KeyboardEvent>;
   onKeyPress?: EventHandler<KeyboardEvent>;
   // Form events
-  onChange?: EventHandler;
-  onInput?: EventHandler;
-  onSubmit?: EventHandler;
-  onFocus?: EventHandler;
-  onBlur?: EventHandler;
+  onChange?: EventHandler<Event> | FormInputEventHandler;
+  onInput?: EventHandler<Event> | FormInputEventHandler;
+  onSubmit?: EventHandler<Event> | FormSubmitEventHandler;
+  onFocus?: EventHandler<FocusEvent>;
+  onBlur?: EventHandler<FocusEvent>;
   // Drag and drop events
   onDrag?: EventHandler;
   onDragStart?: EventHandler;
@@ -155,6 +166,30 @@ export type ElementProps = {
   onError?: EventHandler;
 };
 
+/**
+ * Props specific to input elements with better event handler types.
+ */
+type InputElementProps = Omit<ElementProps, 'onChange' | 'onInput' | 'onSubmit'> & {
+  onChange?: FormInputEventHandler;
+  onInput?: FormInputEventHandler;
+  onSubmit?: EventHandler<Event>; // Input elements don't submit forms
+  type?: string;
+  value?: string;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  readonly?: boolean;
+  maxLength?: number;
+  minLength?: number;
+  pattern?: string;
+  size?: number;
+  accept?: string;
+  multiple?: boolean;
+  step?: number;
+  min?: number;
+  max?: number;
+};
+
 // Helper function to handle common element setup
 function setupElement(element: HTMLElement, props: ElementProps, children: ElementChildren): void {
   // Handle event listeners
@@ -171,9 +206,39 @@ function setupElement(element: HTMLElement, props: ElementProps, children: Eleme
   if (props.onKeyDown) element.addEventListener('keydown', props.onKeyDown);
   if (props.onKeyUp) element.addEventListener('keyup', props.onKeyUp);
   if (props.onKeyPress) element.addEventListener('keypress', props.onKeyPress);
-  if (props.onChange) element.addEventListener('change', props.onChange);
-  if (props.onInput) element.addEventListener('input', props.onInput);
-  if (props.onSubmit) element.addEventListener('submit', props.onSubmit);
+  if (props.onChange) {
+    if (typeof props.onChange === 'function') {
+      element.addEventListener('change', (e) => {
+        if (props.onChange) {
+          // Cast the event to the correct type for FormInputEventHandler
+          const castEvent = e as Event & { target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null };
+          props.onChange(castEvent);
+        }
+      });
+    }
+  }
+  if (props.onInput) {
+    if (typeof props.onInput === 'function') {
+      element.addEventListener('input', (e) => {
+        if (props.onInput) {
+          // Cast the event to the correct type for FormInputEventHandler
+          const castEvent = e as Event & { target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null };
+          props.onInput(castEvent);
+        }
+      });
+    }
+  }
+  if (props.onSubmit) {
+    if (typeof props.onSubmit === 'function') {
+      element.addEventListener('submit', (e) => {
+        if (props.onSubmit) {
+          // Cast the event to the correct type for FormSubmitEventHandler
+          const castEvent = e as unknown as Event & { target: HTMLFormElement | null };
+          props.onSubmit(castEvent);
+        }
+      });
+    }
+  }
   if (props.onFocus) element.addEventListener('focus', props.onFocus);
   if (props.onBlur) element.addEventListener('blur', props.onBlur);
   if (props.onDrag) element.addEventListener('drag', props.onDrag);
@@ -1072,26 +1137,7 @@ export function h3(propsOrChild?: ElementProps | ElementChildren[0], ...children
  * });
  * ```
  */
-export function input(
-  props?: ElementProps & {
-    type?: string;
-    value?: string;
-    placeholder?: string;
-    required?: boolean;
-    disabled?: boolean;
-    readonly?: boolean;
-    maxLength?: number;
-    minLength?: number;
-    pattern?: string;
-    size?: number;
-    accept?: string;
-    multiple?: boolean;
-    step?: number;
-    min?: number;
-    max?: number;
-  },
-  ...children: ElementChildren
-): HTMLInputElement {
+export function input(props?: InputElementProps, ...children: ElementChildren): HTMLInputElement {
   const element = document.createElement('input');
 
   if (props) {

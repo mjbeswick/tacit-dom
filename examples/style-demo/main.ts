@@ -1,4 +1,4 @@
-import { button, computed, div, p, render, signal, span } from '../../src/index';
+import { button, computed, div, h3, input, p, render, signal, span } from 'tacit-dom';
 import styles from './styles.module.css';
 
 // Theme management
@@ -149,8 +149,12 @@ function createMixedStyles() {
           type: 'range',
           min: 0,
           max: 255,
-          value: redSignal.get(),
-          onInput: (e) => redSignal.set(parseInt((e.target as HTMLInputElement).value)),
+          value: redSignal.get().toString(),
+          onInput: (e) => {
+            if (e.target) {
+              redSignal.set(parseInt(e.target.value));
+            }
+          },
           className: `${styles.controlSlider} ${styles.controlSliderPrimary}`,
         }),
         span({ className: styles.controlValue }, redSignal.get().toString()),
@@ -162,8 +166,12 @@ function createMixedStyles() {
           type: 'range',
           min: 0,
           max: 255,
-          value: greenSignal.get(),
-          onInput: (e) => greenSignal.set(parseInt((e.target as HTMLInputElement).value)),
+          value: greenSignal.get().toString(),
+          onInput: (e) => {
+            if (e.target) {
+              greenSignal.set(parseInt(e.target.value));
+            }
+          },
           className: `${styles.controlSlider} ${styles.controlSliderSecondary}`,
         }),
         span({ className: styles.controlValue }, greenSignal.get().toString()),
@@ -175,8 +183,12 @@ function createMixedStyles() {
           type: 'range',
           min: 0,
           max: 255,
-          value: blueSignal.get(),
-          onInput: (e) => blueSignal.set(parseInt((e.target as HTMLInputElement).value)),
+          value: blueSignal.get().toString(),
+          onInput: (e) => {
+            if (e.target) {
+              blueSignal.set(parseInt(e.target.value));
+            }
+          },
           className: `${styles.controlSlider} ${styles.controlSliderInfo}`,
         }),
         span({ className: styles.controlValue }, blueSignal.get().toString()),
@@ -265,18 +277,6 @@ function createThemeShowcase() {
       ),
     ),
   );
-}
-
-// Helper function for h3
-function h3(text: string) {
-  return div({ className: styles.sectionHeading }, text);
-}
-
-// Helper function for input
-function input(props: any) {
-  const element = document.createElement('input');
-  Object.assign(element, props);
-  return element;
 }
 
 // Initialize theme
