@@ -4,13 +4,12 @@
   "description": "Example demonstrating error handling with try/catch in Tacit-DOM",
   "main": "main.ts",
   "scripts": {
-    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "tacit-dom": "file:../.."
+    "tacit-dom": "file:../../"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

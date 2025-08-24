@@ -4,7 +4,6 @@
   "description": "Demo of Tacit-DOM inline i18n implementation",
   "type": "module",
   "scripts": {
-    "preinstall": "npm link tacit-dom",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -14,6 +13,6 @@
     "vite": "^7.1.1"
   },
   "dependencies": {
-    "tacit-dom": "file:../.."
+    "tacit-dom": "file:../../"
   }
 }
