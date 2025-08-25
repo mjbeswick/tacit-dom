@@ -1,5 +1,11 @@
 import { type ReadonlySignal, type Signal } from './signals';
 type EventHandler<T = Event> = (event: T) => void | boolean;
+type FormInputEventHandler = (event: Event & {
+    target: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null;
+}) => void | boolean;
+type FormSubmitEventHandler = (event: Event & {
+    target: HTMLFormElement | null;
+}) => void | boolean;
 export type ElementChildren = (string | number | HTMLElement | null | undefined | false | 0 | '')[];
 export type ElementProps = {
     className?: string | string[] | {
@@ -27,11 +33,11 @@ export type ElementProps = {
     onKeyDown?: EventHandler<KeyboardEvent>;
     onKeyUp?: EventHandler<KeyboardEvent>;
     onKeyPress?: EventHandler<KeyboardEvent>;
-    onChange?: EventHandler;
-    onInput?: EventHandler;
-    onSubmit?: EventHandler;
-    onFocus?: EventHandler;
-    onBlur?: EventHandler;
+    onChange?: EventHandler<Event> | FormInputEventHandler;
+    onInput?: EventHandler<Event> | FormInputEventHandler;
+    onSubmit?: EventHandler<Event> | FormSubmitEventHandler;
+    onFocus?: EventHandler<FocusEvent>;
+    onBlur?: EventHandler<FocusEvent>;
     onDrag?: EventHandler;
     onDragStart?: EventHandler;
     onDragEnd?: EventHandler;
@@ -46,6 +52,26 @@ export type ElementProps = {
     onResize?: EventHandler;
     onLoad?: EventHandler;
     onError?: EventHandler;
+};
+type InputElementProps = Omit<ElementProps, 'onChange' | 'onInput' | 'onSubmit'> & {
+    onChange?: FormInputEventHandler;
+    onInput?: FormInputEventHandler;
+    onSubmit?: EventHandler<Event>;
+    type?: string;
+    value?: string;
+    placeholder?: string;
+    required?: boolean;
+    disabled?: boolean;
+    readonly?: boolean;
+    maxLength?: number;
+    minLength?: number;
+    pattern?: string;
+    size?: number;
+    accept?: string;
+    multiple?: boolean;
+    step?: number;
+    min?: number;
+    max?: number;
 };
 export type Component<P = {}> = (props?: P) => HTMLElement;
 export type ComponentUtils = {
@@ -68,23 +94,7 @@ export declare function h2(...children: ElementChildren): HTMLHeadingElement;
 export declare function h2(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
 export declare function h3(...children: ElementChildren): HTMLHeadingElement;
 export declare function h3(props: ElementProps, ...children: ElementChildren): HTMLHeadingElement;
-export declare function input(props?: ElementProps & {
-    type?: string;
-    value?: string;
-    placeholder?: string;
-    required?: boolean;
-    disabled?: boolean;
-    readonly?: boolean;
-    maxLength?: number;
-    minLength?: number;
-    pattern?: string;
-    size?: number;
-    accept?: string;
-    multiple?: boolean;
-    step?: number;
-    min?: number;
-    max?: number;
-}, ...children: ElementChildren): HTMLInputElement;
+export declare function input(props?: InputElementProps, ...children: ElementChildren): HTMLInputElement;
 export declare function label(props?: string | number | (ElementProps & {
     for?: string;
 }), ...children: ElementChildren): HTMLLabelElement;

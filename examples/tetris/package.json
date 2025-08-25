@@ -13,6 +13,7 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
+    "chiplib": "^0.3.0",
     "tacit-dom": "file:../../"
   }
 }

@@ -9,4 +9,6 @@ export default defineConfig({
     target: 'esnext',
     outDir: 'dist',
   },
+  publicDir: 'public',
+  assetsInclude: ['**/*.xm', '**/*.js.mem'],
 });

@@ -1,22 +1,85 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tacit-DOM Tetris</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Courier New', monospace;
-      background: #000;
-      color: #fff;
-      overflow: hidden;
-    }
-  </style>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="./main.ts"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tacit-DOM Tetris</title>
+    <!-- Load chiptune2.js libraries -->
+    <script>
+      // Ensure proper loading order and error handling
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      // Load libopenmpt.js first, then chiptune2.js
+      window.addEventListener('DOMContentLoaded', async () => {
+        try {
+          console.log('Loading libopenmpt.js...');
+          await loadScript('/libopenmpt.js');
+          console.log('libopenmpt.js script loaded, checking global availability...');
+
+          // Wait a bit for libopenmpt to initialize
+          await new Promise((resolve) => setTimeout(resolve, 100));
+
+          console.log('Loading chiptune2.js...');
+          await loadScript('/chiptune2.js');
+          console.log('chiptune2.js script loaded');
+
+          // Check if libraries are actually available
+          console.log('Checking library availability:');
+          console.log('- libopenmpt global:', typeof libopenmpt !== 'undefined');
+          console.log('- window.libopenmpt:', typeof window.libopenmpt !== 'undefined');
+          console.log('- ChiptuneJsPlayer:', typeof window.ChiptuneJsPlayer !== 'undefined');
+
+          // Log all global variables that contain 'openmpt' or 'module'
+          console.log('Scanning for openmpt-related globals:');
+          for (let key in window) {
+            if (key.toLowerCase().includes('openmpt') || key.toLowerCase().includes('module')) {
+              console.log(`- window.${key}:`, typeof window[key], window[key]);
+            }
+          }
+
+          // Check if Module global exists (common pattern for emscripten)
+          console.log('- Module global:', typeof Module !== 'undefined');
+          console.log('- window.Module:', typeof window.Module !== 'undefined');
+
+          // If Module exists but libopenmpt doesn't, assign it
+          if (typeof Module !== 'undefined' && typeof libopenmpt === 'undefined') {
+            window.libopenmpt = Module;
+            console.log('Assigned Module to global libopenmpt');
+          }
+
+          // Log the first 20 keys of window to see what's actually there
+          console.log('Sample of window keys:', Object.keys(window).slice(0, 20));
+
+          // Signal that libraries are ready
+          window.chiptuneLibrariesReady = true;
+          window.dispatchEvent(new CustomEvent('chiptuneReady'));
+        } catch (error) {
+          console.error('Failed to load chiptune libraries:', error);
+          window.chiptuneLibrariesReady = false;
+        }
+      });
+    </script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Courier New', monospace;
+        background: #000;
+        color: #fff;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
 </html>
