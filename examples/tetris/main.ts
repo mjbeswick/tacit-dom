@@ -1,5 +1,11 @@
-import { button, div, effect, render, signal } from 'tacit-dom';
+import { button, div, effect, render, signal, Signal } from 'tacit-dom';
 import styles from './styles.module.css';
+
+// Global type declarations for chiptune libraries
+declare global {
+  let libopenmpt: any;
+  let Module: any;
+}
 
 // Game constants
 const BOARD_WIDTH = 10;
@@ -79,6 +85,210 @@ const pieceStatistics = signal<Record<TetrominoType, number>>({
   J: 0,
   L: 0,
 });
+
+// Audio system
+let chiptunePlayer: any = null;
+let musicBuffer: ArrayBuffer | null = null;
+const musicSpeed = signal<number>(1.0);
+const isMusicPlaying = signal<boolean>(false);
+
+// Wait for chiptune libraries to be ready
+function waitForChiptuneLibraries(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if ((window as any).chiptuneLibrariesReady === true) {
+      resolve();
+      return;
+    }
+
+    if ((window as any).chiptuneLibrariesReady === false) {
+      reject(new Error('Chiptune libraries failed to load'));
+      return;
+    }
+
+    // Wait for the custom event
+    const timeout = setTimeout(() => {
+      reject(new Error('Timeout waiting for chiptune libraries'));
+    }, 10000); // 10 second timeout
+
+    window.addEventListener(
+      'chiptuneReady',
+      () => {
+        clearTimeout(timeout);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+}
+
+// Initialize audio system
+async function initMusicPlayer() {
+  try {
+    console.log('Waiting for chiptune libraries to load...');
+    await waitForChiptuneLibraries();
+    console.log('Chiptune libraries are ready');
+
+    // Debug: Log what's actually available
+    console.log('Available globals check:');
+    console.log('- typeof libopenmpt:', typeof libopenmpt);
+    console.log('- typeof window.libopenmpt:', typeof (window as any).libopenmpt);
+    console.log('- typeof Module:', typeof (window as any).Module);
+    console.log('- window.Module:', (window as any).Module);
+
+    // Check if libopenmpt is available (it might be global or Module)
+    const hasLibopenmpt =
+      typeof libopenmpt !== 'undefined' ||
+      typeof (window as any).libopenmpt !== 'undefined' ||
+      (typeof (window as any).Module !== 'undefined' && (window as any).Module._openmpt_module_create_from_memory);
+
+    if (!hasLibopenmpt) {
+      throw new Error('libopenmpt not loaded. Please check the HTML file includes the scripts.');
+    }
+
+    // If libopenmpt is actually Module, assign it
+    if (typeof libopenmpt === 'undefined' && typeof (window as any).Module !== 'undefined') {
+      (window as any).libopenmpt = (window as any).Module;
+      console.log('Assigned Module to window.libopenmpt');
+    }
+
+    // Check if chiptune2.js is available
+    if (!(window as any).ChiptuneJsPlayer) {
+      throw new Error('Chiptune2.js not loaded. Please check the HTML file includes the scripts.');
+    }
+
+    console.log('Creating ChiptuneJsPlayer instance...');
+    // Create chiptune player with proper configuration
+    chiptunePlayer = new (window as any).ChiptuneJsPlayer({
+      context: new (window.AudioContext || (window as any).webkitAudioContext)(),
+    });
+    console.log('ChiptuneJsPlayer created:', chiptunePlayer);
+
+    // Load the XM file
+    console.log('Fetching music...');
+    const response = await fetch('/tightrope dancing.xm');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch XM file: ${response.status} ${response.statusText}`);
+    }
+    musicBuffer = await response.arrayBuffer();
+    console.log('XM file loaded, size:', musicBuffer.byteLength);
+
+    // Validate arrayBuffer
+    if (!musicBuffer || musicBuffer.byteLength === 0) {
+      throw new Error('XM file is empty or invalid');
+    }
+
+    // Validate XM header
+    const view = new Uint8Array(musicBuffer.slice(0, 17));
+    const header = Array.from(view)
+      .map((b) => String.fromCharCode(b))
+      .join('');
+    if (header !== 'Extended Module: ') {
+      throw new Error(`Invalid XM file header: "${header}"`);
+    }
+
+    console.log('XM file validated successfully');
+
+    // Set initial volume and speed
+    chiptunePlayer.volume = 0.7;
+    chiptunePlayer.playbackRate = musicSpeed.get();
+
+    console.log('Chiptune2.js music player initialized successfully');
+    console.log('Player state:', {
+      volume: chiptunePlayer.volume,
+      playbackRate: chiptunePlayer.playbackRate,
+      readyState: chiptunePlayer.readyState,
+    });
+  } catch (error) {
+    console.error('Failed to initialize chiptune2.js player:', error);
+    // Fallback to procedural music
+    createFallbackAudio();
+  }
+}
+
+// Note: chiptune2.js and libopenmpt.js are now loaded directly in the HTML file
+
+// Fallback audio functions
+function playNote(frequency: number, duration: number, volume: number, audioContext: AudioContext) {
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+
+  oscillator.frequency.value = frequency;
+  oscillator.type = 'square';
+
+  gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + duration);
+}
+
+function startProceduralMusic(
+  audioContext: AudioContext,
+  musicInterval: { current: number | null },
+  musicSpeed: Signal<number>,
+  isMusicPlaying: Signal<boolean>,
+) {
+  if (musicInterval.current) {
+    clearInterval(musicInterval.current);
+  }
+
+  const baseTempo = 120; // BPM
+  const currentSpeed = musicSpeed.get();
+  const intervalMs = ((60 / baseTempo) * 1000) / currentSpeed;
+
+  let noteIndex = 0;
+  const melody = [262, 330, 392, 523, 392, 330]; // C4, E4, G4, C5, G4, E4
+
+  musicInterval.current = window.setInterval(() => {
+    if (!isMusicPlaying.get()) return;
+
+    playNote(melody[noteIndex], 0.1, 0.3, audioContext);
+    noteIndex = (noteIndex + 1) % melody.length;
+  }, intervalMs);
+}
+
+// Fallback audio for testing
+function createFallbackAudio() {
+  console.log('Using fallback procedural music');
+
+  let audioContext: AudioContext | null = null;
+  const musicInterval: { current: number | null } = { current: null };
+
+  try {
+    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+    // Store the procedural music functions for use
+    const fallbackStartMusic = () => {
+      if (!isMusicPlaying.get()) {
+        startProceduralMusic(audioContext!, musicInterval, musicSpeed, isMusicPlaying);
+        isMusicPlaying.set(true);
+        console.log('Fallback procedural music started');
+      }
+    };
+
+    const fallbackStopMusic = () => {
+      if (isMusicPlaying.get()) {
+        if (musicInterval.current) {
+          clearInterval(musicInterval.current);
+          musicInterval.current = null;
+        }
+        isMusicPlaying.set(false);
+        console.log('Fallback procedural music stopped');
+      }
+    };
+
+    // Replace the global music functions
+    (window as any).fallbackStartMusic = fallbackStartMusic;
+    (window as any).fallbackStopMusic = fallbackStopMusic;
+
+    console.log('Fallback procedural music system initialized');
+  } catch (error) {
+    console.error('Failed to initialize fallback audio:', error);
+  }
+}
 
 // Types
 type TetrominoType = keyof typeof TETROMINOS;
@@ -239,6 +449,17 @@ function rotateCurrentPiece(): boolean {
   return false;
 }
 
+function getBoardFillRatio(): number {
+  const board = gameBoard.get();
+  let occupied = 0;
+  board.forEach((row) => {
+    row.forEach((cell) => {
+      if (cell !== 0) occupied++;
+    });
+  });
+  return occupied / (BOARD_WIDTH * BOARD_HEIGHT);
+}
+
 function placeCurrentPiece(): boolean {
   if (!currentPiece.get()) return false;
 
@@ -252,6 +473,9 @@ function placeCurrentPiece(): boolean {
   const stats = pieceStatistics.get();
   stats[piece.type]++;
   pieceStatistics.set({ ...stats });
+
+  // Always update music speed after board changes
+  updateMusicSpeed();
 
   if (linesCleared > 0) {
     const newLines = lines.get() + linesCleared;
@@ -271,6 +495,7 @@ function placeCurrentPiece(): boolean {
   // Check for game over
   if (!isValidMove(createTetromino(getRandomTetromino()), clearedBoard)) {
     gameState.set('gameOver');
+    stopMusic();
     return false;
   }
 
@@ -294,6 +519,7 @@ function dropPiece(): void {
     if (!placeCurrentPiece()) {
       console.log('Game over!');
       gameState.set('gameOver');
+      stopMusic();
     }
   }
 }
@@ -333,6 +559,11 @@ function startGame(): void {
 
   // Start the first iteration
   loop();
+
+  // Initialize and start background music
+  initMusicPlayer().then(() => {
+    startMusic();
+  });
 }
 
 function pauseGame(): void {
@@ -342,9 +573,82 @@ function pauseGame(): void {
       clearTimeout(gameLoopId.get()!);
       gameLoopId.set(null);
     }
+    // Pause music when game is paused
+    if (isMusicPlaying.get()) {
+      stopMusic();
+    }
   } else if (gameState.get() === 'paused') {
     gameState.set('playing');
     startGame();
+    // Resume music when game resumes
+    if (isMusicPlaying.get()) {
+      startMusic();
+    }
+  }
+}
+
+// Audio control functions
+function startMusic(): void {
+  if (!isMusicPlaying.get() && chiptunePlayer && musicBuffer) {
+    try {
+      // Play the module directly
+      chiptunePlayer.play(musicBuffer);
+      isMusicPlaying.set(true);
+
+      console.log('Chiptune2.js music started');
+    } catch (error) {
+      console.error('Failed to start chiptune2.js music:', error);
+    }
+  }
+}
+
+function stopMusic(): void {
+  if (isMusicPlaying.get() && chiptunePlayer) {
+    try {
+      // Stop chiptune2.js player
+      chiptunePlayer.pause();
+      isMusicPlaying.set(false);
+
+      console.log('Chiptune2.js music stopped');
+    } catch (error) {
+      console.error('Failed to stop chiptune2.js music:', error);
+    }
+  }
+}
+
+function updateMusicSpeed(): void {
+  const currentLevel = level.get();
+  const fillRatio = getBoardFillRatio();
+
+  let speed = 1.0;
+
+  // Speed up slightly with each level
+  speed += (currentLevel - 1) * 0.05;
+
+  // Speed up as board fills
+  speed += fillRatio * 5;
+
+  // Additional boost when fill is high
+  if (fillRatio > 0.6) {
+    speed * 2;
+  }
+
+  // Clamp speed between 0.5x and 2.0x
+  speed = Math.max(0.5, Math.min(2.0, speed));
+
+  if (speed !== musicSpeed.get()) {
+    musicSpeed.set(speed);
+
+    // Restart playback to apply new speed
+    if (isMusicPlaying.get() && chiptunePlayer) {
+      // chiptunePlayer.stop();
+      chiptunePlayer.playbackRate = speed;
+      // chiptunePlayer.play(musicBuffer);
+    }
+
+    console.log(
+      `Music speed updated: ${speed.toFixed(2)}x (Level: ${currentLevel}, Fill: ${(fillRatio * 100).toFixed(0)}%)`,
+    );
   }
 }
 
@@ -463,31 +767,41 @@ function GameBoard() {
 
 // Next piece preview component
 function NextPiece() {
-  const piece = nextPiece.get();
+  const container = div({ className: styles.nextPiece });
 
-  if (!piece) return div({ className: styles.nextPiece });
+  effect(() => {
+    const piece = nextPiece.get();
 
-  const cells: HTMLElement[] = [];
-
-  for (let y = 0; y < 4; y++) {
-    for (let x = 0; x < 4; x++) {
-      const isOccupied = piece.shape[y]?.[x] === 1;
-      const cell = isOccupied
-        ? createNESBlock(getTetrominoColor(piece.type))
-        : div({
-            style: {
-              width: '100%',
-              height: '100%',
-              backgroundColor: '#000',
-              border: 'none',
-              boxSizing: 'border-box',
-            },
-          });
-      cells.push(cell);
+    if (!piece) {
+      container.innerHTML = '';
+      return;
     }
-  }
 
-  return div({ className: styles.nextPiece }, ...cells);
+    const cells: HTMLElement[] = [];
+
+    for (let y = 0; y < 4; y++) {
+      for (let x = 0; x < 4; x++) {
+        const isOccupied = piece.shape[y]?.[x] === 1;
+        const cell = isOccupied
+          ? createNESBlock(getTetrominoColor(piece.type))
+          : div({
+              style: {
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#000',
+                border: 'none',
+                boxSizing: 'border-box',
+              },
+            });
+        cells.push(cell);
+      }
+    }
+
+    container.innerHTML = '';
+    cells.forEach((cell) => container.appendChild(cell));
+  });
+
+  return container;
 }
 
 // Statistics panel component
@@ -621,7 +935,7 @@ function StartModal() {
       ),
     ),
 
-    button({ className: styles.modalButton, onClick: startGame }, 'Start Game'),
+    div({ className: styles.startPrompt }, 'Press any key to start'),
   );
 }
 
@@ -665,6 +979,36 @@ function GameOverlay() {
   return overlayContainer;
 }
 
+function LinesDisplay() {
+  const title = div({ className: styles.linesTitle }, 'LINES');
+  const value = div({ className: styles.linesValue });
+  const container = div({ className: styles.linesDisplay }, title, value);
+
+  effect(() => {
+    value.textContent = lines.get().toString().padStart(3, '0');
+  });
+
+  return container;
+}
+
+function BoardLinesLabel() {
+  const label = div({
+    style: {
+      textAlign: 'center',
+      marginBottom: '10px',
+      color: '#fff',
+      fontSize: '16px',
+      fontWeight: 'bold',
+    },
+  });
+
+  effect(() => {
+    label.textContent = `LINES-${lines.get().toString().padStart(3, '0')}`;
+  });
+
+  return label;
+}
+
 // Main game component
 function TetrisGame() {
   // Handle keyboard input
@@ -681,7 +1025,13 @@ function TetrisGame() {
       }
 
       if (gameState.get() === 'notStarted') {
-        return; // Don't handle keys until game starts
+        // Start the game when any key is pressed
+        if (event.code !== 'F5' && event.code !== 'F12') {
+          // Ignore function keys
+          event.preventDefault();
+          startGame();
+        }
+        return;
       }
 
       switch (event.code) {
@@ -762,30 +1112,10 @@ function TetrisGame() {
     div(
       { className: styles.gameArea },
       div({ className: styles.aTypeButton }, div({ className: styles.aTypeText }, 'A-TYPE')),
-      div(
-        { className: styles.linesDisplay },
-        div({ className: styles.linesTitle }, 'LINES'),
-        div({ className: styles.linesValue }, lines.get().toString().padStart(3, '0')),
-      ),
+      LinesDisplay(),
       StatisticsPanel(),
     ),
-    div(
-      { style: { position: 'relative' } },
-      div(
-        {
-          style: {
-            textAlign: 'center',
-            marginBottom: '10px',
-            color: '#fff',
-            fontSize: '16px',
-            fontWeight: 'bold',
-          },
-        },
-        `LINES-${lines.get().toString().padStart(3, '0')}`,
-      ),
-      GameBoard(),
-      GameOverlay(),
-    ),
+    div({ style: { position: 'relative' } }, BoardLinesLabel(), GameBoard(), GameOverlay()),
     div(
       { className: styles.infoPanel },
       div(

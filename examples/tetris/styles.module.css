@@ -219,6 +219,7 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  text-align: center;
 }
 
 .overlaySubtitle {
@@ -374,55 +375,75 @@
   background: #cc3333;
 }
 
+.startPrompt {
+  text-align: center;
+  color: #00aaff;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 30px 0;
+  text-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 @media (max-width: 768px) {
   .gameContainer {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .infoPanel {
     min-width: auto;
     width: 100%;
     max-width: 300px;
   }
-  
+
   .nextPiece {
     width: 60px;
     height: 60px;
   }
-  
+
   .statisticsPanel {
     display: none;
   }
-  
+
   .startModal {
     padding: 20px;
   }
-  
+
   .modalTitle {
     font-size: 32px;
     letter-spacing: 2px;
   }
-  
+
   .modalSubtitle {
     font-size: 18px;
   }
-  
+
   .keyBindings {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .keyBinding {
     gap: 10px;
   }
-  
+
   .key {
     padding: 6px 10px;
     font-size: 12px;
     min-width: 35px;
   }
-  
+
   .keyDescription {
     font-size: 14px;
   }
