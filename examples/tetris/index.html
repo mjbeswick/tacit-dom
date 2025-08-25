@@ -17,53 +17,30 @@
         });
       }
 
-      // Load libopenmpt.js first, then chiptune2.js
+      // Load xmeffects.js first, then xm.js
       window.addEventListener('DOMContentLoaded', async () => {
         try {
-          console.log('Loading libopenmpt.js...');
-          await loadScript('/libopenmpt.js');
-          console.log('libopenmpt.js script loaded, checking global availability...');
+          console.log('Loading xmeffects.js...');
+          await loadScript('/xmeffects.js');
+          console.log('xmeffects.js loaded');
 
-          // Wait a bit for libopenmpt to initialize
-          await new Promise((resolve) => setTimeout(resolve, 100));
+          console.log('Loading xm.js...');
+          await loadScript('/xm.js');
+          console.log('xm.js loaded');
 
-          console.log('Loading chiptune2.js...');
-          await loadScript('/chiptune2.js');
-          console.log('chiptune2.js script loaded');
-
-          // Check if libraries are actually available
-          console.log('Checking library availability:');
-          console.log('- libopenmpt global:', typeof libopenmpt !== 'undefined');
-          console.log('- window.libopenmpt:', typeof window.libopenmpt !== 'undefined');
-          console.log('- ChiptuneJsPlayer:', typeof window.ChiptuneJsPlayer !== 'undefined');
-
-          // Log all global variables that contain 'openmpt' or 'module'
-          console.log('Scanning for openmpt-related globals:');
-          for (let key in window) {
-            if (key.toLowerCase().includes('openmpt') || key.toLowerCase().includes('module')) {
-              console.log(`- window.${key}:`, typeof window[key], window[key]);
-            }
+          // Check if XMPlayer is available
+          if (typeof XMPlayer === 'undefined') {
+            throw new Error('XMPlayer not defined after loading scripts');
           }
 
-          // Check if Module global exists (common pattern for emscripten)
-          console.log('- Module global:', typeof Module !== 'undefined');
-          console.log('- window.Module:', typeof window.Module !== 'undefined');
-
-          // If Module exists but libopenmpt doesn't, assign it
-          if (typeof Module !== 'undefined' && typeof libopenmpt === 'undefined') {
-            window.libopenmpt = Module;
-            console.log('Assigned Module to global libopenmpt');
-          }
-
-          // Log the first 20 keys of window to see what's actually there
-          console.log('Sample of window keys:', Object.keys(window).slice(0, 20));
+          console.log('jsxm library loaded successfully');
 
           // Signal that libraries are ready
-          window.chiptuneLibrariesReady = true;
-          window.dispatchEvent(new CustomEvent('chiptuneReady'));
+          window.jsxmReady = true;
+          window.dispatchEvent(new CustomEvent('jsxmReady'));
         } catch (error) {
-          console.error('Failed to load chiptune libraries:', error);
-          window.chiptuneLibrariesReady = false;
+          console.error('Failed to load jsxm libraries:', error);
+          window.jsxmReady = false;
         }
       });
     </script>

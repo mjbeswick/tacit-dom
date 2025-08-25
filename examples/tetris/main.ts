@@ -2,9 +2,19 @@ import { button, div, effect, render, signal, Signal } from 'tacit-dom';
 import styles from './styles.module.css';
 
 // Global type declarations for chiptune libraries
+// removed
+
 declare global {
-  let libopenmpt: any;
-  let Module: any;
+  // eslint-disable-next-line no-var
+  var XMPlayer: {
+    init: () => void;
+    load: (buffer: ArrayBuffer) => boolean;
+    play: () => void;
+    pause: () => void;
+    stop: () => void;
+    audioctx: AudioContext;
+    speed?: number;
+  };
 }
 
 // Game constants
@@ -46,27 +56,24 @@ const TETROMINOS = {
 
 // Level-based color variations (classic NES color cycling)
 
-// Level-based color variations (classic NES color cycling)
-const LEVEL_COLOR_VARIATIONS = [
-  // Level 1-3: Original colors
-  { I: '#00ffff', O: '#ffff00', T: '#00ff00', S: '#00ff00', Z: '#ff8000', J: '#0000ff', L: '#800080' },
-  // Level 4-6: Slightly different shades
-  { I: '#00cccc', O: '#cccc00', T: '#00cc00', S: '#00cc00', Z: '#cc6600', J: '#0000cc', L: '#660066' },
-  // Level 7-9: More variations
-  { I: '#009999', O: '#999900', T: '#009900', S: '#009900', Z: '#994400', J: '#000099', L: '#440044' },
-  // Level 10+: Final color scheme
-  { I: '#006666', O: '#666600', T: '#006600', S: '#006600', Z: '#662200', J: '#000066', L: '#220022' },
-];
+// Bright, vibrant tetromino colors like classic Tetris
+const TETROMINO_COLORS = {
+  I: '#00f0f0', // Cyan
+  O: '#f0f000', // Yellow
+  T: '#a000f0', // Purple
+  S: '#00f000', // Green
+  Z: '#f00000', // Red
+  J: '#0000f0', // Blue
+  L: '#f0a000', // Orange
+};
 
-// Function to get tetromino color based on current level
+// Function to get tetromino color
 function getTetrominoColor(type: TetrominoType): string {
-  const currentLevel = level.get();
-  const colorIndex = Math.min(Math.floor((currentLevel - 1) / 3), LEVEL_COLOR_VARIATIONS.length - 1);
-  return LEVEL_COLOR_VARIATIONS[colorIndex][type];
+  return TETROMINO_COLORS[type];
 }
 
 // Game state signals
-const gameBoard = signal<number[][]>(createEmptyBoard());
+const gameBoard = signal<(TetrominoType | null)[][]>(createEmptyBoard());
 const currentPiece = signal<Tetromino | null>(null);
 const nextPiece = signal<Tetromino | null>(null);
 const gameState = signal<'playing' | 'paused' | 'gameOver' | 'notStarted'>('notStarted');
@@ -87,31 +94,30 @@ const pieceStatistics = signal<Record<TetrominoType, number>>({
 });
 
 // Audio system
-let chiptunePlayer: any = null;
 let musicBuffer: ArrayBuffer | null = null;
 const musicSpeed = signal<number>(1.0);
 const isMusicPlaying = signal<boolean>(false);
 
-// Wait for chiptune libraries to be ready
-function waitForChiptuneLibraries(): Promise<void> {
+// Wait for jsxm libraries to be ready
+function waitForJsxmLibraries(): Promise<void> {
   return new Promise((resolve, reject) => {
-    if ((window as any).chiptuneLibrariesReady === true) {
+    if ((window as any).jsxmReady === true) {
       resolve();
       return;
     }
 
-    if ((window as any).chiptuneLibrariesReady === false) {
-      reject(new Error('Chiptune libraries failed to load'));
+    if ((window as any).jsxmReady === false) {
+      reject(new Error('jsxm libraries failed to load'));
       return;
     }
 
     // Wait for the custom event
     const timeout = setTimeout(() => {
-      reject(new Error('Timeout waiting for chiptune libraries'));
+      reject(new Error('Timeout waiting for jsxm libraries'));
     }, 10000); // 10 second timeout
 
     window.addEventListener(
-      'chiptuneReady',
+      'jsxmReady',
       () => {
         clearTimeout(timeout);
         resolve();
@@ -124,48 +130,16 @@ function waitForChiptuneLibraries(): Promise<void> {
 // Initialize audio system
 async function initMusicPlayer() {
   try {
-    console.log('Waiting for chiptune libraries to load...');
-    await waitForChiptuneLibraries();
-    console.log('Chiptune libraries are ready');
+    console.log('Waiting for jsxm libraries to load...');
+    await waitForJsxmLibraries();
+    console.log('jsxm libraries are ready');
 
-    // Debug: Log what's actually available
-    console.log('Available globals check:');
-    console.log('- typeof libopenmpt:', typeof libopenmpt);
-    console.log('- typeof window.libopenmpt:', typeof (window as any).libopenmpt);
-    console.log('- typeof Module:', typeof (window as any).Module);
-    console.log('- window.Module:', (window as any).Module);
-
-    // Check if libopenmpt is available (it might be global or Module)
-    const hasLibopenmpt =
-      typeof libopenmpt !== 'undefined' ||
-      typeof (window as any).libopenmpt !== 'undefined' ||
-      (typeof (window as any).Module !== 'undefined' && (window as any).Module._openmpt_module_create_from_memory);
-
-    if (!hasLibopenmpt) {
-      throw new Error('libopenmpt not loaded. Please check the HTML file includes the scripts.');
-    }
-
-    // If libopenmpt is actually Module, assign it
-    if (typeof libopenmpt === 'undefined' && typeof (window as any).Module !== 'undefined') {
-      (window as any).libopenmpt = (window as any).Module;
-      console.log('Assigned Module to window.libopenmpt');
-    }
-
-    // Check if chiptune2.js is available
-    if (!(window as any).ChiptuneJsPlayer) {
-      throw new Error('Chiptune2.js not loaded. Please check the HTML file includes the scripts.');
-    }
-
-    console.log('Creating ChiptuneJsPlayer instance...');
-    // Create chiptune player with proper configuration
-    chiptunePlayer = new (window as any).ChiptuneJsPlayer({
-      context: new (window.AudioContext || (window as any).webkitAudioContext)(),
-    });
-    console.log('ChiptuneJsPlayer created:', chiptunePlayer);
+    // eslint-disable-next-line no-undef
+    XMPlayer.init();
 
     // Load the XM file
     console.log('Fetching music...');
-    const response = await fetch('/tightrope dancing.xm');
+    const response = await fetch("/it's been a while.xm");
     if (!response.ok) {
       throw new Error(`Failed to fetch XM file: ${response.status} ${response.statusText}`);
     }
@@ -188,24 +162,18 @@ async function initMusicPlayer() {
 
     console.log('XM file validated successfully');
 
-    // Set initial volume and speed
-    chiptunePlayer.volume = 0.7;
-    chiptunePlayer.playbackRate = musicSpeed.get();
+    // eslint-disable-next-line no-undef
+    XMPlayer.load(musicBuffer);
 
-    console.log('Chiptune2.js music player initialized successfully');
-    console.log('Player state:', {
-      volume: chiptunePlayer.volume,
-      playbackRate: chiptunePlayer.playbackRate,
-      readyState: chiptunePlayer.readyState,
-    });
+    console.log('jsxm music player initialized successfully');
   } catch (error) {
-    console.error('Failed to initialize chiptune2.js player:', error);
+    console.error('Failed to initialize jsxm player:', error);
     // Fallback to procedural music
     createFallbackAudio();
   }
 }
 
-// Note: chiptune2.js and libopenmpt.js are now loaded directly in the HTML file
+// Note: jsxm and xmeffects.js are now loaded directly in the HTML file
 
 // Fallback audio functions
 function playNote(frequency: number, duration: number, volume: number, audioContext: AudioContext) {
@@ -301,10 +269,10 @@ type Tetromino = {
 };
 
 // Utility functions
-function createEmptyBoard(): number[][] {
+function createEmptyBoard(): (TetrominoType | null)[][] {
   return Array(BOARD_HEIGHT)
     .fill(null)
-    .map(() => Array(BOARD_WIDTH).fill(0));
+    .map(() => Array(BOARD_WIDTH).fill(null));
 }
 
 function createTetromino(type: TetrominoType): Tetromino {
@@ -331,14 +299,19 @@ function rotateTetromino(tetromino: Tetromino): Tetromino {
   return rotated;
 }
 
-function isValidMove(tetromino: Tetromino, board: number[][]): boolean {
+function isValidMove(tetromino: Tetromino, board: (TetrominoType | null)[][]): boolean {
   for (let y = 0; y < tetromino.shape.length; y++) {
     for (let x = 0; x < tetromino.shape[y].length; x++) {
       if (tetromino.shape[y][x]) {
         const boardX = tetromino.x + x;
         const boardY = tetromino.y + y;
 
-        if (boardX < 0 || boardX >= BOARD_WIDTH || boardY >= BOARD_HEIGHT || (boardY >= 0 && board[boardY][boardX])) {
+        if (
+          boardX < 0 ||
+          boardX >= BOARD_WIDTH ||
+          boardY >= BOARD_HEIGHT ||
+          (boardY >= 0 && board[boardY][boardX] !== null)
+        ) {
           return false;
         }
       }
@@ -347,7 +320,7 @@ function isValidMove(tetromino: Tetromino, board: number[][]): boolean {
   return true;
 }
 
-function placeTetromino(tetromino: Tetromino, board: number[][]): number[][] {
+function placeTetromino(tetromino: Tetromino, board: (TetrominoType | null)[][]): (TetrominoType | null)[][] {
   const newBoard = board.map((row) => [...row]);
 
   for (let y = 0; y < tetromino.shape.length; y++) {
@@ -356,7 +329,7 @@ function placeTetromino(tetromino: Tetromino, board: number[][]): number[][] {
         const boardX = tetromino.x + x;
         const boardY = tetromino.y + y;
         if (boardY >= 0) {
-          newBoard[boardY][boardX] = 1;
+          newBoard[boardY][boardX] = tetromino.type;
         }
       }
     }
@@ -365,10 +338,10 @@ function placeTetromino(tetromino: Tetromino, board: number[][]): number[][] {
   return newBoard;
 }
 
-function clearLines(board: number[][]): { newBoard: number[][]; linesCleared: number } {
+function clearLines(board: (TetrominoType | null)[][]): { newBoard: (TetrominoType | null)[][]; linesCleared: number } {
   let linesCleared = 0;
   const newBoard = board.filter((row) => {
-    if (row.every((cell) => cell === 1)) {
+    if (row.every((cell) => cell !== null)) {
       linesCleared++;
       return false;
     }
@@ -377,7 +350,7 @@ function clearLines(board: number[][]): { newBoard: number[][]; linesCleared: nu
 
   // Add empty rows at the top
   while (newBoard.length < BOARD_HEIGHT) {
-    newBoard.unshift(Array(BOARD_WIDTH).fill(0));
+    newBoard.unshift(Array(BOARD_WIDTH).fill(null));
   }
 
   return { newBoard, linesCleared };
@@ -454,7 +427,7 @@ function getBoardFillRatio(): number {
   let occupied = 0;
   board.forEach((row) => {
     row.forEach((cell) => {
-      if (cell !== 0) occupied++;
+      if (cell !== null) occupied++;
     });
   });
   return occupied / (BOARD_WIDTH * BOARD_HEIGHT);
@@ -495,6 +468,12 @@ function placeCurrentPiece(): boolean {
   // Check for game over
   if (!isValidMove(createTetromino(getRandomTetromino()), clearedBoard)) {
     gameState.set('gameOver');
+    // Reset music speed before stopping
+    musicSpeed.set(1.0);
+    if (typeof XMPlayer !== 'undefined') {
+      // eslint-disable-next-line no-undef
+      XMPlayer.speed = 1.0;
+    }
     stopMusic();
     return false;
   }
@@ -519,6 +498,12 @@ function dropPiece(): void {
     if (!placeCurrentPiece()) {
       console.log('Game over!');
       gameState.set('gameOver');
+      // Reset music speed before stopping
+      musicSpeed.set(1.0);
+      if (typeof XMPlayer !== 'undefined') {
+        // eslint-disable-next-line no-undef
+        XMPlayer.speed = 1.0;
+      }
       stopMusic();
     }
   }
@@ -589,29 +574,29 @@ function pauseGame(): void {
 
 // Audio control functions
 function startMusic(): void {
-  if (!isMusicPlaying.get() && chiptunePlayer && musicBuffer) {
+  if (!isMusicPlaying.get() && musicBuffer) {
     try {
-      // Play the module directly
-      chiptunePlayer.play(musicBuffer);
+      // eslint-disable-next-line no-undef
+      XMPlayer.play();
       isMusicPlaying.set(true);
 
-      console.log('Chiptune2.js music started');
+      console.log('jsxm music started');
     } catch (error) {
-      console.error('Failed to start chiptune2.js music:', error);
+      console.error('Failed to start jsxm music:', error);
     }
   }
 }
 
 function stopMusic(): void {
-  if (isMusicPlaying.get() && chiptunePlayer) {
+  if (isMusicPlaying.get()) {
     try {
-      // Stop chiptune2.js player
-      chiptunePlayer.pause();
+      // eslint-disable-next-line no-undef
+      XMPlayer.pause();
       isMusicPlaying.set(false);
 
-      console.log('Chiptune2.js music stopped');
+      console.log('jsxm music paused');
     } catch (error) {
-      console.error('Failed to stop chiptune2.js music:', error);
+      console.error('Failed to pause jsxm music:', error);
     }
   }
 }
@@ -625,12 +610,12 @@ function updateMusicSpeed(): void {
   // Speed up slightly with each level
   speed += (currentLevel - 1) * 0.05;
 
-  // Speed up as board fills
-  speed += fillRatio * 5;
-
-  // Additional boost when fill is high
-  if (fillRatio > 0.6) {
-    speed * 2;
+  // Speed up based on board fill only when > 50% full
+  if (fillRatio > 0.5) {
+    // Start at 1.25x when 50% full, increase gradually after that
+    // At 50% fill: 1.25x, at 100% fill: 1.75x
+    const fillSpeedIncrease = 0.25 + (fillRatio - 0.5) * 1.0; // 0.25 at 50%, 0.75 at 100%
+    speed += fillSpeedIncrease;
   }
 
   // Clamp speed between 0.5x and 2.0x
@@ -639,11 +624,10 @@ function updateMusicSpeed(): void {
   if (speed !== musicSpeed.get()) {
     musicSpeed.set(speed);
 
-    // Restart playback to apply new speed
-    if (isMusicPlaying.get() && chiptunePlayer) {
-      // chiptunePlayer.stop();
-      chiptunePlayer.playbackRate = speed;
-      // chiptunePlayer.play(musicBuffer);
+    // Set the speed on the XMPlayer
+    if (typeof XMPlayer !== 'undefined') {
+      // eslint-disable-next-line no-undef
+      XMPlayer.speed = speed;
     }
 
     console.log(
@@ -652,50 +636,40 @@ function updateMusicSpeed(): void {
   }
 }
 
-// Function to create NES-style 3D block
-function createNESBlock(color: string): HTMLElement {
+// Function to create 3D Tetris block with same-color borders
+function createTetrisBlock(color: string): HTMLElement {
+  // Parse the hex color to create lighter and darker variants
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+
+  // Create lighter version for highlights (add 40 to each channel, max 255)
+  const lightR = Math.min(255, r + 40);
+  const lightG = Math.min(255, g + 40);
+  const lightB = Math.min(255, b + 40);
+  const lightColor = `rgb(${lightR}, ${lightG}, ${lightB})`;
+
+  // Create darker version for shadows (subtract 40 from each channel, min 0)
+  const darkR = Math.max(0, r - 40);
+  const darkG = Math.max(0, g - 40);
+  const darkB = Math.max(0, b - 40);
+  const darkColor = `rgb(${darkR}, ${darkG}, ${darkB})`;
+
   const block = div({
     style: {
       width: '20px',
       height: '20px',
       backgroundColor: color,
-      border: '1px solid #000',
       boxSizing: 'border-box',
       position: 'relative',
-      overflow: 'hidden',
+      // 3D border effect using the same color family
+      borderTop: `2px solid ${lightColor}`,
+      borderLeft: `2px solid ${lightColor}`,
+      borderRight: `2px solid ${darkColor}`,
+      borderBottom: `2px solid ${darkColor}`,
     },
   });
-
-  // Add very subtle white highlight (top-left corner) - much smaller
-  block.appendChild(
-    div({
-      style: {
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        width: '2px',
-        height: '2px',
-        backgroundColor: '#fff',
-        border: 'none',
-      },
-    }),
-  );
-
-  // Add very subtle dark shading (bottom-right corner) - much smaller
-  block.appendChild(
-    div({
-      style: {
-        position: 'absolute',
-        bottom: '0',
-        right: '0',
-        width: '2px',
-        height: '2px',
-        backgroundColor: '#000',
-        border: 'none',
-        opacity: '0.4',
-      },
-    }),
-  );
 
   return block;
 }
@@ -730,7 +704,8 @@ function GameBoard() {
     // Create board cells
     for (let y = 0; y < BOARD_HEIGHT; y++) {
       for (let x = 0; x < BOARD_WIDTH; x++) {
-        const isOccupied = board[y][x] === 1;
+        const cellType = board[y][x];
+        const isOccupied = cellType !== null;
         const isCurrentPiece =
           piece &&
           y >= piece.y &&
@@ -742,9 +717,9 @@ function GameBoard() {
         let cell: HTMLElement;
 
         if (isCurrentPiece) {
-          cell = createNESBlock(getTetrominoColor(piece!.type));
-        } else if (isOccupied) {
-          cell = createNESBlock('#0066cc'); // NES blue
+          cell = createTetrisBlock(getTetrominoColor(piece!.type));
+        } else if (isOccupied && cellType) {
+          cell = createTetrisBlock(getTetrominoColor(cellType));
         } else {
           cell = div({
             style: {
@@ -783,7 +758,7 @@ function NextPiece() {
       for (let x = 0; x < 4; x++) {
         const isOccupied = piece.shape[y]?.[x] === 1;
         const cell = isOccupied
-          ? createNESBlock(getTetrominoColor(piece.type))
+          ? createTetrisBlock(getTetrominoColor(piece.type))
           : div({
               style: {
                 width: '100%',
@@ -816,7 +791,7 @@ function StatisticsPanel() {
       for (let x = 0; x < 4; x++) {
         const isOccupied = piece[y]?.[x] === 1;
         const cell = isOccupied
-          ? createSmallNESBlock(getTetrominoColor(type as TetrominoType))
+          ? createSmallTetrisBlock(getTetrominoColor(type as TetrominoType))
           : div({
               style: {
                 width: '100%',
@@ -843,34 +818,40 @@ function StatisticsPanel() {
   );
 }
 
-// Function to create small NES-style blocks for statistics
-function createSmallNESBlock(color: string): HTMLElement {
+// Function to create small 3D Tetris blocks for statistics
+function createSmallTetrisBlock(color: string): HTMLElement {
+  // Parse the hex color to create lighter and darker variants
+  const hex = color.replace('#', '');
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+
+  // Create lighter version for highlights
+  const lightR = Math.min(255, r + 30);
+  const lightG = Math.min(255, g + 30);
+  const lightB = Math.min(255, b + 30);
+  const lightColor = `rgb(${lightR}, ${lightG}, ${lightB})`;
+
+  // Create darker version for shadows
+  const darkR = Math.max(0, r - 30);
+  const darkG = Math.max(0, g - 30);
+  const darkB = Math.max(0, b - 30);
+  const darkColor = `rgb(${darkR}, ${darkG}, ${darkB})`;
+
   const block = div({
     style: {
       width: '100%',
       height: '100%',
       backgroundColor: color,
-      border: '1px solid #000',
       boxSizing: 'border-box',
       position: 'relative',
-      overflow: 'hidden',
+      // 3D border effect using the same color family
+      borderTop: `1px solid ${lightColor}`,
+      borderLeft: `1px solid ${lightColor}`,
+      borderRight: `1px solid ${darkColor}`,
+      borderBottom: `1px solid ${darkColor}`,
     },
   });
-
-  // Add very subtle white highlight - even smaller for stats
-  block.appendChild(
-    div({
-      style: {
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        width: '1px',
-        height: '1px',
-        backgroundColor: '#fff',
-        border: 'none',
-      },
-    }),
-  );
 
   return block;
 }
